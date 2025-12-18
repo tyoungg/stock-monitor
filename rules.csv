@@ -1,0 +1,4 @@
+symbol,low,high,pct_up,pct_down,webhook
+AAPL,150,200,3,3,
+TSLA,150,300,5,5,
+MSFT,220,350,2,2,

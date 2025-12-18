@@ -1,0 +1,35 @@
+[
+  {
+    "symbol": "AAPL",
+    "triggers": [
+      "price >= high (268.74 >= 200.0)"
+    ],
+    "price": 268.74,
+    "prev_close": 272.23,
+    "change": -1.28,
+    "text": "ALERT for AAPL: price >= high (268.74 >= 200.0)\nPrice: 268.74 | Prev close: 272.23 | Change: -1.28%",
+    "severity": "info"
+  },
+  {
+    "symbol": "TSLA",
+    "triggers": [
+      "price >= high (474.15 >= 300.0)"
+    ],
+    "price": 474.15,
+    "prev_close": 467.4,
+    "change": 1.44,
+    "text": "ALERT for TSLA: price >= high (474.15 >= 300.0)\nPrice: 474.15 | Prev close: 467.40 | Change: 1.44%",
+    "severity": "info"
+  },
+  {
+    "symbol": "MSFT",
+    "triggers": [
+      "price >= high (480.08 >= 350.0)"
+    ],
+    "price": 480.08,
+    "prev_close": 477.1,
+    "change": 0.62,
+    "text": "ALERT for MSFT: price >= high (480.08 >= 350.0)\nPrice: 480.08 | Prev close: 477.10 | Change: 0.62%",
+    "severity": "info"
+  }
+]

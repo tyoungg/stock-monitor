@@ -1,0 +1,104 @@
+name: Stock Monitor
+
+on:
+  schedule:
+    # every hour (adjust cron for desired cadence and timezone)
+    - cron: '0 * * * *'
+  workflow_dispatch:
+    inputs:
+      stocks:
+        description: 'Comma-separated list of stock symbols to monitor'
+        required: false
+        default: ''
+      default_pct_up:
+        description: 'Default percent-up threshold to apply to stocks provided via `stocks` input or stocks.txt'
+        required: false
+        default: ''
+      default_pct_down:
+        description: 'Default percent-down threshold to apply to stocks provided via `stocks` input or stocks.txt'
+        required: false
+        default: ''
+
+env:
+  DEFAULT_WEBHOOK: ${{ secrets.STOCK_MONITOR_WEBHOOK }}
+
+jobs:
+  monitor:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Run stock monitor
+        id: run_monitor
+        env:
+          DEFAULT_WEBHOOK: ${{ env.DEFAULT_WEBHOOK }}
+          STOCK_LIST: ${{ github.event.inputs.stocks }}
+          DEFAULT_PCT_UP: ${{ github.event.inputs.default_pct_up }}
+          DEFAULT_PCT_DOWN: ${{ github.event.inputs.default_pct_down }}
+        run: |
+          python monitor.py
+
+      - name: Prepare alerts output
+        id: prepare
+        run: |
+          if [ -f alerts.json ]; then
+            # Create a text summary for the GitHub output
+            ALERTS_TEXT=$(python - <<'PY'
+import json
+alerts=json.load(open('alerts.json'))
+print('\n\n'.join(a.get('text','') for a in alerts))
+PY
+)
+            echo "alerts<<EOF" >> $GITHUB_OUTPUT
+            echo "$ALERTS_TEXT" >> $GITHUB_OUTPUT
+            echo "EOF" >> $GITHUB_OUTPUT
+          else
+            echo "alerts=" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Upload alerts artifact
+        if: steps.prepare.outputs.alerts != ''
+        uses: actions/upload-artifact@v4
+        with:
+          name: alerts-json
+          path: alerts.json
+
+      - name: Send Discord embeds
+        if: steps.prepare.outputs.alerts != ''
+        env:
+          WEBHOOK: ${{ secrets.discord_webhook || secrets.STOCK_MONITOR_WEBHOOK }}
+        run: |
+          python - <<'PY'
+import json,sys
+alerts=json.load(open('alerts.json'))
+embeds=[]
+for a in alerts:
+    title=f"{a.get('symbol')} alert"
+    desc=a.get('text','')
+    color=3066993
+    if a.get('severity')=='down':
+        color=15158332
+    elif a.get('severity')=='up':
+        color=3066993
+    embeds.append({
+        'title': title,
+        'description': desc,
+        'color': color
+    })
+payload={'embeds': embeds}
+print(json.dumps(payload))
+open('discord_payload.json','w').write(json.dumps(payload))
+PY
+          # post to webhook
+          curl -s -H "Content-Type: application/json" -d @discord_payload.json "$WEBHOOK" >/dev/null
