@@ -51,19 +51,10 @@ jobs:
 
       - name: Prepare alerts output
         id: prepare
-         if [ -f alerts.json ]; then
-          # Create a text summary for the GitHub output
-          ALERTS_TEXT=$(python -c "import json; alerts=json.load(open('alerts.json')); print('\\n\\n'.join(a.get('text','') for a in alerts))")
-      echo "alerts<<EOF" >> $GITHUB_OUTPUT
-      echo "$ALERTS_TEXT" >> $GITHUB_OUTPUT
-      echo "EOF" >> $GITHUB_OUTPUT
-    else
-      echo "alerts=" >> $GITHUB_OUTPUT
-import json
-alerts=json.load(open('alerts.json'))
-print('\n\n'.join(a.get('text','') for a in alerts))
-PY
-)
+        run: |
+          if [ -f alerts.json ]; then
+            # Create a text summary for the GitHub output
+            ALERTS_TEXT=$(python -c "import json; alerts=json.load(open('alerts.json')); print('\\n\\n'.join(a.get('text','') for a in alerts))")
             echo "alerts<<EOF" >> $GITHUB_OUTPUT
             echo "$ALERTS_TEXT" >> $GITHUB_OUTPUT
             echo "EOF" >> $GITHUB_OUTPUT
