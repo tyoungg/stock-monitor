@@ -1,115 +1,158 @@
-name: Stock Monitor
+import os
+import json
+import sys
+from datetime import datetime, time, timedelta
+from zoneinfo import ZoneInfo
 
-on:
-  schedule:
-    - cron: '0 * * * *'
-  workflow_dispatch:
-    inputs:
-      stocks:
-        description: 'Comma-separated list of stock symbols'
-        required: false
-        default: ''
-      default_pct_up:
-        description: 'Default percent-up threshold'
-        required: false
-        default: ''
-      default_pct_down:
-        description: 'Default percent-down threshold'
-        required: false
-        default: ''
+import yfinance as yf
 
-env:
-  DEFAULT_WEBHOOK: ${{ secrets.STOCK_MONITOR_WEBHOOK }}
+# ---------------- CONFIG ---------------- #
 
-jobs:
-  monitor:
-    runs-on: ubuntu-latest
+EASTERN = ZoneInfo("US/Eastern")
+NOW = datetime.now(EASTERN)
+TODAY = NOW.strftime("%Y-%m-%d")
 
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+MARKET_OPEN = time(9, 30)
+MARKET_CLOSE = time(16, 0)
 
-      - name: Setup Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: '3.11'
+STATE_DIR = "state"
+os.makedirs(STATE_DIR, exist_ok=True)
 
-      - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install -r requirements.txt
+SENT_ALERTS_FILE = os.path.join(STATE_DIR, f"sent_alerts_{TODAY}.json")
+DAILY_RECAP_FILE = os.path.join(STATE_DIR, f"daily_recap_{TODAY}.json")
 
-      - name: Run stock monitor
-        id: run_monitor
-        env:
-          DEFAULT_WEBHOOK: ${{ env.DEFAULT_WEBHOOK }}
-          STOCK_LIST: ${{ github.event.inputs.stocks }}
-          DEFAULT_PCT_UP: ${{ github.event.inputs.default_pct_up }}
-          DEFAULT_PCT_DOWN: ${{ github.event.inputs.default_pct_down }}
-        run: python monitor.py || true
+DEFAULT_PCT_UP = float(os.getenv("DEFAULT_PCT_UP") or 0)
+DEFAULT_PCT_DOWN = float(os.getenv("DEFAULT_PCT_DOWN") or 0)
 
-      - name: Prepare alerts output
-        id: prepare
-        run: |
-          if [ -f alerts.json ]; then
-            python - <<'PY'
-            import json
-            alerts = json.load(open("alerts.json"))
-            with open("alerts.txt","w",encoding="utf-8") as f:
-                f.write("\n\n".join(a.get("text","") for a in alerts))
-            PY
-            echo "alerts<<EOF" >> $GITHUB_OUTPUT
-            cat alerts.txt >> $GITHUB_OUTPUT
-            echo "EOF" >> $GITHUB_OUTPUT
-          else
-            echo "alerts=" >> $GITHUB_OUTPUT
+# ---------------- HELPERS ---------------- #
 
-      - name: Upload alerts artifact
-        if: steps.prepare.outputs.alerts != ''
-        uses: actions/upload-artifact@v4
-        with:
-          name: alerts-json
-          path: alerts.json
+def in_market_hours():
+    return MARKET_OPEN <= NOW.time() <= MARKET_CLOSE
 
-      - name: Send Discord embeds
-        if: steps.prepare.outputs.alerts != ''
-        env:
-          WEBHOOK: ${{ secrets.DISCORD_WEBHOOK_URL || secrets.STOCK_MONITOR_WEBHOOK }}
-        run: |
-          python - <<'PY'
-          import json, requests
+def load_json(path, default):
+    if os.path.exists(path):
+        with open(path, "r", encoding="utf-8") as f:
+            return json.load(f)
+    return default
 
-          def chunks(lst,n):
-              for i in range(0,len(lst),n):
-                  yield lst[i:i+n]
+def save_json(path, data):
+    with open(path, "w", encoding="utf-8") as f:
+        json.dump(data, f, indent=2)
 
-          alerts = json.load(open("alerts.json"))
-          embeds = []
-          for a in alerts:
-              color = 3066993
-              if a.get("severity")=="down": color=15158332
-              embeds.append({
-                  "title": f"{a.get('symbol')} alert",
-                  "description": a.get("text","")[:4000],
-                  "color": color
-              })
-          for batch in chunks(embeds,10):
-              requests.post("${WEBHOOK}", json={"embeds": batch}, timeout=10)
-          PY
+# ---------------- LOAD STATE ---------------- #
 
-      - name: Send market close recap
-        if: always()
-        env:
-          WEBHOOK: ${{ secrets.DISCORD_WEBHOOK_URL || secrets.STOCK_MONITOR_WEBHOOK }}
-        run: |
-          if [ -f recap.json ]; then
-            python - <<'PY'
-            import json, requests
-            recap = json.load(open("recap.json"))
-            embed = {
-                "title": recap["title"],
-                "description": "\n".join(recap["lines"])[:4000],
-                "color": 3447003
-            }
-            requests.post("${WEBHOOK}", json={"embeds":[embed]}, timeout=10)
-            PY
+sent_alerts = load_json(SENT_ALERTS_FILE, {})
+daily_recap = load_json(DAILY_RECAP_FILE, {})
+
+alerts = []
+
+# ---------------- LOAD SYMBOLS ---------------- #
+
+symbols = set()
+
+if os.getenv("STOCK_LIST"):
+    symbols |= {s.strip().upper() for s in os.getenv("STOCK_LIST").split(",") if s.strip()}
+
+if os.path.exists("stocks.txt"):
+    with open("stocks.txt", "r", encoding="utf-8") as f:
+        symbols |= {line.strip().upper() for line in f if line.strip()}
+
+if not symbols:
+    print("No symbols configured — exiting cleanly.")
+    sys.exit(0)
+
+# ---------------- FETCH PRICES ---------------- #
+
+data = yf.download(
+    tickers=" ".join(symbols),
+    period="1d",
+    interval="1m",
+    group_by="ticker",
+    progress=False
+)
+
+# ---------------- PROCESS SYMBOLS ---------------- #
+
+for symbol in symbols:
+    try:
+        df = data[symbol] if len(symbols) > 1 else data
+        last = df.iloc[-1]
+        price = float(last["Close"])
+
+        prev_close = yf.Ticker(symbol).info.get("previousClose")
+        if not prev_close:
+            continue
+
+        pct_change = ((price - prev_close) / prev_close) * 100
+
+        triggered = False
+        severity = None
+
+        if DEFAULT_PCT_UP and pct_change >= DEFAULT_PCT_UP:
+            triggered = True
+            severity = "up"
+
+        if DEFAULT_PCT_DOWN and pct_change <= -DEFAULT_PCT_DOWN:
+            triggered = True
+            severity = "down"
+
+        if not triggered:
+            continue
+
+        # ---- DAILY DEDUP ----
+        if sent_alerts.get(symbol):
+            continue
+
+        text = (
+            f"**{symbol}**\n"
+            f"Price: `{price:.2f}`\n"
+            f"Δ: `{pct_change:.2f}%`"
+        )
+
+        alert = {
+            "symbol": symbol,
+            "price": price,
+            "pct_change": pct_change,
+            "severity": severity,
+            "text": text,
+            "timestamp": NOW.isoformat()
+        }
+
+        # ---- MARKET HOURS OR RECAP ----
+        if in_market_hours():
+            alerts.append(alert)
+            sent_alerts[symbol] = NOW.isoformat()
+        else:
+            daily_recap[symbol] = alert
+
+    except Exception as e:
+        print(f"Error processing {symbol}: {e}")
+
+# ---------------- END-OF-DAY RECAP ---------------- #
+
+# Fire recap only once, after market close
+if NOW.time() > MARKET_CLOSE and daily_recap:
+    if not os.path.exists(f"{DAILY_RECAP_FILE}.sent"):
+        recap_text = "**Market Close Recap**\n\n"
+        for a in daily_recap.values():
+            recap_text += f"{a['text']}\n\n"
+
+        alerts.append({
+            "symbol": "RECAP",
+            "severity": "info",
+            "text": recap_text
+        })
+
+        open(f"{DAILY_RECAP_FILE}.sent", "w").close()
+
+# ---------------- WRITE OUTPUT ---------------- #
+
+if alerts:
+    with open("alerts.json", "w", encoding="utf-8") as f:
+        json.dump(alerts, f, indent=2)
+
+save_json(SENT_ALERTS_FILE, sent_alerts)
+save_json(DAILY_RECAP_FILE, daily_recap)
+
+print(f"Completed run at {NOW.isoformat()} — alerts: {len(alerts)}")
+sys.exit(0)
