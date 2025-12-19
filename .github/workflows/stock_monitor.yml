@@ -1,158 +1,77 @@
-import os
-import json
-import sys
-from datetime import datetime, time, timedelta
-from zoneinfo import ZoneInfo
+name: Stock Monitor
 
-import yfinance as yf
+on:
+  schedule:
+    - cron: '0 * * * *'   # hourly
+  workflow_dispatch:
+    inputs:
+      stocks:
+        description: 'Comma-separated stock symbols'
+        required: false
+        default: ''
+      default_pct_up:
+        description: 'Percent up threshold'
+        required: false
+        default: ''
+      default_pct_down:
+        description: 'Percent down threshold'
+        required: false
+        default: ''
 
-# ---------------- CONFIG ---------------- #
+env:
+  DEFAULT_WEBHOOK: ${{ secrets.STOCK_MONITOR_WEBHOOK }}
 
-EASTERN = ZoneInfo("US/Eastern")
-NOW = datetime.now(EASTERN)
-TODAY = NOW.strftime("%Y-%m-%d")
+jobs:
+  monitor:
+    runs-on: ubuntu-latest
 
-MARKET_OPEN = time(9, 30)
-MARKET_CLOSE = time(16, 0)
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-STATE_DIR = "state"
-os.makedirs(STATE_DIR, exist_ok=True)
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
 
-SENT_ALERTS_FILE = os.path.join(STATE_DIR, f"sent_alerts_{TODAY}.json")
-DAILY_RECAP_FILE = os.path.join(STATE_DIR, f"daily_recap_{TODAY}.json")
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install yfinance requests
 
-DEFAULT_PCT_UP = float(os.getenv("DEFAULT_PCT_UP") or 0)
-DEFAULT_PCT_DOWN = float(os.getenv("DEFAULT_PCT_DOWN") or 0)
+      - name: Run stock monitor
+        env:
+          STOCK_LIST: ${{ github.event.inputs.stocks }}
+          DEFAULT_PCT_UP: ${{ github.event.inputs.default_pct_up }}
+          DEFAULT_PCT_DOWN: ${{ github.event.inputs.default_pct_down }}
+        run: |
+          python monitor.py
 
-# ---------------- HELPERS ---------------- #
+      - name: Send Discord alerts
+        if: ${{ hashFiles('alerts.json') != '' }}
+        env:
+          WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
+        run: |
+          python - <<'PY'
+          import json, requests
 
-def in_market_hours():
-    return MARKET_OPEN <= NOW.time() <= MARKET_CLOSE
+          with open("alerts.json") as f:
+              alerts = json.load(f)
 
-def load_json(path, default):
-    if os.path.exists(path):
-        with open(path, "r", encoding="utf-8") as f:
-            return json.load(f)
-    return default
+          embeds = []
+          for a in alerts:
+              color = 3447003
+              if a.get("severity") == "down":
+                  color = 15158332
+              elif a.get("severity") == "up":
+                  color = 3066993
 
-def save_json(path, data):
-    with open(path, "w", encoding="utf-8") as f:
-        json.dump(data, f, indent=2)
+              embeds.append({
+                  "title": a.get("symbol"),
+                  "description": a.get("text"),
+                  "color": color
+              })
 
-# ---------------- LOAD STATE ---------------- #
-
-sent_alerts = load_json(SENT_ALERTS_FILE, {})
-daily_recap = load_json(DAILY_RECAP_FILE, {})
-
-alerts = []
-
-# ---------------- LOAD SYMBOLS ---------------- #
-
-symbols = set()
-
-if os.getenv("STOCK_LIST"):
-    symbols |= {s.strip().upper() for s in os.getenv("STOCK_LIST").split(",") if s.strip()}
-
-if os.path.exists("stocks.txt"):
-    with open("stocks.txt", "r", encoding="utf-8") as f:
-        symbols |= {line.strip().upper() for line in f if line.strip()}
-
-if not symbols:
-    print("No symbols configured — exiting cleanly.")
-    sys.exit(0)
-
-# ---------------- FETCH PRICES ---------------- #
-
-data = yf.download(
-    tickers=" ".join(symbols),
-    period="1d",
-    interval="1m",
-    group_by="ticker",
-    progress=False
-)
-
-# ---------------- PROCESS SYMBOLS ---------------- #
-
-for symbol in symbols:
-    try:
-        df = data[symbol] if len(symbols) > 1 else data
-        last = df.iloc[-1]
-        price = float(last["Close"])
-
-        prev_close = yf.Ticker(symbol).info.get("previousClose")
-        if not prev_close:
-            continue
-
-        pct_change = ((price - prev_close) / prev_close) * 100
-
-        triggered = False
-        severity = None
-
-        if DEFAULT_PCT_UP and pct_change >= DEFAULT_PCT_UP:
-            triggered = True
-            severity = "up"
-
-        if DEFAULT_PCT_DOWN and pct_change <= -DEFAULT_PCT_DOWN:
-            triggered = True
-            severity = "down"
-
-        if not triggered:
-            continue
-
-        # ---- DAILY DEDUP ----
-        if sent_alerts.get(symbol):
-            continue
-
-        text = (
-            f"**{symbol}**\n"
-            f"Price: `{price:.2f}`\n"
-            f"Δ: `{pct_change:.2f}%`"
-        )
-
-        alert = {
-            "symbol": symbol,
-            "price": price,
-            "pct_change": pct_change,
-            "severity": severity,
-            "text": text,
-            "timestamp": NOW.isoformat()
-        }
-
-        # ---- MARKET HOURS OR RECAP ----
-        if in_market_hours():
-            alerts.append(alert)
-            sent_alerts[symbol] = NOW.isoformat()
-        else:
-            daily_recap[symbol] = alert
-
-    except Exception as e:
-        print(f"Error processing {symbol}: {e}")
-
-# ---------------- END-OF-DAY RECAP ---------------- #
-
-# Fire recap only once, after market close
-if NOW.time() > MARKET_CLOSE and daily_recap:
-    if not os.path.exists(f"{DAILY_RECAP_FILE}.sent"):
-        recap_text = "**Market Close Recap**\n\n"
-        for a in daily_recap.values():
-            recap_text += f"{a['text']}\n\n"
-
-        alerts.append({
-            "symbol": "RECAP",
-            "severity": "info",
-            "text": recap_text
-        })
-
-        open(f"{DAILY_RECAP_FILE}.sent", "w").close()
-
-# ---------------- WRITE OUTPUT ---------------- #
-
-if alerts:
-    with open("alerts.json", "w", encoding="utf-8") as f:
-        json.dump(alerts, f, indent=2)
-
-save_json(SENT_ALERTS_FILE, sent_alerts)
-save_json(DAILY_RECAP_FILE, daily_recap)
-
-print(f"Completed run at {NOW.isoformat()} — alerts: {len(alerts)}")
-sys.exit(0)
+          payload = {"embeds": embeds[:10]}
+          requests.post(WEBHOOK, json=payload, timeout=10)
+          PY
