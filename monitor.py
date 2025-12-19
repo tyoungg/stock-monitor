@@ -10,224 +10,115 @@ Environment:
   DEFAULT_WEBHOOK - fallback webhook URL used if rule row has no webhook
 """
 
-import csv
-import os
-import sys
+import pandas as pd
+import yfinance as yf
 import json
-import logging
-from typing import Optional, Dict, Any, List
+import os
+from datetime import date
 
-# Friendly import-check: print guidance and exit if required third-party packages are missing.
-_missing = []
-try:
-    import requests
-except Exception:
-    _missing.append("requests")
+RULES_FILE = "rules.csv"
+STATE_FILE = "alert_state.json"
 
-try:
-    import yfinance as yf
-except Exception:
-    _missing.append("yfinance")
+INDEX_MAP = {
+    "SPX": "^GSPC",
+    "VIX": "^VIX",
+    "COMP.IDX": "^IXIC",
+    "DJIND": "^DJI"
+}
 
-if _missing:
-    print("Missing required Python packages: " + ", ".join(_missing))
-    print("Install them with:\n\n  python -m pip install --upgrade pip\n  python -m pip install -r requirements.txt\n\nOr install specific packages: python -m pip install yfinance pandas requests")
-    sys.exit(1)
+def normalize_symbol(sym):
+    return INDEX_MAP.get(sym, sym)
 
-logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
+def load_rules():
+    return pd.read_csv(RULES_FILE)
 
-RULES_FILE = os.environ.get("RULES_FILE", "rules.csv")
-DEFAULT_WEBHOOK = os.environ.get("DEFAULT_WEBHOOK")
-STOCK_LIST_ENV = os.environ.get("STOCK_LIST", "")  # comma-separated list
-DEFAULT_PCT_UP = os.environ.get("DEFAULT_PCT_UP")
-DEFAULT_PCT_DOWN = os.environ.get("DEFAULT_PCT_DOWN")
-ALERTS_FILE = "alerts.json"
+def load_state():
+    if os.path.exists(STATE_FILE):
+        return json.load(open(STATE_FILE))
+    return {}
 
+def save_state(state):
+    json.dump(state, open(STATE_FILE, "w"))
 
-def safe_float(s: str) -> Optional[float]:
-    if s is None:
-        return None
-    s = s.strip()
-    if s == "":
-        return None
-    try:
-        return float(s)
-    except Exception:
-        return None
+def fetch_prices(symbols):
+    data = yf.download(
+        symbols,
+        period="2d",
+        interval="1d",
+        auto_adjust=True,
+        group_by="ticker",
+        progress=False
+    )
+    return data
 
+def get_metrics(data, sym):
+    df = data[sym]
+    last = df["Close"].iloc[-1]
+    prev = df["Close"].iloc[-2]
+    pct = (last - prev) / prev * 100
+    return round(last, 2), round(pct, 2)
 
-def fetch_price_and_prev_close(symbol: str) -> Optional[Dict[str, float]]:
-    try:
-        t = yf.Ticker(symbol)
-        # try fast_info if available
-        price = None
-        prev_close = None
-        try:
-            fi = t.fast_info
-            price = fi.get("lastPrice") or fi.get("last")
-            prev_close = fi.get("previousClose")
-        except Exception:
-            pass
+def main():
+    rules = load_rules()
+    state = load_state()
+    today = str(date.today())
 
-        # fallback to history
-        hist = t.history(period="3d", interval="1d")
-        if hist is not None and len(hist) >= 1:
-            last_close = hist["Close"].iloc[-1]
-            price = price or float(last_close)
-            if len(hist) >= 2:
-                prev_close = prev_close or float(hist["Close"].iloc[-2])
+    rules["yf_symbol"] = rules["ticker"].apply(normalize_symbol)
+    symbols = rules["yf_symbol"].unique().tolist()
 
-        if price is None or prev_close is None:
-            # try info dict
-            info = t.info
-            price = price or info.get("regularMarketPrice")
-            prev_close = prev_close or info.get("previousClose")
+    prices = fetch_prices(symbols)
 
-        if price is None or prev_close is None:
-            logging.warning("Could not determine price or previous close for %s", symbol)
-            return None
+    alerts = []
 
-        return {"price": float(price), "prev_close": float(prev_close)}
-    except Exception as e:
-        logging.exception("Error fetching data for %s: %s", symbol, e)
-        return None
+    for _, r in rules.iterrows():
+        price, pct = get_metrics(prices, r.yf_symbol)
+        triggered = False
+        severity = None
 
+        if r.rule_type == "Low Target" and price <= r.threshold:
+            triggered, severity = True, "down"
+        elif r.rule_type == "High Target" and price >= r.threshold:
+            triggered, severity = True, "up"
+        elif r.rule_type == "Daily % Up" and pct >= r.threshold:
+            triggered, severity = True, "up"
+        elif r.rule_type == "Daily % Down" and pct <= -r.threshold:
+            triggered, severity = True, "down"
 
-def send_webhook(webhook: str, message: str) -> bool:
-    try:
-        payload = {"text": message}
-        resp = requests.post(webhook, json=payload, timeout=10)
-        if resp.status_code >= 200 and resp.status_code < 300:
-            logging.info("Sent webhook (status %s)", resp.status_code)
-            return True
-        else:
-            logging.warning("Webhook responded %s: %s", resp.status_code, resp.text[:200])
-            return False
-    except Exception as e:
-        logging.exception("Error sending webhook: %s", e)
-        return False
+        if not triggered:
+            continue
 
+        fingerprint = f"{r.ticker}|{r.rule_type}|{r.threshold}"
 
-def evaluate_row(row: Dict[str, str]) -> Optional[str]:
-    symbol = row.get("symbol")
-    if not symbol:
-        return None
+        # Dedup: only alert once per day per fingerprint
+        if state.get(fingerprint) == today:
+            continue
 
-    low = safe_float(row.get("low"))
-    high = safe_float(row.get("high"))
-    pct_up = safe_float(row.get("pct_up"))
-    pct_down = safe_float(row.get("pct_down"))
-    webhook = row.get("webhook") or None
-
-    data = fetch_price_and_prev_close(symbol)
-    if data is None:
-        return None
-
-    price = data["price"]
-    prev_close = data["prev_close"]
-    change = (price - prev_close) / prev_close * 100.0
-
-    triggers: List[str] = []
-    if low is not None and price <= low:
-        triggers.append(f"price <= low ({price:.2f} <= {low})")
-    if high is not None and price >= high:
-        triggers.append(f"price >= high ({price:.2f} >= {high})")
-    if pct_up is not None and change >= pct_up:
-        triggers.append(f"up >= {pct_up}% ({change:.2f}%)")
-    if pct_down is not None and change <= -abs(pct_down):
-        triggers.append(f"down >= {pct_down}% ({change:.2f}%)")
-
-    if triggers:
         text = (
-            f"ALERT for {symbol}: {', '.join(triggers)}\n"
-            f"Price: {price:.2f} | Prev close: {prev_close:.2f} | Change: {change:.2f}%"
+            f"**{r.ticker}** — {r.rule_type}\n"
+            f"Threshold: `{r.threshold}`\n"
+            f"Price: `{price}` | %Δ: `{pct}`"
         )
-        # Return a structured alert dict so the workflow can format Discord embeds.
-        severity = "info"
-        if any("down" in t for t in triggers):
-            severity = "down"
-        elif any("up" in t for t in triggers):
-            severity = "up"
 
-        return {
-            "symbol": symbol,
-            "triggers": triggers,
-            "price": round(price, 2),
-            "prev_close": round(prev_close, 2),
-            "change": round(change, 2),
-            "text": text,
+        alerts.append({
+            "symbol": r.ticker,
+            "rule": r.rule_type,
+            "threshold": r.threshold,
+            "price": price,
+            "pct_change": pct,
             "severity": severity,
-        }
-
-    return None
-
-
-def main() -> int:
-    if not os.path.exists(RULES_FILE):
-        logging.error("Rules file not found: %s", RULES_FILE)
-        return 1
-
-    # Load rules from CSV
-    rows: List[Dict[str, str]] = []
-    with open(RULES_FILE, newline="", encoding="utf-8") as f:
-        reader = csv.DictReader(f)
-        for row in reader:
-            rows.append(row)
-
-    # Build lookup and optionally add symbols from STOCK_LIST env or `stocks.txt`
-    existing = {row.get("symbol", "").upper(): row for row in rows if row.get("symbol")}
-
-    stocks_from_env = [s.strip().upper() for s in STOCK_LIST_ENV.split(",") if s.strip()] if STOCK_LIST_ENV else []
-    stocks_from_file = []
-    if os.path.exists("stocks.txt"):
-        with open("stocks.txt", "r", encoding="utf-8") as sf:
-            for line in sf:
-                s = line.strip().upper()
-                if s:
-                    stocks_from_file.append(s)
-
-    combined_stocks = []
-    for s in stocks_from_env + stocks_from_file:
-        if s and s not in existing:
-            combined_stocks.append(s)
-
-    # If defaults provided, use them for any new stock entries
-    for s in combined_stocks:
-        rows.append({
-            "symbol": s,
-            "low": "",
-            "high": "",
-            "pct_up": (DEFAULT_PCT_UP or "") if DEFAULT_PCT_UP else "",
-            "pct_down": (DEFAULT_PCT_DOWN or "") if DEFAULT_PCT_DOWN else "",
-            "webhook": "",
+            "text": text,
+            "fingerprint": fingerprint
         })
 
-    alerts: List[Dict[str, Any]] = []
-    for row in rows:
-        try:
-            alert = evaluate_row(row)
-            if alert:
-                alerts.append(alert)
-        except Exception:
-            logging.exception("Error evaluating row: %s", row)
+        state[fingerprint] = today
 
-    # Write structured alerts.json for the workflow to consume
     if alerts:
-        with open(ALERTS_FILE, "w", encoding="utf-8") as af:
-            json.dump(alerts, af, ensure_ascii=False, indent=2)
-        # Also print textual summaries for logs
-        for a in alerts:
-            print(a.get("text") if isinstance(a, dict) else str(a))
-        return 0
-    else:
-        if os.path.exists(ALERTS_FILE):
-            try:
-                os.remove(ALERTS_FILE)
-            except Exception:
-                pass
-        logging.info("No alerts triggered")
-        return 0
+        json.dump(alerts, open("alerts.json", "w"), indent=2)
+        save_state(state)
+        print(f"🚨 {len(alerts)} alert(s) triggered")
+        raise SystemExit(1)
 
+    print("✅ No alerts")
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()
