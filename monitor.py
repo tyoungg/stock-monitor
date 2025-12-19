@@ -1,169 +1,247 @@
 """
-Stock monitor script with market-hours logic and structured alerts.
+Stock monitor with daily deduplication and market-close recap.
 
-Reads rules from CSV
-Fetches prices via yfinance
-Writes alerts.json when triggers occur
+Features:
+- Read rules from `rules.csv`
+- Hourly alerts with deduplication per day
+- Market-close recap message to Discord
 """
 
-import csv
-import os
-import sys
-import json
-import logging
+import csv, os, sys, json, logging
 from typing import Optional, Dict, Any, List
 from datetime import datetime, time
-from zoneinfo import ZoneInfo
 
-# ---- dependency checks ----
+# Third-party imports
 _missing = []
 try:
     import requests
 except Exception:
     _missing.append("requests")
-
 try:
     import yfinance as yf
 except Exception:
     _missing.append("yfinance")
 
 if _missing:
-    print("Missing packages:", ", ".join(_missing))
+    print("Missing required packages:", ", ".join(_missing))
     sys.exit(1)
 
 logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
 
+# --- Config ---
 RULES_FILE = os.environ.get("RULES_FILE", "rules.csv")
+DEFAULT_WEBHOOK = os.environ.get("DEFAULT_WEBHOOK")
+STOCK_LIST_ENV = os.environ.get("STOCK_LIST", "")
+DEFAULT_PCT_UP = os.environ.get("DEFAULT_PCT_UP")
+DEFAULT_PCT_DOWN = os.environ.get("DEFAULT_PCT_DOWN")
 ALERTS_FILE = "alerts.json"
+STATE_FILE = "alert_state.json"
+RECAP_FILE = "daily_recap.json"
+TODAY = datetime.utcnow().strftime("%Y-%m-%d")
 
-
-# ---------------- helpers ----------------
-
+# --- Helpers ---
 def safe_float(s: str) -> Optional[float]:
+    if s is None:
+        return None
+    s = s.strip()
+    if s == "":
+        return None
     try:
-        return float(s) if s not in ("", None) else None
-    except Exception:
+        return float(s)
+    except:
         return None
 
-
-def is_market_open() -> bool:
-    now = datetime.now(ZoneInfo("US/Eastern"))
-
-    # Mon–Fri only
-    if now.weekday() >= 5:
-        return False
-
-    return time(9, 30) <= now.time() <= time(16, 0)
-
-
-def fetch_price(symbol: str) -> Optional[Dict[str, float]]:
+def fetch_price_and_prev_close(symbol: str) -> Optional[Dict[str, float]]:
     try:
         t = yf.Ticker(symbol)
-
+        price = prev_close = None
         try:
             fi = t.fast_info
             price = fi.get("lastPrice") or fi.get("last")
-            prev = fi.get("previousClose")
-        except Exception:
-            price = prev = None
-
-        hist = t.history(period="3d")
-        if hist is not None and len(hist) >= 2:
-            price = price or float(hist["Close"].iloc[-1])
-            prev = prev or float(hist["Close"].iloc[-2])
-
-        if price is None or prev is None:
+            prev_close = fi.get("previousClose")
+        except: pass
+        hist = t.history(period="3d", interval="1d")
+        if hist is not None and len(hist) >= 1:
+            last_close = hist["Close"].iloc[-1]
+            price = price or float(last_close)
+            if len(hist) >= 2:
+                prev_close = prev_close or float(hist["Close"].iloc[-2])
+        if price is None or prev_close is None:
+            info = t.info
+            price = price or info.get("regularMarketPrice")
+            prev_close = prev_close or info.get("previousClose")
+        if price is None or prev_close is None:
+            logging.warning("Could not determine price for %s", symbol)
             return None
-
-        return {"price": float(price), "prev": float(prev)}
-    except Exception:
-        logging.exception("Price fetch failed for %s", symbol)
+        return {"price": float(price), "prev_close": float(prev_close)}
+    except Exception as e:
+        logging.exception("Error fetching %s: %s", symbol, e)
         return None
 
+def send_webhook(webhook: str, message: str) -> bool:
+    try:
+        resp = requests.post(webhook, json={"text": message}, timeout=10)
+        return resp.status_code >= 200 and resp.status_code < 300
+    except:
+        logging.exception("Webhook error")
+        return False
 
-def evaluate(row: Dict[str, str]) -> Optional[Dict[str, Any]]:
+# --- State helpers ---
+def load_state() -> dict:
+    if os.path.exists(STATE_FILE):
+        try:
+            with open(STATE_FILE, "r", encoding="utf-8") as f:
+                return json.load(f)
+        except: return {}
+    return {}
+
+def save_state(state: dict) -> None:
+    with open(STATE_FILE, "w", encoding="utf-8") as f:
+        json.dump(state, f, indent=2)
+
+def load_recap() -> dict:
+    if os.path.exists(RECAP_FILE):
+        try:
+            with open(RECAP_FILE, "r", encoding="utf-8") as f:
+                return json.load(f)
+        except: return {}
+    return {}
+
+def save_recap(data: dict) -> None:
+    with open(RECAP_FILE, "w", encoding="utf-8") as f:
+        json.dump(data, f, indent=2)
+
+def is_market_close_window() -> bool:
+    now = datetime.utcnow().time()
+    # Approx. 4:05–4:30pm ET = 20:05–20:30 UTC
+    return time(20, 5) <= now <= time(20, 30)
+
+# --- Evaluate one row ---
+def evaluate_row(row: Dict[str, str]) -> Optional[Dict[str, Any]]:
     symbol = row.get("symbol")
-    if not symbol:
-        return None
-
+    if not symbol: return None
     low = safe_float(row.get("low"))
     high = safe_float(row.get("high"))
     pct_up = safe_float(row.get("pct_up"))
     pct_down = safe_float(row.get("pct_down"))
+    webhook = row.get("webhook") or None
 
-    data = fetch_price(symbol)
-    if not data:
-        return None
-
+    data = fetch_price_and_prev_close(symbol)
+    if data is None: return None
     price = data["price"]
-    prev = data["prev"]
-    change = (price - prev) / prev * 100
+    prev_close = data["prev_close"]
+    change = (price - prev_close) / prev_close * 100.0
 
-    triggers = []
+    triggers: List[str] = []
     if low is not None and price <= low:
-        triggers.append(f"Price ≤ {low}")
+        triggers.append(f"price <= low ({price:.2f} <= {low})")
     if high is not None and price >= high:
-        triggers.append(f"Price ≥ {high}")
+        triggers.append(f"price >= high ({price:.2f} >= {high})")
     if pct_up is not None and change >= pct_up:
-        triggers.append(f"Up ≥ {pct_up}%")
+        triggers.append(f"up >= {pct_up}% ({change:.2f}%)")
     if pct_down is not None and change <= -abs(pct_down):
-        triggers.append(f"Down ≥ {pct_down}%")
+        triggers.append(f"down >= {pct_down}% ({change:.2f}%)")
 
-    if not triggers:
-        return None
+    if triggers:
+        # --- Deduplicate daily alerts ---
+        state = load_state()
+        new_triggers = []
+        for t in triggers:
+            if "price <=" in t: key = f"{symbol}|price<=low|{TODAY}"
+            elif "price >=" in t: key = f"{symbol}|price>=high|{TODAY}"
+            elif "up >=" in t: key = f"{symbol}|pct_up|{TODAY}"
+            elif "down >=" in t: key = f"{symbol}|pct_down|{TODAY}"
+            else: key = f"{symbol}|other|{TODAY}"
+            if key not in state:
+                state[key] = True
+                new_triggers.append(t)
+        if not new_triggers: return None
+        save_state(state)
 
-    severity = "info"
-    if any("Down" in t for t in triggers):
-        severity = "down"
-    elif any("Up" in t for t in triggers):
-        severity = "up"
+        # --- Update daily recap ---
+        recap = load_recap()
+        recap[symbol] = {"price": round(price,2), "change": round(change,2)}
+        save_recap(recap)
 
-    return {
-        "symbol": symbol,
-        "price": round(price, 2),
-        "change": round(change, 2),
-        "triggers": triggers,
-        "severity": severity,
-        "text": (
-            f"{symbol}\n"
-            f"{', '.join(triggers)}\n"
-            f"Price: {price:.2f} | Δ: {change:.2f}%"
+        # --- Build alert text ---
+        text = (
+            f"ALERT for {symbol}: {', '.join(new_triggers)}\n"
+            f"Price: {price:.2f} | Prev close: {prev_close:.2f} | Change: {change:.2f}%"
         )
-    }
+        severity = "info"
+        if any("down" in t for t in new_triggers): severity = "down"
+        elif any("up" in t for t in new_triggers): severity = "up"
 
+        return {"symbol": symbol, "triggers": new_triggers, "price": round(price,2),
+                "prev_close": round(prev_close,2), "change": round(change,2),
+                "text": text, "severity": severity}
+    return None
 
-# ---------------- main ----------------
-
+# --- Main ---
 def main() -> int:
-    # Skip outside market hours unless manually triggered
-    if os.environ.get("GITHUB_EVENT_NAME") != "workflow_dispatch":
-        if not is_market_open():
-            logging.info("Market closed — skipping run.")
-            return 0
-
     if not os.path.exists(RULES_FILE):
-        logging.error("Rules file not found")
-        return 0
+        logging.error("Rules file not found: %s", RULES_FILE)
+        return 1
 
-    alerts: List[Dict[str, Any]] = []
-
+    rows: List[Dict[str,str]] = []
     with open(RULES_FILE, newline="", encoding="utf-8") as f:
-        for row in csv.DictReader(f):
-            try:
-                alert = evaluate(row)
-                if alert:
-                    alerts.append(alert)
-            except Exception:
-                logging.exception("Row evaluation failed")
+        reader = csv.DictReader(f)
+        for row in reader:
+            rows.append(row)
 
+    # Add symbols from STOCK_LIST or stocks.txt if not already present
+    existing = {row.get("symbol","").upper(): row for row in rows if row.get("symbol")}
+    stocks_from_env = [s.strip().upper() for s in STOCK_LIST_ENV.split(",") if s.strip()] if STOCK_LIST_ENV else []
+    stocks_from_file = []
+    if os.path.exists("stocks.txt"):
+        with open("stocks.txt","r",encoding="utf-8") as sf:
+            stocks_from_file = [line.strip().upper() for line in sf if line.strip()]
+    combined_stocks = []
+    for s in stocks_from_env + stocks_from_file:
+        if s not in existing: combined_stocks.append(s)
+    for s in combined_stocks:
+        rows.append({
+            "symbol": s, "low": "", "high": "",
+            "pct_up": DEFAULT_PCT_UP or "",
+            "pct_down": DEFAULT_PCT_DOWN or "",
+            "webhook": "",
+        })
+
+    # Evaluate all rows
+    alerts: List[Dict[str,Any]] = []
+    for row in rows:
+        try:
+            alert = evaluate_row(row)
+            if alert: alerts.append(alert)
+        except: logging.exception("Error evaluating row: %s", row)
+
+    # Write alerts.json
     if alerts:
-        with open(ALERTS_FILE, "w", encoding="utf-8") as f:
-            json.dump(alerts, f, indent=2)
-        for a in alerts:
-            print(a["text"])
+        with open(ALERTS_FILE,"w",encoding="utf-8") as af:
+            json.dump(alerts, af, ensure_ascii=False, indent=2)
+        for a in alerts: print(a.get("text") if isinstance(a, dict) else str(a))
+    else:
+        if os.path.exists(ALERTS_FILE): os.remove(ALERTS_FILE)
+        logging.info("No alerts triggered")
+
+    # --- Market-close recap ---
+    if is_market_close_window():
+        recap = load_recap()
+        if recap:
+            recap_alerts = []
+            for symbol, data in recap.items():
+                sign = "▲" if data["change"] >= 0 else "▼"
+                recap_alerts.append(f"**{symbol}** {sign} {data['change']}% — ${data['price']}")
+            recap_payload = {
+                "type": "recap",
+                "title": f"📊 Market Close Recap ({TODAY})",
+                "lines": recap_alerts
+            }
+            with open("recap.json","w",encoding="utf-8") as f:
+                json.dump(recap_payload,f,indent=2)
+            os.remove(RECAP_FILE)
 
     return 0
-
 
 if __name__ == "__main__":
     sys.exit(main())
