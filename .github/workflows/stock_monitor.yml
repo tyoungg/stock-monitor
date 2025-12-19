@@ -2,12 +2,11 @@ name: Stock Monitor
 
 on:
   schedule:
-    # Every hour on the hour (UTC)
-    - cron: '0 * * * *'
+    - cron: '0 * * * *'   # every hour UTC
   workflow_dispatch:
     inputs:
       stocks:
-        description: 'Comma-separated list of stock symbols to monitor'
+        description: 'Comma-separated list of stock symbols'
         required: false
         default: ''
       default_pct_up:
@@ -53,20 +52,20 @@ jobs:
         id: prepare
         run: |
           if [ -f alerts.json ]; then
-            python - <<'PY'
-            import json
-            alerts = json.load(open("alerts.json"))
-            with open("alerts.txt", "w", encoding="utf-8") as f:
-                for a in alerts:
-                    f.write(a.get("text", "") + "\n\n")
-            PY
+python - <<'PY'
+import json
 
+alerts = json.load(open("alerts.json"))
+
+with open("alerts.txt", "w", encoding="utf-8") as f:
+    for a in alerts:
+        f.write(a.get("text", "") + "\n\n")
+PY
             echo "alerts<<EOF" >> "$GITHUB_OUTPUT"
             cat alerts.txt >> "$GITHUB_OUTPUT"
             echo "EOF" >> "$GITHUB_OUTPUT"
           else
             echo "alerts=" >> "$GITHUB_OUTPUT"
-          fi
 
       - name: Upload alerts artifact
         if: steps.prepare.outputs.alerts != ''
@@ -75,37 +74,36 @@ jobs:
           name: alerts-json
           path: alerts.json
 
-      # 👇👇👇 THIS IS THE STEP YOU WERE LOOKING FOR 👇👇👇
       - name: Send Discord embeds
         if: steps.prepare.outputs.alerts != ''
         env:
           WEBHOOK: ${{ secrets.discord_webhook || secrets.STOCK_MONITOR_WEBHOOK }}
         run: |
-          python - <<'PY'
-          import json
-          import os
-          import requests
+python - <<'PY'
+import json
+import os
+import requests
 
-          webhook = os.environ.get("WEBHOOK")
-          if not webhook:
-              raise RuntimeError("WEBHOOK environment variable not set")
+webhook = os.environ.get("WEBHOOK")
+if not webhook:
+    raise RuntimeError("WEBHOOK environment variable not set")
 
-          alerts = json.load(open("alerts.json"))
+alerts = json.load(open("alerts.json"))
 
-          embeds = []
-          for a in alerts:
-              color = 3447003  # blue
-              if a.get("severity") == "down":
-                  color = 15158332  # red
-              elif a.get("severity") == "up":
-                  color = 3066993   # green
+embeds = []
+for a in alerts:
+    color = 3447003  # blue
+    if a.get("severity") == "down":
+        color = 15158332  # red
+    elif a.get("severity") == "up":
+        color = 3066993   # green
 
-              embeds.append({
-                  "title": f"{a.get('symbol')} alert",
-                  "description": a.get("text", ""),
-                  "color": color
-              })
+    embeds.append({
+        "title": f"{a.get('symbol')} alert",
+        "description": a.get("text", ""),
+        "color": color
+    })
 
-          payload = {"embeds": embeds}
-          requests.post(webhook, json=payload, timeout=10)
-          PY
+payload = {"embeds": embeds[:10]}  # batch max 10 embeds to avoid Discord limits
+requests.post(webhook, json=payload, timeout=10)
+PY
