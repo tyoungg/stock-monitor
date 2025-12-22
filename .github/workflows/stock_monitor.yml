@@ -4,7 +4,7 @@ on:
   schedule:
     # every hour (adjust cron for desired cadence and timezone)
 #    - cron: '0 * * * *'
-     - cron: '*/5 * * * *'  # Every 5 minutes for testing
+#     - cron: '*/5 * * * *'  # Every 5 minutes for testing
      - cron: '0 13-20 * * 1-5'  # 9 AM - 4 PM ET (UTC-4/5 depending on DST)
      - cron: '15 20 * * 1-5'    # Market close recap at 4:15 PM ET
 
