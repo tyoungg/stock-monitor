@@ -2,19 +2,20 @@ name: Stock Monitor
 
 on:
   schedule:
-    - cron: '0 * * * *'   # every hour UTC
+    # every hour (adjust cron for desired cadence and timezone)
+    - cron: '0 * * * *'
   workflow_dispatch:
     inputs:
       stocks:
-        description: 'Comma-separated list of stock symbols'
+        description: 'Comma-separated list of stock symbols to monitor'
         required: false
         default: ''
       default_pct_up:
-        description: 'Default percent-up threshold'
+        description: 'Default percent-up threshold to apply to stocks provided via `stocks` input or stocks.txt'
         required: false
         default: ''
       default_pct_down:
-        description: 'Default percent-down threshold'
+        description: 'Default percent-down threshold to apply to stocks provided via `stocks` input or stocks.txt'
         required: false
         default: ''
 
@@ -24,12 +25,11 @@ env:
 jobs:
   monitor:
     runs-on: ubuntu-latest
-
     steps:
-      - name: Checkout repository
+      - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Set up Python
+      - name: Setup Python
         uses: actions/setup-python@v4
         with:
           python-version: '3.11'
@@ -40,6 +40,7 @@ jobs:
           pip install -r requirements.txt
 
       - name: Run stock monitor
+        id: run_monitor
         env:
           DEFAULT_WEBHOOK: ${{ env.DEFAULT_WEBHOOK }}
           STOCK_LIST: ${{ github.event.inputs.stocks }}
@@ -52,45 +53,47 @@ jobs:
         id: prepare
         run: |
           if [ -f alerts.json ]; then
-            python -c "
-import json
-alerts = json.load(open('alerts.json'))
-with open('alerts.txt', 'w', encoding='utf-8') as f:
-    for a in alerts:
-        f.write(a.get('text', '') + '\n\n')
-            "
-            echo "alerts<<EOF" >> "$GITHUB_OUTPUT"
-            cat alerts.txt >> "$GITHUB_OUTPUT"
-            echo "EOF" >> "$GITHUB_OUTPUT"
+            # Create a text summary for the GitHub output
+            ALERTS_TEXT=$(python -c "import json; alerts=json.load(open('alerts.json')); print('\\n\\n'.join(a.get('text','') for a in alerts))")
+            echo "alerts<<EOF" >> $GITHUB_OUTPUT
+            echo "$ALERTS_TEXT" >> $GITHUB_OUTPUT
+            echo "EOF" >> $GITHUB_OUTPUT
           else
-            echo "alerts=" >> "$GITHUB_OUTPUT"
-            
+            echo "alerts=" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Upload alerts artifact
+        if: steps.prepare.outputs.alerts != ''
+        uses: actions/upload-artifact@v4
+        with:
+          name: alerts-json
+          path: alerts.json
+
       - name: Send Discord embeds
         if: steps.prepare.outputs.alerts != ''
         env:
           WEBHOOK: ${{ secrets.discord_webhook || secrets.STOCK_MONITOR_WEBHOOK }}
         run: |
-          python -c "
-import json
-import os
-import requests
-webhook = os.environ.get('WEBHOOK')
-if not webhook:
-    raise RuntimeError('WEBHOOK environment variable not set')
-alerts = json.load(open('alerts.json'))
-embeds = []
-for a in alerts:
-    color = 3447003
-    if a.get('severity') == 'down':
-        color = 15158332
-    elif a.get('severity') == 'up':
-        color = 3066993
-    embeds.append({
-        'title': f\"{a.get('symbol')} alert\",
-        'description': a.get('text', ''),
-        'color': color
-    })
-payload = {'embeds': embeds[:10]}
-requests.post(webhook, json=payload, timeout=10)
-          "
-PY
+          python - <<'PY'
+          import json
+          alerts = json.load(open('alerts.json'))
+          embeds = []
+          for a in alerts:
+              title = f"{a.get('symbol')} alert"
+              desc = a.get('text', '')
+              color = 3066993
+              if a.get('severity') == 'down':
+                  color = 15158332
+              elif a.get('severity') == 'up':
+                  color = 3066993
+              embeds.append({
+                  'title': title,
+                  'description': desc,
+                  'color': color
+              })
+          payload = {'embeds': embeds}
+          print(json.dumps(payload))
+          open('discord_payload.json', 'w').write(json.dumps(payload))
+          PY
+          # post to webhook
+          curl -s -H "Content-Type: application/json" -d @discord_payload.json "$WEBHOOK" >/dev/null
