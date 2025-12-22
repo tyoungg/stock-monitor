@@ -28,7 +28,7 @@ jobs:
 
       - name: Run monitor (test rule should trigger)
         run: |
-          printf 'symbol,low,high,pct_up,pct_down,webhook\nAAPL,,0,,,,\n' > tmp_rules.csv
+          printf 'symbol,low,high,pct_up,pct_down,webhook\nAAPL,,0,,,,\n' > rules.csv
           RULES_FILE=rules.csv python monitor.py
 
       - name: Verify alerts.json was produced
