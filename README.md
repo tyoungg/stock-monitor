@@ -40,4 +40,15 @@ A small CI workflow (`.github/workflows/ci.yml`) is included which installs depe
 
 
 Happy monitoring! 🎯
+
+---
+
+### 📧 Email Alerts
+You can also receive alerts via email. To do so, add an `email` column to your `rules.csv` file and specify the recipient's email address.
+
+You will also need to configure the following secrets in your GitHub repository:
+- `MAIL_SERVER`: The SMTP server address.
+- `MAIL_PORT`: The SMTP server port.
+- `MAIL_USERNAME`: The username for the SMTP server.
+- `MAIL_PASSWORD`: The password for the SMTP server.
 stock monitor try

@@ -1,6 +1,6 @@
-symbol,low,high,pct_up,pct_down,webhook
+symbol,low,high,pct_up,pct_down,webhook,email
 AAPL,255.00,295.00,,,
-ALNY,390.00,450.00,,,
+ALNY,390.00,450.00,,,test@example.com
 AWK,100.00,,,,
 BEN,21.00,25.00,,,
 BITI,2.00,25.00,7.00,7.00,

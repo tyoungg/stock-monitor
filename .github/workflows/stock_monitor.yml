@@ -101,3 +101,55 @@ jobs:
           PY
           # post to webhook
           curl -s -H "Content-Type: application/json" -d @discord_payload.json "$WEBHOOK" >/dev/null
+
+      - name: Send email alerts
+        if: steps.prepare.outputs.alerts != ''
+        env:
+          MAIL_SERVER: ${{ secrets.MAIL_SERVER }}
+          MAIL_PORT: ${{ secrets.MAIL_PORT }}
+          MAIL_USERNAME: ${{ secrets.MAIL_USERNAME }}
+          MAIL_PASSWORD: ${{ secrets.MAIL_PASSWORD }}
+        run: |
+          python - <<'PY'
+          import json, csv, smtplib, os
+          from email.message import EmailMessage
+
+          alerts = json.load(open('alerts.json'))
+          rules = {}
+          with open('rules.csv', newline='') as csvfile:
+              reader = csv.DictReader(csvfile)
+              for row in reader:
+                  rules[row['symbol']] = row.get('email')
+
+          for alert in alerts:
+              symbol = alert.get('symbol')
+              recipient = rules.get(symbol)
+              if recipient:
+                  subject = f"Stock Alert for {symbol}"
+                  body = alert.get('text', '')
+                  print(f"Sending email to {recipient} for {symbol}")
+
+                  msg = EmailMessage()
+                  msg.set_content(body)
+                  msg['Subject'] = subject
+                  msg['From'] = os.environ.get('MAIL_USERNAME')
+                  msg['To'] = recipient
+
+                  server = os.environ.get('MAIL_SERVER')
+                  port = int(os.environ.get('MAIL_PORT', 587))
+                  username = os.environ.get('MAIL_USERNAME')
+                  password = os.environ.get('MAIL_PASSWORD')
+
+                  if not all([server, port, username, password]):
+                      print("Email server not configured. Skipping email.")
+                      continue
+
+                  try:
+                      with smtplib.SMTP(server, port) as s:
+                          s.starttls()
+                          s.login(username, password)
+                          s.send_message(msg)
+                      print(f"Email sent to {recipient}")
+                  except Exception as e:
+                      print(f"Failed to send email to {recipient}: {e}")
+          PY
