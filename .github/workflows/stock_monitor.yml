@@ -101,7 +101,7 @@ jobs:
           PY
           # post to webhook
           curl -s -H "Content-Type: application/json" -d @discord_payload.json "$WEBHOOK" >/dev/null
-
+          
       - name: Send email alerts
         if: steps.prepare.outputs.alerts != ''
         env:
@@ -114,47 +114,94 @@ jobs:
           python - <<'PY'
           import json, smtplib, os, sys
           from email.message import EmailMessage
-
+          from datetime import datetime
+      
           alerts = json.load(open('alerts.json'))
-
+      
           if not alerts:
               print("No alerts to send.")
               sys.exit(0)
-
+      
           recipient = os.environ.get('ALERT_EMAIL_RECIPIENT')
           if not recipient:
               print("ALERT_EMAIL_RECIPIENT not set. Skipping email.")
               sys.exit(0)
-
-          # Aggregate alerts into one email
-          subject = f"Stock Market Alerts ({len(alerts)} triggers)"
-          body_lines = [a.get('text', '') for a in alerts]
-          body = "\n\n".join(body_lines)
-
-          print(f"Sending aggregated email to {recipient}")
-
-          msg = EmailMessage()
-          msg.set_content(body)
-          msg['Subject'] = subject
-          msg['From'] = os.environ.get('MAIL_USERNAME')
-          msg['To'] = recipient
-
+      
           server = os.environ.get('MAIL_SERVER')
           port = int(os.environ.get('MAIL_PORT', 587))
           username = os.environ.get('MAIL_USERNAME')
           password = os.environ.get('MAIL_PASSWORD')
-
+      
           if not all([server, port, username, password]):
               print("Email server not configured. Skipping email.")
               sys.exit(0)
-
+      
+          timestamp = datetime.utcnow().strftime("%Y-%m-%d %H:%M UTC")
+      
+          # ---------- Plain text fallback ----------
+          text_body = "\n\n".join(a.get('text', '') for a in alerts)
+      
+          # ---------- HTML body ----------
+          rows = []
+          for a in alerts:
+              severity = a.get('severity', 'neutral')
+              color = {
+                  'up': '#1f9d55',
+                  'down': '#e3342f',
+                  'neutral': '#6c757d'
+              }.get(severity, '#6c757d')
+      
+              rows.append(f"""
+              <tr>
+                <td style="padding:10px;border-left:4px solid {color};">
+                  <strong>{a.get('symbol','')}</strong><br/>
+                  <span>{a.get('text','')}</span>
+                </td>
+              </tr>
+              """)
+      
+          html_body = f"""
+          <html>
+            <body style="font-family:Arial,sans-serif;background:#f7f7f7;padding:20px;">
+              <table width="100%" cellpadding="0" cellspacing="0">
+                <tr>
+                  <td>
+                    <h2 style="margin-bottom:5px;">📈 Stock Market Alerts</h2>
+                    <p style="color:#555;margin-top:0;">
+                      {len(alerts)} alert(s) triggered — {timestamp}
+                    </p>
+                    <table width="100%" style="background:#ffffff;border-collapse:collapse;">
+                      {''.join(rows)}
+                    </table>
+                    <p style="font-size:12px;color:#999;margin-top:15px;">
+                      Sent by GitHub Actions Stock Monitor
+                    </p>
+                  </td>
+                </tr>
+              </table>
+            </body>
+          </html>
+          """
+      
+          msg = EmailMessage()
+          msg['Subject'] = f"Stock Market Alerts ({len(alerts)} triggers)"
+          msg['From'] = username
+          msg['To'] = recipient
+      
+          msg.set_content(text_body)          # plain text fallback
+          msg.add_alternative(html_body, subtype='html')
+      
+          print(f"Sending HTML aggregated email to {recipient}")
+      
           try:
-              with smtplib.SMTP(server, port) as s:
+              with smtplib.SMTP(server, port, timeout=30) as s:
                   s.starttls()
                   s.login(username, password)
                   s.send_message(msg)
-              print(f"Aggregated email sent to {recipient}")
+              print("Aggregated HTML email sent successfully")
           except Exception as e:
               print(f"Failed to send aggregated email: {e}")
               sys.exit(1)
           PY
+
+
