@@ -201,4 +201,60 @@ jobs:
               sys.exit(1)
           PY
 
+      - name: Send recap email
+        if: hashFiles('recap.json') != ''
+        env:
+          MAIL_SERVER: ${{ secrets.MAIL_SERVER }}
+          MAIL_PORT: ${{ secrets.MAIL_PORT }}
+          MAIL_USERNAME: ${{ secrets.MAIL_USERNAME }}
+          MAIL_PASSWORD: ${{ secrets.MAIL_PASSWORD }}
+          ALERT_EMAIL_RECIPIENT: ${{ secrets.ALERT_EMAIL_RECIPIENT }}
+        run: |
+          python - <<'PY'
+          import json, smtplib, os, sys
+          from email.message import EmailMessage
+
+          with open('recap.json', 'r') as f:
+              recap = json.load(f)
+
+          if not recap:
+              print("Recap is empty. Skipping.")
+              sys.exit(0)
+
+          recipient = os.environ.get('ALERT_EMAIL_RECIPIENT')
+          if not recipient:
+              print("ALERT_EMAIL_RECIPIENT not set. Skipping email.")
+              sys.exit(0)
+
+          server = os.environ.get('MAIL_SERVER')
+          port = int(os.environ.get('MAIL_PORT', 587))
+          username = os.environ.get('MAIL_USERNAME')
+          password = os.environ.get('MAIL_PASSWORD')
+
+          if not all([server, port, username, password]):
+              print("Email server not configured. Skipping email.")
+              sys.exit(0)
+
+          title = recap.get('title', 'Market Recap')
+          lines = recap.get('lines', [])
+          html_lines = ''.join(f'<li>{line}</li>' for line in lines)
+          html_body = f'<h2>{title}</h2><ul>{html_lines}</ul>'
+
+          msg = EmailMessage()
+          msg['Subject'] = title
+          msg['From'] = username
+          msg['To'] = recipient
+          msg.set_content('\n'.join(lines))
+          msg.add_alternative(html_body, subtype='html')
+
+          try:
+              with smtplib.SMTP(server, port, timeout=30) as s:
+                  s.starttls()
+                  s.login(username, password)
+                  s.send_message(msg)
+              print("Recap email sent successfully.")
+          except Exception as e:
+              print(f"Failed to send recap email: {e}")
+              sys.exit(1)
+          PY
 

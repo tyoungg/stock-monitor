@@ -9,7 +9,7 @@ Features:
 
 import csv, os, sys, json, logging
 from typing import Optional, Dict, Any, List
-from datetime import datetime, time
+from datetime import datetime, time, timedelta
 from zoneinfo import ZoneInfo
 
 from market_calendar import is_market_open, get_market_close_time
@@ -118,9 +118,10 @@ def save_recap(data: dict) -> None:
 def is_market_close_window() -> bool:
     now = datetime.now(ZoneInfo("America/New_York"))
     market_close_time = get_market_close_time(now.date())
+    market_close_dt = datetime.combine(now.date(), market_close_time, tzinfo=now.tzinfo)
 
-    # Check if it's 5-30 minutes after market close
-    return time(market_close_time.hour, 5) <= now.time() <= time(market_close_time.hour, 30)
+    # Run recap if within 30 minutes *after* market close.
+    return market_close_dt <= now <= market_close_dt + timedelta(minutes=30)
 
 # --- Evaluate one row ---
 def evaluate_row(row: Dict[str, str]) -> Optional[Dict[str, Any]]:
