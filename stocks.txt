@@ -58,3 +58,5 @@ WMT
 WU
 XYZ
 ^DJI
+^SPX
+^VIX
