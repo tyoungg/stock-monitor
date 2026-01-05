@@ -73,34 +73,34 @@ jobs:
           name: alerts-json
           path: alerts.json
 
-      # - name: Send Discord embeds
-      #   if: steps.prepare.outputs.alerts != ''
-      #   env:
-      #     WEBHOOK: ${{ secrets.discord_webhook || secrets.STOCK_MONITOR_WEBHOOK }}
-      #   run: |
-      #     python - <<'PY'
-      #     import json
-      #     alerts = json.load(open('alerts.json'))
-      #     embeds = []
-      #     for a in alerts:
-      #         title = f"{a.get('symbol')} alert"
-      #         desc = a.get('text', '')
-      #         color = 3066993
-      #         if a.get('severity') == 'down':
-      #             color = 15158332
-      #         elif a.get('severity') == 'up':
-      #             color = 3066993
-      #         embeds.append({
-      #             'title': title,
-      #             'description': desc,
-      #             'color': color
-      #         })
-      #     payload = {'embeds': embeds}
-      #     print(json.dumps(payload))
-      #     open('discord_payload.json', 'w').write(json.dumps(payload))
-      #     PY
-      #     # post to webhook
-      #     curl -s -H "Content-Type: application/json" -d @discord_payload.json "$WEBHOOK" >/dev/null
+      - name: Send Discord embeds
+        if: steps.prepare.outputs.alerts != ''
+        env:
+          WEBHOOK: ${{ secrets.discord_webhook || secrets.STOCK_MONITOR_WEBHOOK }}
+        run: |
+          python - <<'PY'
+          import json
+          alerts = json.load(open('alerts.json'))
+          embeds = []
+          for a in alerts:
+              title = f"{a.get('symbol')} alert"
+              desc = a.get('text', '')
+              color = 3066993
+              if a.get('severity') == 'down':
+                  color = 15158332
+              elif a.get('severity') == 'up':
+                  color = 3066993
+              embeds.append({
+                  'title': title,
+                  'description': desc,
+                  'color': color
+              })
+          payload = {'embeds': embeds}
+          print(json.dumps(payload))
+          open('discord_payload.json', 'w').write(json.dumps(payload))
+          PY
+          # post to webhook
+          curl -s -H "Content-Type: application/json" -d @discord_payload.json "$WEBHOOK" >/dev/null
           
       - name: Send email alerts
         if: steps.prepare.outputs.alerts != ''
