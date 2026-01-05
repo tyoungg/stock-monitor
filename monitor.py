@@ -10,6 +10,9 @@ Features:
 import csv, os, sys, json, logging
 from typing import Optional, Dict, Any, List
 from datetime import datetime, time
+from zoneinfo import ZoneInfo
+
+from market_calendar import is_market_open, get_market_close_time
 
 # Third-party imports
 _missing = []
@@ -113,9 +116,11 @@ def save_recap(data: dict) -> None:
 
 
 def is_market_close_window() -> bool:
-    now = datetime.now(ZoneInfo("America/New_York")).time() # datetime.utcnow().time()
-    # Approx. 4:05–4:30pm ET = 20:05–20:30 UTC
-    return time(20, 5) <= now <= time(20, 30)
+    now = datetime.now(ZoneInfo("America/New_York"))
+    market_close_time = get_market_close_time(now.date())
+
+    # Check if it's 5-30 minutes after market close
+    return time(market_close_time.hour, 5) <= now.time() <= time(market_close_time.hour, 30)
 
 # --- Evaluate one row ---
 def evaluate_row(row: Dict[str, str]) -> Optional[Dict[str, Any]]:
@@ -180,6 +185,10 @@ def evaluate_row(row: Dict[str, str]) -> Optional[Dict[str, Any]]:
 
 # --- Main ---
 def main() -> int:
+    if not is_market_open():
+        logging.info("Market is closed. Skipping run.")
+        return 0
+
     if not os.path.exists(RULES_FILE):
         logging.error("Rules file not found: %s", RULES_FILE)
         return 0
