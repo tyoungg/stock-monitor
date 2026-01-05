@@ -202,7 +202,7 @@ jobs:
           PY
 
       - name: Send recap email
-        if: hashFiles('recap.json') != ''
+        if: steps.run_monitor.outputs.is_market_close == 'true'
         env:
           MAIL_SERVER: ${{ secrets.MAIL_SERVER }}
           MAIL_PORT: ${{ secrets.MAIL_PORT }}

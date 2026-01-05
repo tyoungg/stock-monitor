@@ -139,6 +139,11 @@ def evaluate_row(row: Dict[str, str]) -> Optional[Dict[str, Any]]:
     prev_close = data["prev_close"]
     change = (price - prev_close) / prev_close * 100.0
 
+    # --- Update daily recap for ALL symbols ---
+    recap = load_recap()
+    recap[symbol] = {"price": round(price,2), "change": round(change,2)}
+    save_recap(recap)
+
     triggers: List[str] = []
     if low is not None and price <= low:
         triggers.append(f"price <= low ({price:.2f} <= {low})")
@@ -164,11 +169,6 @@ def evaluate_row(row: Dict[str, str]) -> Optional[Dict[str, Any]]:
                 new_triggers.append(t)
         if not new_triggers: return None
         save_state(state)
-
-        # --- Update daily recap ---
-        recap = load_recap()
-        recap[symbol] = {"price": round(price,2), "change": round(change,2)}
-        save_recap(recap)
 
         # --- Build alert text ---
         text = (
@@ -237,6 +237,9 @@ def main() -> int:
 
     # --- Market-close recap ---
     if is_market_close_window():
+        if os.environ.get("GITHUB_OUTPUT"):
+            with open(os.environ["GITHUB_OUTPUT"], "a") as f:
+                print("is_market_close=true", file=f)
         recap = load_recap()
         if recap:
             recap_alerts = []
