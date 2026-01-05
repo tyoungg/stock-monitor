@@ -1,0 +1,55 @@
+name: Delete old workflow runs
+on:
+  schedule:
+    - cron: '0 0 * * *'
+  workflow_dispatch:
+
+jobs:
+  delete-runs:
+    runs-on: ubuntu-latest
+    permissions:
+      actions: write
+      contents: read
+    steps:
+      - name: Delete old workflow runs
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+            const retainDays = 30;
+            const keepMinimumRuns = 10;
+            
+            const workflows = await github.rest.actions.listRepoWorkflows({
+              owner,
+              repo
+            });
+            
+            for (const workflow of workflows.data.workflows) {
+              const runs = await github.rest.actions.listWorkflowRuns({
+                owner,
+                repo,
+                workflow_id: workflow.id,
+                per_page: 100
+              });
+              
+              const cutoffDate = new Date();
+              cutoffDate.setDate(cutoffDate.getDate() - retainDays);
+              
+              const runsToDelete = runs.data.workflow_runs
+                .filter(run => new Date(run.created_at) < cutoffDate)
+                .slice(keepMinimumRuns);
+              
+              for (const run of runsToDelete) {
+                try {
+                  await github.rest.actions.deleteWorkflowRun({
+                    owner,
+                    repo,
+                    run_id: run.id
+                  });
+                  console.log(`Deleted run ${run.id} from ${workflow.name}`);
+                } catch (error) {
+                  console.log(`Failed to delete run ${run.id}: ${error.message}`);
+                }
+              }
+            }
