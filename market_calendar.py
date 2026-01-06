@@ -85,3 +85,7 @@ def is_after_hours(dt: datetime = None) -> bool:
     after_hours_end = time(20, 0)
 
     return market_close_time <= t < after_hours_end
+
+def is_extended_trading_hours(dt: datetime = None) -> bool:
+    """Check if it is within the extended trading window (pre-market, regular, or after-hours)."""
+    return is_pre_market(dt) or is_market_open(dt) or is_after_hours(dt)

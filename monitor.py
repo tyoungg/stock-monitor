@@ -12,7 +12,7 @@ from typing import Optional, Dict, Any, List
 from datetime import datetime, time, timedelta
 from zoneinfo import ZoneInfo
 
-from market_calendar import is_market_open, get_market_close_time
+from market_calendar import is_extended_trading_hours, get_market_close_time
 
 # Third-party imports
 _missing = []
@@ -124,7 +124,7 @@ def is_market_close_window() -> bool:
     return market_close_dt <= now <= market_close_dt + timedelta(minutes=30)
 
 # --- Evaluate one row ---
-def evaluate_row(row: Dict[str, str]) -> Optional[Dict[str, Any]]:
+def evaluate_row(row: Dict[str, str], recap: Dict) -> Optional[Dict[str, Any]]:
     symbol = row.get("symbol")
     if not symbol: return None
     low = safe_float(row.get("low"))
@@ -139,10 +139,8 @@ def evaluate_row(row: Dict[str, str]) -> Optional[Dict[str, Any]]:
     prev_close = data["prev_close"]
     change = (price - prev_close) / prev_close * 100.0
 
-    # --- Update daily recap for ALL symbols ---
-    recap = load_recap()
+    # --- Update daily recap for ALL symbols (in-memory) ---
     recap[symbol] = {"price": round(price,2), "change": round(change,2)}
-    save_recap(recap)
 
     triggers: List[str] = []
     if low is not None and price <= low:
@@ -186,8 +184,8 @@ def evaluate_row(row: Dict[str, str]) -> Optional[Dict[str, Any]]:
 
 # --- Main ---
 def main() -> int:
-    if not is_market_open():
-        logging.info("Market is closed. Skipping run.")
+    if not is_extended_trading_hours():
+        logging.info("Market is closed (including extended hours). Skipping run.")
         return 0
 
     if not os.path.exists(RULES_FILE):
@@ -220,11 +218,14 @@ def main() -> int:
 
     # Evaluate all rows
     alerts: List[Dict[str,Any]] = []
+    recap = load_recap()
     for row in rows:
         try:
-            alert = evaluate_row(row)
+            alert = evaluate_row(row, recap)
             if alert: alerts.append(alert)
         except: logging.exception("Error evaluating row: %s", row)
+
+    save_recap(recap)
 
     # Write alerts.json
     if alerts:
