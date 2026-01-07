@@ -3,7 +3,7 @@ name: Stock Monitor
 on:
   schedule:
     # Run every hour on weekdays
-    - cron: '0 13-20 * * 1-5'
+    - cron: '0 13-21 * * 1-5'
 
   workflow_dispatch:
     inputs:
@@ -237,14 +237,16 @@ jobs:
 
           title = recap.get('title', 'Market Recap')
           lines = recap.get('lines', [])
-          html_lines = ''.join(f'<li>{line}</li>' for line in lines)
-          html_body = f'<h2>{title}</h2><ul>{html_lines}</ul>'
+
+          # Read HTML body from recap.html
+          with open('recap.html', 'r', encoding='utf-8') as f:
+              html_body = f.read()
 
           msg = EmailMessage()
           msg['Subject'] = title
           msg['From'] = username
           msg['To'] = recipient
-          msg.set_content('\n'.join(lines))
+          msg.set_content('\n'.join(lines))  # Plain text fallback
           msg.add_alternative(html_body, subtype='html')
 
           try:

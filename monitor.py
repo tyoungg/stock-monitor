@@ -123,6 +123,40 @@ def is_market_close_window() -> bool:
     # Run recap if within 30 minutes *after* market close.
     return market_close_dt <= now <= market_close_dt + timedelta(minutes=30)
 
+def generate_html_recap(recap_data: Dict[str, Dict[str, float]]) -> str:
+    """Generates an HTML table from the recap data."""
+    rows = []
+    for symbol, data in sorted(recap_data.items()):
+        price = data.get("price", 0)
+        change = data.get("change", 0)
+        color = "#1f9d55" if change >= 0 else "#e3342f"
+        rows.append(f"""
+        <tr>
+            <td style="padding:10px;border-bottom:1px solid #eee;"><strong>{symbol}</strong></td>
+            <td style="padding:10px;border-bottom:1px solid #eee;">${price:.2f}</td>
+            <td style="padding:10px;border-bottom:1px solid #eee;color:{color};">{change:+.2f}%</td>
+        </tr>
+        """)
+
+    return f"""
+    <html>
+        <body style="font-family:Arial,sans-serif;background:#f7f7f7;padding:20px;">
+            <table width="100%" style="background:#ffffff;border-collapse:collapse;border:1px solid #ddd;">
+                <thead>
+                    <tr>
+                        <th style="padding:10px;border-bottom:2px solid #ddd;text-align:left;">Symbol</th>
+                        <th style="padding:10px;border-bottom:2px solid #ddd;text-align:left;">Price</th>
+                        <th style="padding:10px;border-bottom:2px solid #ddd;text-align:left;">Change (%)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {''.join(rows)}
+                </tbody>
+            </table>
+        </body>
+    </html>
+    """
+
 # --- Evaluate one row ---
 def evaluate_row(row: Dict[str, str], recap: Dict) -> Optional[Dict[str, Any]]:
     symbol = row.get("symbol")
@@ -243,6 +277,12 @@ def main() -> int:
                 print("is_market_close=true", file=f)
         recap = load_recap()
         if recap:
+            # Generate HTML recap
+            html_recap = generate_html_recap(recap)
+            with open("recap.html", "w", encoding="utf-8") as f:
+                f.write(html_recap)
+
+            # Generate JSON recap for plaintext fallback
             recap_alerts = []
             for symbol, data in recap.items():
                 sign = "▲" if data["change"] >= 0 else "▼"
@@ -254,6 +294,8 @@ def main() -> int:
             }
             with open("recap.json","w",encoding="utf-8") as f:
                 json.dump(recap_payload,f,indent=2)
+
+            # Clean up old daily recap file
             os.remove(RECAP_FILE)
 
     return 0
