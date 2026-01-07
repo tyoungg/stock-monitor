@@ -120,8 +120,8 @@ def is_market_close_window() -> bool:
     market_close_time = get_market_close_time(now.date())
     market_close_dt = datetime.combine(now.date(), market_close_time, tzinfo=now.tzinfo)
 
-    # Run recap if within 30 minutes *after* market close.
-    return market_close_dt <= now <= market_close_dt + timedelta(minutes=30)
+    # Run recap if within 55 minutes *after* market close.
+    return market_close_dt <= now <= market_close_dt + timedelta(minutes=55)
 
 def generate_html_recap(recap_data: Dict[str, Dict[str, float]]) -> str:
     """Generates an HTML table from the recap data."""
