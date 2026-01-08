@@ -120,8 +120,42 @@ def is_market_close_window() -> bool:
     market_close_time = get_market_close_time(now.date())
     market_close_dt = datetime.combine(now.date(), market_close_time, tzinfo=now.tzinfo)
 
-    # Run recap if within 30 minutes *after* market close.
-    return market_close_dt <= now <= market_close_dt + timedelta(minutes=30)
+    # Run recap if within 55 minutes *after* market close.
+    return market_close_dt <= now <= market_close_dt + timedelta(minutes=55)
+
+def generate_html_recap(recap_data: Dict[str, Dict[str, float]]) -> str:
+    """Generates an HTML table from the recap data."""
+    rows = []
+    for symbol, data in sorted(recap_data.items()):
+        price = data.get("price", 0)
+        change = data.get("change", 0)
+        color = "#1f9d55" if change >= 0 else "#e3342f"
+        rows.append(f"""
+        <tr>
+            <td style="padding:10px;border-bottom:1px solid #eee;"><strong>{symbol}</strong></td>
+            <td style="padding:10px;border-bottom:1px solid #eee;">${price:.2f}</td>
+            <td style="padding:10px;border-bottom:1px solid #eee;color:{color};">{change:+.2f}%</td>
+        </tr>
+        """)
+
+    return f"""
+    <html>
+        <body style="font-family:Arial,sans-serif;background:#f7f7f7;padding:20px;">
+            <table width="100%" style="background:#ffffff;border-collapse:collapse;border:1px solid #ddd;">
+                <thead>
+                    <tr>
+                        <th style="padding:10px;border-bottom:2px solid #ddd;text-align:left;">Symbol</th>
+                        <th style="padding:10px;border-bottom:2px solid #ddd;text-align:left;">Price</th>
+                        <th style="padding:10px;border-bottom:2px solid #ddd;text-align:left;">Change (%)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {''.join(rows)}
+                </tbody>
+            </table>
+        </body>
+    </html>
+    """
 
 # --- Evaluate one row ---
 def evaluate_row(row: Dict[str, str], recap: Dict) -> Optional[Dict[str, Any]]:
@@ -153,31 +187,25 @@ def evaluate_row(row: Dict[str, str], recap: Dict) -> Optional[Dict[str, Any]]:
         triggers.append(f"down >= {pct_down}% ({change:.2f}%)")
 
     if triggers:
-        # --- Deduplicate daily alerts ---
+        # --- Deduplicate alerts permanently per symbol ---
         state = load_state()
-        new_triggers = []
-        for t in triggers:
-            if "price <=" in t: key = f"{symbol}|price<=low|{TODAY}"
-            elif "price >=" in t: key = f"{symbol}|price>=high|{TODAY}"
-            elif "up >=" in t: key = f"{symbol}|pct_up|{TODAY}"
-            elif "down >=" in t: key = f"{symbol}|pct_down|{TODAY}"
-            else: key = f"{symbol}|other|{TODAY}"
-            if key not in state:
-                state[key] = True
-                new_triggers.append(t)
-        if not new_triggers: return None
+        if state.get(symbol):
+            return None # Alert has been triggered before, so it's silenced.
+
+        # New alert, add to state to silence future alerts
+        state[symbol] = True
         save_state(state)
 
         # --- Build alert text ---
         text = (
-            f"ALERT for {symbol}: {', '.join(new_triggers)}\n"
+            f"ALERT for {symbol}: {', '.join(triggers)}\n"
             f"Price: {price:.2f} | Prev close: {prev_close:.2f} | Change: {change:.2f}%"
         )
         severity = "info"
-        if any("down" in t for t in new_triggers): severity = "down"
-        elif any("up" in t for t in new_triggers): severity = "up"
+        if any("down" in t for t in triggers): severity = "down"
+        elif any("up" in t for t in triggers): severity = "up"
 
-        return {"symbol": symbol, "triggers": new_triggers, "price": round(price,2),
+        return {"symbol": symbol, "triggers": triggers, "price": round(price,2),
                 "prev_close": round(prev_close,2), "change": round(change,2),
                 "text": text, "severity": severity}
     return None
@@ -243,6 +271,12 @@ def main() -> int:
                 print("is_market_close=true", file=f)
         recap = load_recap()
         if recap:
+            # Generate HTML recap
+            html_recap = generate_html_recap(recap)
+            with open("recap.html", "w", encoding="utf-8") as f:
+                f.write(html_recap)
+
+            # Generate JSON recap for plaintext fallback
             recap_alerts = []
             for symbol, data in recap.items():
                 sign = "▲" if data["change"] >= 0 else "▼"
@@ -254,6 +288,8 @@ def main() -> int:
             }
             with open("recap.json","w",encoding="utf-8") as f:
                 json.dump(recap_payload,f,indent=2)
+
+            # Clean up old daily recap file
             os.remove(RECAP_FILE)
 
     return 0
