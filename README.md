@@ -53,3 +53,8 @@ You can receive a single email with all alerts. To do so, you will need to confi
 
 ### 📊 Market Recap Email
 In addition to alerts, a daily market recap email is sent shortly after the market closes. This email provides a summary of the day's performance for all monitored stocks in a formatted HTML table.
+
+### 🤫 Permanent Alert Silencing
+To prevent repeat notifications, once a stock triggers an alert, it is permanently silenced. The symbol of the triggered stock is added to the `alert_state.json` file.
+
+**To re-enable an alert for a stock**, you must manually edit the `alert_state.json` file in the repository and remove the line containing the stock's symbol.
