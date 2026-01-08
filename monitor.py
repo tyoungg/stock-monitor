@@ -187,31 +187,25 @@ def evaluate_row(row: Dict[str, str], recap: Dict) -> Optional[Dict[str, Any]]:
         triggers.append(f"down >= {pct_down}% ({change:.2f}%)")
 
     if triggers:
-        # --- Deduplicate daily alerts ---
+        # --- Deduplicate alerts permanently per symbol ---
         state = load_state()
-        new_triggers = []
-        for t in triggers:
-            if "price <=" in t: key = f"{symbol}|price<=low|{TODAY}"
-            elif "price >=" in t: key = f"{symbol}|price>=high|{TODAY}"
-            elif "up >=" in t: key = f"{symbol}|pct_up|{TODAY}"
-            elif "down >=" in t: key = f"{symbol}|pct_down|{TODAY}"
-            else: key = f"{symbol}|other|{TODAY}"
-            if key not in state:
-                state[key] = True
-                new_triggers.append(t)
-        if not new_triggers: return None
+        if state.get(symbol):
+            return None # Alert has been triggered before, so it's silenced.
+
+        # New alert, add to state to silence future alerts
+        state[symbol] = True
         save_state(state)
 
         # --- Build alert text ---
         text = (
-            f"ALERT for {symbol}: {', '.join(new_triggers)}\n"
+            f"ALERT for {symbol}: {', '.join(triggers)}\n"
             f"Price: {price:.2f} | Prev close: {prev_close:.2f} | Change: {change:.2f}%"
         )
         severity = "info"
-        if any("down" in t for t in new_triggers): severity = "down"
-        elif any("up" in t for t in new_triggers): severity = "up"
+        if any("down" in t for t in triggers): severity = "down"
+        elif any("up" in t for t in triggers): severity = "up"
 
-        return {"symbol": symbol, "triggers": new_triggers, "price": round(price,2),
+        return {"symbol": symbol, "triggers": triggers, "price": round(price,2),
                 "prev_close": round(prev_close,2), "change": round(change,2),
                 "text": text, "severity": severity}
     return None
