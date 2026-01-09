@@ -17,7 +17,7 @@ jobs:
           script: |
             const owner = context.repo.owner;
             const repo = context.repo.repo;
-            const retainDays = 10;
+            const retainDays = 5;
             const keepMinimumRuns = 10;
             
             const workflows = await github.rest.actions.listRepoWorkflows({
