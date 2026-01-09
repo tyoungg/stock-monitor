@@ -1,5 +1,6 @@
 {
   "BOB": true,
   "ALNY": true,
-  "BEN": true
+  "BEN": true,
+  "^SPX": true
 }
