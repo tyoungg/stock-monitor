@@ -1,3 +1,4 @@
 {
-  "^VIX": true
+  "^VIX": true,
+  "SDIV": true
 }
