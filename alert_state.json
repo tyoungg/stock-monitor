@@ -3,5 +3,6 @@
   "AAPL": true,
   "SLV": true,
   "UVXY": true,
-  "^SPX": true
+  "^SPX": true,
+  "BEN": true
 }
