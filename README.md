@@ -32,6 +32,26 @@ A small, opinionated setup for running scheduled stock checks and sending alerts
 
 ---
 
+### Editing Rules with the Web Interface
+
+To make it easier to add, remove, or update rules, this project includes a local web server that provides a simple editor for the `rules.csv` file.
+
+**To run the editor:**
+
+1.  Make sure you have installed the dependencies:
+    ```bash
+    pip install -r requirements.txt
+    ```
+2.  Start the local server:
+    ```bash
+    python server.py
+    ```
+3.  Open your web browser and navigate to `http://127.0.0.1:5000`.
+
+You will see a table with all the current rules. You can edit the values, add new rows, or clear out rows to remove them. Click "Save Rules" to update the `rules.csv` file.
+
+---
+
 ### ✅ CI validation & artifacts
 A small CI workflow (`.github/workflows/ci.yml`) is included which installs dependencies and runs `monitor.py` with a test rule to ensure the environment and script run correctly. It now uploads `alerts.json` as an artifact (name: `ci-alerts-json`).
 
