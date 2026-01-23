@@ -158,7 +158,7 @@ def generate_html_recap(recap_data: Dict[str, Dict[str, float]]) -> str:
     """
 
 # --- Evaluate one row ---
-def evaluate_row(row: Dict[str, str], recap: Dict) -> Optional[Dict[str, Any]]:
+def evaluate_row(row: Dict[str, str], recap: Dict, state: dict) -> Optional[Dict[str, Any]]:
     symbol = row.get("symbol")
     if not symbol: return None
     low = safe_float(row.get("low"))
@@ -176,25 +176,28 @@ def evaluate_row(row: Dict[str, str], recap: Dict) -> Optional[Dict[str, Any]]:
     # --- Update daily recap for ALL symbols (in-memory) ---
     recap[symbol] = {"price": round(price,2), "change": round(change,2)}
 
+    fired_alerts = state.get(symbol, [])
+
     triggers: List[str] = []
-    if low is not None and price <= low:
+    new_triggers: List[str] = []
+    if low is not None and price <= low and "low" not in fired_alerts:
         triggers.append(f"price <= low ({price:.2f} <= {low})")
-    if high is not None and price >= high:
+        new_triggers.append("low")
+    if high is not None and price >= high and "high" not in fired_alerts:
         triggers.append(f"price >= high ({price:.2f} >= {high})")
-    if pct_up is not None and change >= pct_up:
+        new_triggers.append("high")
+    if pct_up is not None and change >= pct_up and "pct_up" not in fired_alerts:
         triggers.append(f"up >= {pct_up}% ({change:.2f}%)")
-    if pct_down is not None and change <= -abs(pct_down):
+        new_triggers.append("pct_up")
+    if pct_down is not None and change <= -abs(pct_down) and "pct_down" not in fired_alerts:
         triggers.append(f"down >= {pct_down}% ({change:.2f}%)")
+        new_triggers.append("pct_down")
 
     if triggers:
-        # --- Deduplicate alerts permanently per symbol ---
-        state = load_state()
-        if state.get(symbol):
-            return None # Alert has been triggered before, so it's silenced.
-
-        # New alert, add to state to silence future alerts
-        state[symbol] = True
-        save_state(state)
+        # --- Add new triggers to state ---
+        if symbol not in state:
+            state[symbol] = []
+        state[symbol].extend(new_triggers)
 
         # --- Build alert text ---
         text = (
@@ -247,13 +250,15 @@ def main() -> int:
     # Evaluate all rows
     alerts: List[Dict[str,Any]] = []
     recap = load_recap()
+    state = load_state()
     for row in rows:
         try:
-            alert = evaluate_row(row, recap)
+            alert = evaluate_row(row, recap, state)
             if alert: alerts.append(alert)
         except: logging.exception("Error evaluating row: %s", row)
 
     save_recap(recap)
+    save_state(state)
 
     # Write alerts.json
     if alerts:
