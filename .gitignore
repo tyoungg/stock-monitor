@@ -5,3 +5,4 @@ recap.html
 recap.json
 daily_recap.json
 alerts.json
+*.log

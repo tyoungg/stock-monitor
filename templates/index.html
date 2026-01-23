@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stock Alert Rules Editor</title>
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; line-height: 1.6; color: #333; max-width: 960px; margin: 2rem auto; padding: 0 1rem; background-color: #f4f4f4; }
+        h1, h2 { color: #222; }
+        table { width: 100%; border-collapse: collapse; margin-bottom: 1rem; background-color: #fff; }
+        th, td { padding: 0.75rem; text-align: left; border-bottom: 1px solid #dee2e6; }
+        th { background-color: #f8f9fa; }
+        tr:hover { background-color: #f1f1f1; }
+        input[type="text"] { width: 100%; padding: 0.5rem; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
+        .actions { text-align: right; margin-bottom: 1rem; }
+        .btn { padding: 0.6rem 1rem; border: none; border-radius: 4px; cursor: pointer; font-size: 1rem; }
+        .btn-primary { background-color: #007bff; color: white; }
+        .btn-secondary { background-color: #6c757d; color: white; }
+        .btn-danger { background-color: #dc3545; color: white; }
+        .container { background-color: #fff; padding: 2rem; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); margin-bottom: 2rem; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Stock Alert Rules Editor</h1>
+        <form action="/" method="post">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Symbol</th>
+                        <th>Low</th>
+                        <th>High</th>
+                        <th>% Up</th>
+                        <th>% Down</th>
+                        <th>Webhook</th>
+                    </tr>
+                </thead>
+                <tbody id="rules-table-body">
+                    {% for rule in rules %}
+                    <tr>
+                        <td><input type="text" name="symbol" value="{{ rule.symbol }}"></td>
+                        <td><input type="text" name="low" value="{{ rule.low }}"></td>
+                        <td><input type="text" name="high" value="{{ rule.high }}"></td>
+                        <td><input type="text" name="pct_up" value="{{ rule.pct_up }}"></td>
+                        <td><input type="text" name="pct_down" value="{{ rule.pct_down }}"></td>
+                        <td><input type="text" name="webhook" value="{{ rule.webhook }}"></td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            <div class="actions">
+                <button type="button" class="btn btn-secondary" onclick="addRow()">Add Row</button>
+                <button type="submit" class="btn btn-primary">Save Rules</button>
+            </div>
+        </form>
+    </div>
+
+    <div class="container">
+        <h2>Silenced Alerts</h2>
+        {% if alert_state %}
+            <table>
+                <thead>
+                    <tr>
+                        <th>Symbol</th>
+                        <th>Silenced Alert Types</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for symbol, alerts in alert_state.items() %}
+                        <tr>
+                            <td>{{ symbol }}</td>
+                            <td>
+                                {% for alert in alerts %}
+                                    <span class="badge">{{ alert }}</span>
+                                {% endfor %}
+                            </td>
+                            <td>
+                                {% for alert in alerts %}
+                                    <form action="/clear-alert" method="post" style="display:inline;">
+                                        <input type="hidden" name="symbol" value="{{ symbol }}">
+                                        <input type="hidden" name="alert_type" value="{{ alert }}">
+                                        <button type="submit" class="btn btn-secondary btn-sm">Re-enable {{ alert }}</button>
+                                    </form>
+                                {% endfor %}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            <div class="actions">
+                <form action="/clear-all-alerts" method="post">
+                    <button type="submit" class="btn btn-danger">Clear All Silenced Alerts</button>
+                </form>
+            </div>
+        {% else %}
+            <p>No alerts are currently silenced.</p>
+        {% endif %}
+    </div>
+
+    <script>
+        function addRow() {
+            const tableBody = document.getElementById('rules-table-body');
+            const newRow = document.createElement('tr');
+            newRow.innerHTML = `
+                <td><input type="text" name="symbol" value=""></td>
+                <td><input type="text" name="low" value=""></td>
+                <td><input type="text" name="high" value=""></td>
+                <td><input type="text" name="pct_up" value=""></td>
+                <td><input type="text" name="pct_down" value=""></td>
+                <td><input type="text" name="webhook" value=""></td>
+            `;
+            tableBody.appendChild(newRow);
+        }
+    </script>
+</body>
+</html>
