@@ -40,7 +40,7 @@ DEFAULT_PCT_DOWN = os.environ.get("DEFAULT_PCT_DOWN")
 ALERTS_FILE = "alerts.json"
 STATE_FILE = "alert_state.json"
 RECAP_FILE = "daily_recap.json"
-TODAY = datetime.utcnow().strftime("%Y-%m-%d")
+TODAY = datetime.now(ZoneInfo("America/New_York")).strftime("%Y-%m-%d")
 
 # --- Helpers ---
 def safe_float(s: str) -> Optional[float]:
@@ -90,17 +90,19 @@ def send_webhook(webhook: str, message: str) -> bool:
         return False
 
 # --- State helpers ---
-def load_state() -> dict:
+def load_state(current_date: str) -> dict:
     if os.path.exists(STATE_FILE):
         try:
             with open(STATE_FILE, "r", encoding="utf-8") as f:
-                return json.load(f)
-        except: return {}
+                data = json.load(f)
+                if isinstance(data, dict) and data.get("date") == current_date:
+                    return data.get("state", {})
+        except: pass
     return {}
 
-def save_state(state: dict) -> None:
+def save_state(state: dict, current_date: str) -> None:
     with open(STATE_FILE, "w", encoding="utf-8") as f:
-        json.dump(state, f, indent=2)
+        json.dump({"date": current_date, "state": state}, f, indent=2)
 
 def load_recap() -> dict:
     if os.path.exists(RECAP_FILE):
@@ -158,7 +160,7 @@ def generate_html_recap(recap_data: Dict[str, Dict[str, float]]) -> str:
     """
 
 # --- Evaluate one row ---
-def evaluate_row(row: Dict[str, str], recap: Dict) -> Optional[Dict[str, Any]]:
+def evaluate_row(row: Dict[str, str], recap: Dict, state: Dict) -> Optional[Dict[str, Any]]:
     symbol = row.get("symbol")
     if not symbol: return None
     low = safe_float(row.get("low"))
@@ -178,9 +180,9 @@ def evaluate_row(row: Dict[str, str], recap: Dict) -> Optional[Dict[str, Any]]:
 
     triggers: List[str] = []
     if low is not None and price <= low:
-        triggers.append(f"price <= low ({price:.2f} <= {low})")
+        triggers.append(f"low: price <= low ({price:.2f} <= {low})")
     if high is not None and price >= high:
-        triggers.append(f"price >= high ({price:.2f} >= {high})")
+        triggers.append(f"high: price >= high ({price:.2f} >= {high})")
     if pct_up is not None and change >= pct_up:
         triggers.append(f"up >= {pct_up}% ({change:.2f}%)")
     if pct_down is not None and change <= -abs(pct_down):
@@ -188,7 +190,6 @@ def evaluate_row(row: Dict[str, str], recap: Dict) -> Optional[Dict[str, Any]]:
 
     if triggers:
         # --- Deduplicate alerts based on the specific trigger type ---
-        state = load_state()
         alert_key = f"{symbol}"
 
         # Filter out triggers that have already been sent
@@ -209,7 +210,6 @@ def evaluate_row(row: Dict[str, str], recap: Dict) -> Optional[Dict[str, Any]]:
             alert_type = t.split(' ')[0]
             if alert_type not in state[alert_key]:
                 state[alert_key].append(alert_type)
-        save_state(state)
 
         # --- Build alert text ---
         text = (
@@ -217,8 +217,10 @@ def evaluate_row(row: Dict[str, str], recap: Dict) -> Optional[Dict[str, Any]]:
             f"Price: {price:.2f} | Prev close: {prev_close:.2f} | Change: {change:.2f}%"
         )
         severity = "info"
-        if any("down" in t for t in triggers): severity = "down"
-        elif any("up" in t for t in triggers): severity = "up"
+        if any(keyword in t.lower() for t in triggers for keyword in ["down", "low"]):
+            severity = "down"
+        elif any(keyword in t.lower() for t in triggers for keyword in ["up", "high"]):
+            severity = "up"
 
         return {"symbol": symbol, "triggers": triggers, "price": round(price,2),
                 "prev_close": round(prev_close,2), "change": round(change,2),
@@ -262,13 +264,15 @@ def main() -> int:
     # Evaluate all rows
     alerts: List[Dict[str,Any]] = []
     recap = load_recap()
+    state = load_state(TODAY)
     for row in rows:
         try:
-            alert = evaluate_row(row, recap)
+            alert = evaluate_row(row, recap, state)
             if alert: alerts.append(alert)
         except: logging.exception("Error evaluating row: %s", row)
 
     save_recap(recap)
+    save_state(state, TODAY)
 
     # Write alerts.json
     if alerts:
@@ -295,7 +299,7 @@ def main() -> int:
             recap_alerts = []
             for symbol, data in recap.items():
                 sign = "▲" if data["change"] >= 0 else "▼"
-                recap_alerts.append(f"**{symbol}** {sign} {data['change']}% — ${data['price']}")
+                recap_alerts.append(f"**{symbol}** {sign} {abs(data['change'])}% — ${data['price']}")
             recap_payload = {
                 "type": "recap",
                 "title": f"📊 Market Close Recap ({TODAY})",
