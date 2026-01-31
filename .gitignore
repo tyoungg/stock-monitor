@@ -6,3 +6,7 @@ recap.json
 daily_recap.json
 alerts.json
 node_modules/
+playwright-report/
+*.log
+alert_state.json
+verification/
