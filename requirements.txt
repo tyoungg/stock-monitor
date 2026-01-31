@@ -1,5 +1,7 @@
-yfinance>=0.2.25
-pandas>=2.0
-requests>=2.28
-holidays
-Flask>=2.0
+
+yfinance
+pandas
+flask
+playwright
+pytest
+pytest-playwright
