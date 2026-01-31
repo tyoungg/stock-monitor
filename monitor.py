@@ -187,18 +187,33 @@ def evaluate_row(row: Dict[str, str], recap: Dict) -> Optional[Dict[str, Any]]:
         triggers.append(f"down >= {pct_down}% ({change:.2f}%)")
 
     if triggers:
-        # --- Deduplicate alerts permanently per symbol ---
+        # --- Deduplicate alerts based on the specific trigger type ---
         state = load_state()
-        if state.get(symbol):
-            return None # Alert has been triggered before, so it's silenced.
+        alert_key = f"{symbol}"
 
-        # New alert, add to state to silence future alerts
-        state[symbol] = True
+        # Filter out triggers that have already been sent
+        new_triggers = []
+        for t in triggers:
+            # Normalize the trigger string to get a stable alert type
+            alert_type = t.split(' ')[0] # e.g., 'price', 'up', 'down'
+            if alert_type not in state.get(alert_key, []):
+                new_triggers.append(t)
+
+        if not new_triggers:
+            return None # All triggered alerts for this symbol have been silenced
+
+        # Update state with the new alerts that will be sent
+        if alert_key not in state:
+            state[alert_key] = []
+        for t in new_triggers:
+            alert_type = t.split(' ')[0]
+            if alert_type not in state[alert_key]:
+                state[alert_key].append(alert_type)
         save_state(state)
 
         # --- Build alert text ---
         text = (
-            f"ALERT for {symbol}: {', '.join(triggers)}\n"
+            f"ALERT for {symbol}: {', '.join(new_triggers)}\n"
             f"Price: {price:.2f} | Prev close: {prev_close:.2f} | Change: {change:.2f}%"
         )
         severity = "info"
