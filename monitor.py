@@ -229,7 +229,7 @@ def evaluate_row(row: Dict[str, str], recap: Dict, state: Dict) -> Optional[Dict
 
 # --- Main ---
 def main() -> int:
-    if not is_extended_trading_hours():
+    if not is_extended_trading_hours() and os.environ.get("IGNORE_MARKET_HOURS") != "true":
         logging.info("Market is closed (including extended hours). Skipping run.")
         return 0
 
