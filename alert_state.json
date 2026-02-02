@@ -1,4 +1,26 @@
 {
-  "date": "2000-01-01",
-  "state": {}
+  "date": "2026-02-02",
+  "state": {
+    "BEN": [
+      "high:"
+    ],
+    "BITI": [
+      "high:"
+    ],
+    "BITO": [
+      "low:"
+    ],
+    "CAT": [
+      "high:"
+    ],
+    "FBTC": [
+      "low:"
+    ],
+    "GLD": [
+      "low:"
+    ],
+    "SLV": [
+      "low:"
+    ]
+  }
 }
