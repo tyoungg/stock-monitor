@@ -1,5 +1,9 @@
 name: Stock Monitor
 
+concurrency:
+  group: stock-monitor
+  cancel-in-progress: false
+
 on:
   schedule:
     # Run every hour on weekdays
@@ -58,7 +62,8 @@ jobs:
           # Only commit if there are changes
           if ! git diff --cached --quiet; then
             git commit -m "ci: Update alert state"
-            git push
+            git pull --rebase origin master
+            git push origin master
           else
             echo "No changes to alert_state.json"
           fi
@@ -226,6 +231,10 @@ jobs:
           python - <<'PY'
           import json, smtplib, os, sys
           from email.message import EmailMessage
+
+          if not os.path.exists('recap.json') or not os.path.exists('recap.html'):
+              print("Recap files missing. Skipping.")
+              sys.exit(0)
 
           with open('recap.json', 'r') as f:
               recap = json.load(f)

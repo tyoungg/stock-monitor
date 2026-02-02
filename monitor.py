@@ -7,7 +7,7 @@ Features:
 - Market-close recap message to Discord
 """
 
-import csv, os, sys, json, logging
+import csv, os, sys, json, logging, math
 from typing import Optional, Dict, Any, List
 from datetime import datetime, time, timedelta
 from zoneinfo import ZoneInfo
@@ -58,27 +58,47 @@ def fetch_price_and_prev_close(symbol: str) -> Optional[Dict[str, float]]:
     try:
         t = yf.Ticker(symbol)
         price = prev_close = None
+
+        # 1. Try fast_info
         try:
             fi = t.fast_info
             price = fi.get("lastPrice") or fi.get("last")
             prev_close = fi.get("previousClose")
-        except: pass
-        hist = t.history(period="3d", interval="1d")
-        if hist is not None and len(hist) >= 1:
-            last_close = hist["Close"].iloc[-1]
-            price = price or float(last_close)
-            if len(hist) >= 2:
-                prev_close = prev_close or float(hist["Close"].iloc[-2])
+        except Exception as e:
+            logging.debug("fast_info failed for %s: %s", symbol, e)
+
+        # 2. Try history
+        try:
+            hist = t.history(period="3d", interval="1d")
+            if hist is not None and not hist.empty:
+                last_close = hist["Close"].iloc[-1]
+                price = price or float(last_close)
+                if len(hist) >= 2:
+                    prev_close = prev_close or float(hist["Close"].iloc[-2])
+        except Exception as e:
+            logging.debug("history failed for %s: %s", symbol, e)
+
+        # 3. Try info (often slowest/least reliable)
         if price is None or prev_close is None:
-            info = t.info
-            price = price or info.get("regularMarketPrice")
-            prev_close = prev_close or info.get("previousClose")
-        if price is None or prev_close is None:
-            logging.warning("Could not determine price for %s", symbol)
+            try:
+                info = t.info
+                if info:
+                    price = price or info.get("regularMarketPrice")
+                    prev_close = prev_close or info.get("previousClose")
+            except Exception as e:
+                logging.debug("info failed for %s: %s", symbol, e)
+
+        # Validate results
+        def is_valid(val):
+            return val is not None and not (isinstance(val, float) and math.isnan(val))
+
+        if not is_valid(price) or not is_valid(prev_close):
+            logging.warning("Could not determine valid price/prev_close for %s (price=%s, prev=%s)", symbol, price, prev_close)
             return None
+
         return {"price": float(price), "prev_close": float(prev_close)}
     except Exception as e:
-        logging.exception("Error fetching %s: %s", symbol, e)
+        logging.exception("Fatal error fetching %s: %s", symbol, e)
         return None
 
 def send_webhook(webhook: str, message: str) -> bool:
@@ -101,8 +121,11 @@ def load_state(current_date: str) -> dict:
     return {}
 
 def save_state(state: dict, current_date: str) -> None:
-    with open(STATE_FILE, "w", encoding="utf-8") as f:
-        json.dump({"date": current_date, "state": state}, f, indent=2)
+    try:
+        with open(STATE_FILE, "w", encoding="utf-8") as f:
+            json.dump({"date": current_date, "state": state}, f, indent=2)
+    except Exception as e:
+        logging.error("Failed to save state: %s", e)
 
 def load_recap() -> dict:
     if os.path.exists(RECAP_FILE):
@@ -113,8 +136,11 @@ def load_recap() -> dict:
     return {}
 
 def save_recap(data: dict) -> None:
-    with open(RECAP_FILE, "w", encoding="utf-8") as f:
-        json.dump(data, f, indent=2)
+    try:
+        with open(RECAP_FILE, "w", encoding="utf-8") as f:
+            json.dump(data, f, indent=2)
+    except Exception as e:
+        logging.error("Failed to save recap: %s", e)
 
 
 def is_market_close_window() -> bool:
@@ -317,5 +343,5 @@ if __name__ == "__main__":
     try:
         sys.exit(main())
     except Exception:
-        logging.exception("Fatal error")
-        sys.exit(0)   # <-- NEVER fail the workflow
+        logging.exception("Fatal error in main")
+        sys.exit(1)
