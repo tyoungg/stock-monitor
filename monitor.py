@@ -33,6 +33,7 @@ logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
 
 # --- Config ---
 RULES_FILE = os.environ.get("RULES_FILE", "rules.csv")
+
 DEFAULT_WEBHOOK = os.environ.get("DEFAULT_WEBHOOK")
 STOCK_LIST_ENV = os.environ.get("STOCK_LIST", "")
 DEFAULT_PCT_UP = os.environ.get("DEFAULT_PCT_UP")
@@ -62,8 +63,8 @@ def fetch_price_and_prev_close(symbol: str) -> Optional[Dict[str, float]]:
         # 1. Try fast_info
         try:
             fi = t.fast_info
-            price = fi.get("lastPrice") or fi.get("last")
-            prev_close = fi.get("previousClose")
+            price = fi.get("lastPrice") or fi.get("last_price") or fi.get("last")
+            prev_close = fi.get("previousClose") or fi.get("previous_close")
         except Exception as e:
             logging.debug("fast_info failed for %s: %s", symbol, e)
 
@@ -83,14 +84,23 @@ def fetch_price_and_prev_close(symbol: str) -> Optional[Dict[str, float]]:
             try:
                 info = t.info
                 if info:
-                    price = price or info.get("regularMarketPrice")
-                    prev_close = prev_close or info.get("previousClose")
+                    price = price or info.get("regularMarketPrice") or info.get("currentPrice")
+                    prev_close = prev_close or info.get("previousClose") or info.get("regularMarketPreviousClose")
             except Exception as e:
                 logging.debug("info failed for %s: %s", symbol, e)
 
         # Validate results
         def is_valid(val):
             return val is not None and not (isinstance(val, float) and math.isnan(val))
+
+        if not is_valid(price) or not is_valid(prev_close):
+            # One last try: basic_info (available in some yfinance versions)
+            try:
+                bi = getattr(t, "basic_info", None)
+                if bi:
+                    price = price or bi.get("lastPrice") or bi.get("last_price")
+                    prev_close = prev_close or bi.get("previousClose") or bi.get("previous_close")
+            except: pass
 
         if not is_valid(price) or not is_valid(prev_close):
             logging.warning("Could not determine valid price/prev_close for %s (price=%s, prev=%s)", symbol, price, prev_close)
