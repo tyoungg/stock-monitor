@@ -5,7 +5,8 @@
       "high:"
     ],
     "BITI": [
-      "high:"
+      "high:",
+      "up"
     ],
     "BITO": [
       "low:"
@@ -30,6 +31,12 @@
     ],
     "BP": [
       "high:"
+    ],
+    "OCSL": [
+      "low:"
+    ],
+    "UVXY": [
+      "up"
     ]
   }
 }
