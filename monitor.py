@@ -222,11 +222,14 @@ def evaluate_row(row: Dict[str, str], recap: Dict, state: Dict) -> Optional[Dict
         new_triggers = []
         for t in triggers:
             # Normalize the trigger string to get a stable alert type
-            alert_type = t.split(' ')[0] # e.g., 'price', 'up', 'down'
+            alert_type = t.split(' ')[0] # e.g., 'low:', 'high:', 'up', 'down'
             if alert_type not in state.get(alert_key, []):
                 new_triggers.append(t)
+            else:
+                logging.info("Deduplicating %s alert for %s", alert_type, symbol)
 
         if not new_triggers:
+            logging.info("All triggers for %s already sent today", symbol)
             return None # All triggered alerts for this symbol have been silenced
 
         # Update state with the new alerts that will be sent
