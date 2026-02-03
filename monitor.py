@@ -306,7 +306,10 @@ def main() -> int:
             json.dump(alerts, af, ensure_ascii=False, indent=2)
         for a in alerts: print(a.get("text") if isinstance(a, dict) else str(a))
     else:
-        if os.path.exists(ALERTS_FILE): os.remove(ALERTS_FILE)
+        try:
+            if os.path.exists(ALERTS_FILE): os.remove(ALERTS_FILE)
+        except Exception as e:
+            logging.debug("Could not remove alerts file: %s", e)
         logging.info("No alerts triggered")
 
     # --- Market-close recap ---
