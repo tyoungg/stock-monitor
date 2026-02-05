@@ -1,4 +1,32 @@
 {
   "date": "2026-02-05",
-  "state": {}
+  "state": {
+    "BITI": [
+      "high:"
+    ],
+    "CAT": [
+      "low:"
+    ],
+    "FBTC": [
+      "low:"
+    ],
+    "GLD": [
+      "low:"
+    ],
+    "REMX": [
+      "low:"
+    ],
+    "SLV": [
+      "low:"
+    ],
+    "UNH": [
+      "low:"
+    ],
+    "UVXY": [
+      "up"
+    ],
+    "XYZ": [
+      "low:"
+    ]
+  }
 }
