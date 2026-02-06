@@ -3,6 +3,14 @@
   "state": {
     "WU": [
       "high:"
+    ],
+    "BITI": [
+      "low:",
+      "down"
+    ],
+    "UVXY": [
+      "low:",
+      "down"
     ]
   }
 }
