@@ -11,6 +11,12 @@
     "UVXY": [
       "low:",
       "down"
+    ],
+    "^DJI": [
+      "high:"
+    ],
+    "VTRS": [
+      "high:"
     ]
   }
 }
