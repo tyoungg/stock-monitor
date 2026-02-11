@@ -1,29 +1,8 @@
 {
-  "date": "2026-02-10",
+  "date": "2026-02-11",
   "state": {
-    "ALNY": [
-      "low:"
-    ],
-    "^DJI": [
-      "high:"
-    ],
-    "ICVT": [
-      "high:"
-    ],
-    "KR": [
-      "high:"
-    ],
-    "UVXY": [
-      "low:"
-    ],
-    "VTRS": [
-      "high:"
-    ],
     "BP": [
       "low:"
-    ],
-    "SYY": [
-      "high:"
     ]
   }
 }
