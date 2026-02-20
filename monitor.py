@@ -102,6 +102,7 @@ def calculate_indicators(hist, current_price: float, current_low: float) -> Dict
     try:
         # SMA
         sma50 = float(hist["Close"].rolling(window=50).mean().iloc[-1])
+        sma150 = float(hist["Close"].rolling(window=150).mean().iloc[-1])
         sma200 = float(hist["Close"].rolling(window=200).mean().iloc[-1])
 
         # RSI (Simple Rolling Mean version for robustness)
@@ -117,45 +118,73 @@ def calculate_indicators(hist, current_price: float, current_low: float) -> Dict
         high52 = float(hist["High"].max())
         low52 = float(hist["Low"].min())
 
-        # U&R (Undercut & Rally)
+        # Patterns
+        # 1. Regime Start: Price > SMA 200 and SMA 50 > SMA 150 > SMA 200
+        regime_start = bool(current_price > sma200 and sma50 > sma150 and sma150 > sma200)
+
+        # 2. Cup & Handle Proxy: Price near high and SMA 50 > SMA 200 and RSI consolidating
+        dist_from_high = (high52 - current_price) / high52 if high52 > 0 else 1.0
+        cup_handle = bool(dist_from_high < 0.05 and sma50 > sma200 and 45 <= rsi <= 65)
+
+        # 3. U&R (Undercut & Rally)
         # Prior low: lowest low of last 60 trading days (excluding today)
         if len(hist) > 1:
             prior_lows = hist["Low"].iloc[-61:-1]
             prior_60d_low = float(prior_lows.min())
-            ur_signal = current_low < prior_60d_low and current_price > prior_60d_low
+            ur_signal = bool(current_low < prior_60d_low and current_price > prior_60d_low)
         else:
             prior_60d_low = 0.0
             ur_signal = False
 
+        # 4. Horizontal Channel: Low volatility over last 20 days
+        if len(hist) >= 20:
+            last_20 = hist["Close"].iloc[-20:]
+            h_channel = bool((last_20.max() - last_20.min()) / last_20.mean() < 0.05)
+        else:
+            h_channel = False
+
         return {
             "sma50": sma50,
+            "sma150": sma150,
             "sma200": sma200,
             "rsi": rsi,
             "high52": high52,
             "low52": low52,
+            "regime_start": regime_start,
+            "cup_handle": cup_handle,
             "ur_signal": ur_signal,
+            "h_channel": h_channel,
             "prior_60d_low": prior_60d_low
         }
     except Exception as e:
         logging.error("Error calculating indicators: %s", e)
         return {
-            "sma50": 0.0, "sma200": 0.0, "rsi": 50.0,
-            "high52": 0.0, "low52": 0.0, "ur_signal": False, "prior_60d_low": 0.0
+            "sma50": 0.0, "sma150": 0.0, "sma200": 0.0, "rsi": 50.0,
+            "high52": 0.0, "low52": 0.0, "regime_start": False, "cup_handle": False,
+            "ur_signal": False, "h_channel": False, "prior_60d_low": 0.0
         }
 
 def calculate_rank(indicators: Dict[str, Any], current_price: float) -> int:
-    score = 0
-    if current_price > indicators["sma50"]: score += 20
-    if current_price > indicators["sma200"]: score += 20
-    if indicators["sma50"] > indicators["sma200"]: score += 10
-    if 40 <= indicators["rsi"] <= 65: score += 20
-    elif indicators["rsi"] > 65 and indicators["rsi"] <= 75: score += 10
+    # Priority Ranking based on Image:
+    # 1: Regime Start
+    # 2: Cup & Handle
+    # 3: Undercut & Rally
+    # 4: Horizontal Channel
 
-    if indicators["high52"] > 0:
-        dist_from_high = (indicators["high52"] - current_price) / indicators["high52"]
-        if dist_from_high < 0.15: score += 30
+    if indicators.get("regime_start"):
+        return 1
+    if indicators.get("cup_handle"):
+        return 2
+    if indicators.get("ur_signal"):
+        return 3
+    if indicators.get("h_channel"):
+        return 4
 
-    return score
+    # Fallback to a base rank if trending
+    if current_price > indicators["sma200"] and indicators["sma50"] > indicators["sma200"]:
+        return 5
+
+    return 6 # No significant pattern
 
 def send_webhook(webhook: str, message: str) -> bool:
     try:
@@ -210,8 +239,8 @@ def is_market_close_window() -> bool:
 def generate_html_recap(recap_data: Dict[str, Dict[str, Any]]) -> str:
     """Generates an HTML table from the recap data."""
     rows = []
-    # Sort by rank (descending), then symbol
-    sorted_items = sorted(recap_data.items(), key=lambda x: (-x[1].get("rank", 0), x[0]))
+    # Sort by rank (ascending), then symbol
+    sorted_items = sorted(recap_data.items(), key=lambda x: (x[1].get("rank", 99), x[0]))
 
     for symbol, data in sorted_items:
         price = data.get("price", 0)
@@ -220,7 +249,14 @@ def generate_html_recap(recap_data: Dict[str, Dict[str, Any]]) -> str:
         sma50 = data.get("sma50", 0)
         sma200 = data.get("sma200", 0)
         rsi = data.get("rsi", 0)
-        ur = "🚀 U&R" if data.get("ur") else ""
+
+        patterns = []
+        if data.get("regime_start"): patterns.append("🟣 Regime")
+        if data.get("cup_handle"): patterns.append("🍵 Cup&Handle")
+        if data.get("ur"): patterns.append("🚀 U&R")
+        if data.get("h_channel"): patterns.append("↔️ Channel")
+        pattern_str = ", ".join(patterns)
+
         color = "#1f9d55" if change >= 0 else "#e3342f"
         rows.append(f"""
         <tr>
@@ -230,8 +266,8 @@ def generate_html_recap(recap_data: Dict[str, Dict[str, Any]]) -> str:
             <td style="padding:10px;border-bottom:1px solid #eee;">{sma50:.2f}</td>
             <td style="padding:10px;border-bottom:1px solid #eee;">{sma200:.2f}</td>
             <td style="padding:10px;border-bottom:1px solid #eee;">{rsi:.1f}</td>
-            <td style="padding:10px;border-bottom:1px solid #eee;">{rank}/100</td>
-            <td style="padding:10px;border-bottom:1px solid #eee;font-weight:bold;color:#1f9d55;">{ur}</td>
+            <td style="padding:10px;border-bottom:1px solid #eee;font-weight:bold;">Rank {rank}</td>
+            <td style="padding:10px;border-bottom:1px solid #eee;font-size:0.85em;color:#1f9d55;">{pattern_str}</td>
         </tr>
         """)
 
@@ -286,15 +322,24 @@ def evaluate_row(row: Dict[str, str], recap: Dict, state: Dict) -> Optional[Dict
         "price": round(price, 2),
         "change": round(change, 2),
         "rank": rank,
+        "regime_start": indicators["regime_start"],
+        "cup_handle": indicators["cup_handle"],
         "ur": indicators["ur_signal"],
+        "h_channel": indicators["h_channel"],
         "sma50": round(indicators["sma50"], 2),
         "sma200": round(indicators["sma200"], 2),
         "rsi": round(indicators["rsi"], 2)
     }
 
     triggers: List[str] = []
+    if indicators["regime_start"]:
+        triggers.append(f"Rank 1: Regime Start detected for {symbol}")
+    if indicators["cup_handle"]:
+        triggers.append(f"Rank 2: Cup & Handle pattern for {symbol}")
     if indicators["ur_signal"]:
-        triggers.append(f"U&R: Undercut & Rally entry (Price ${price:.2f} > Low ${indicators['prior_60d_low']:.2f})")
+        triggers.append(f"Rank 3: Undercut & Rally entry (Price ${price:.2f} > Low ${indicators['prior_60d_low']:.2f})")
+    if indicators["h_channel"]:
+        triggers.append(f"Rank 4: Horizontal Channel consolidation for {symbol}")
     if low is not None and price <= low:
         triggers.append(f"low: price <= low ({price:.2f} <= {low})")
     if high is not None and price >= high:
@@ -333,7 +378,7 @@ def evaluate_row(row: Dict[str, str], recap: Dict, state: Dict) -> Optional[Dict
         # --- Build alert text ---
         text = (
             f"ALERT for {symbol}: {', '.join(new_triggers)}\n"
-            f"Price: {price:.2f} | Change: {change:.2f}% | Rank: {rank}/100"
+            f"Price: {price:.2f} | Change: {change:.2f}% | Rank: {rank}"
         )
         severity = "info"
         if any(keyword in t.lower() for t in triggers for keyword in ["u&r", "up", "high"]):
@@ -420,16 +465,23 @@ def main() -> int:
 
             # Generate JSON recap for plaintext fallback
             recap_alerts = []
-            # Sort by rank (descending), then symbol
-            sorted_recap = sorted(recap.items(), key=lambda x: (-x[1].get("rank", 0), x[0]))
+            # Sort by rank (ascending), then symbol
+            sorted_recap = sorted(recap.items(), key=lambda x: (x[1].get("rank", 99), x[0]))
             for symbol, data in sorted_recap:
                 sign = "▲" if data["change"] >= 0 else "▼"
-                ur_str = " (U&R!)" if data.get("ur") else ""
+
+                patterns = []
+                if data.get("regime_start"): patterns.append("Regime")
+                if data.get("cup_handle"): patterns.append("Cup&Handle")
+                if data.get("ur"): patterns.append("U&R")
+                if data.get("h_channel"): patterns.append("Channel")
+                pat_str = f" | Patterns: {', '.join(patterns)}" if patterns else ""
+
                 sma50 = data.get("sma50", 0)
                 rsi = data.get("rsi", 0)
                 recap_alerts.append(
                     f"**{symbol}** {sign} {abs(data['change'])}% — ${data['price']} | "
-                    f"Rank: {data.get('rank')}/100 | SMA50: {sma50} | RSI: {rsi}{ur_str}"
+                    f"Rank: {data.get('rank')} | SMA50: {sma50} | RSI: {rsi}{pat_str}"
                 )
             recap_payload = {
                 "type": "recap",
