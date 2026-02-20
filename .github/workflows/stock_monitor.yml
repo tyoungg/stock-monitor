@@ -62,8 +62,8 @@ jobs:
           # Only commit if there are changes
           if ! git diff --cached --quiet; then
             git commit -m "ci: Update alert state"
-            git pull --rebase origin main
-            git push origin main
+            git pull --rebase origin ${{ github.ref_name }}
+            git push origin ${{ github.ref_name }}
           else
             echo "No changes to alert_state.json"
           fi
