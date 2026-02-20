@@ -55,12 +55,18 @@ def safe_float(s: str) -> Optional[float]:
     except:
         return None
 
-def fetch_price_and_prev_close(symbol: str) -> Optional[Dict[str, float]]:
+def fetch_stock_data(symbol: str) -> Optional[Dict[str, Any]]:
     try:
         t = yf.Ticker(symbol)
         price = prev_close = None
 
-        # 1. Try fast_info
+        # Fetch 1 year of history for indicators
+        hist = t.history(period="1y")
+        if hist is None or hist.empty:
+            logging.warning("No history found for %s", symbol)
+            return None
+
+        # 1. Try fast_info for most recent price
         try:
             fi = t.fast_info
             price = fi.get("lastPrice") or fi.get("last_price") or fi.get("last")
@@ -68,48 +74,88 @@ def fetch_price_and_prev_close(symbol: str) -> Optional[Dict[str, float]]:
         except Exception as e:
             logging.debug("fast_info failed for %s: %s", symbol, e)
 
-        # 2. Try history
-        try:
-            hist = t.history(period="3d", interval="1d")
-            if hist is not None and not hist.empty:
-                last_close = hist["Close"].iloc[-1]
-                price = price or float(last_close)
-                if len(hist) >= 2:
-                    prev_close = prev_close or float(hist["Close"].iloc[-2])
-        except Exception as e:
-            logging.debug("history failed for %s: %s", symbol, e)
-
-        # 3. Try info (often slowest/least reliable)
-        if price is None or prev_close is None:
-            try:
-                info = t.info
-                if info:
-                    price = price or info.get("regularMarketPrice") or info.get("currentPrice")
-                    prev_close = prev_close or info.get("previousClose") or info.get("regularMarketPreviousClose")
-            except Exception as e:
-                logging.debug("info failed for %s: %s", symbol, e)
+        # Use history as fallback for price/prev_close
+        if price is None:
+            price = float(hist["Close"].iloc[-1])
+        if prev_close is None:
+            prev_close = float(hist["Close"].iloc[-2]) if len(hist) > 1 else price
 
         # Validate results
         def is_valid(val):
             return val is not None and not (isinstance(val, float) and math.isnan(val))
 
         if not is_valid(price) or not is_valid(prev_close):
-            # One last try: basic_info (available in some yfinance versions)
-            try:
-                bi = getattr(t, "basic_info", None)
-                if bi:
-                    price = price or bi.get("lastPrice") or bi.get("last_price")
-                    prev_close = prev_close or bi.get("previousClose") or bi.get("previous_close")
-            except: pass
-
-        if not is_valid(price) or not is_valid(prev_close):
             logging.warning("Could not determine valid price/prev_close for %s (price=%s, prev=%s)", symbol, price, prev_close)
             return None
 
-        return {"price": float(price), "prev_close": float(prev_close)}
+        return {
+            "price": float(price),
+            "prev_close": float(prev_close),
+            "history": hist,
+            "low_today": float(hist["Low"].iloc[-1])
+        }
     except Exception as e:
         logging.exception("Fatal error fetching %s: %s", symbol, e)
         return None
+
+def calculate_indicators(hist, current_price: float, current_low: float) -> Dict[str, Any]:
+    try:
+        # SMA
+        sma50 = float(hist["Close"].rolling(window=50).mean().iloc[-1])
+        sma200 = float(hist["Close"].rolling(window=200).mean().iloc[-1])
+
+        # RSI (Simple Rolling Mean version for robustness)
+        delta = hist["Close"].diff()
+        gain = (delta.where(delta > 0, 0))
+        loss = (-delta.where(delta < 0, 0))
+        avg_gain = gain.rolling(window=14).mean()
+        avg_loss = loss.rolling(window=14).mean()
+        rs = avg_gain / avg_loss
+        rsi = float(100 - (100 / (1 + rs)).iloc[-1])
+
+        # 52-week high/low
+        high52 = float(hist["High"].max())
+        low52 = float(hist["Low"].min())
+
+        # U&R (Undercut & Rally)
+        # Prior low: lowest low of last 60 trading days (excluding today)
+        if len(hist) > 1:
+            prior_lows = hist["Low"].iloc[-61:-1]
+            prior_60d_low = float(prior_lows.min())
+            ur_signal = current_low < prior_60d_low and current_price > prior_60d_low
+        else:
+            prior_60d_low = 0.0
+            ur_signal = False
+
+        return {
+            "sma50": sma50,
+            "sma200": sma200,
+            "rsi": rsi,
+            "high52": high52,
+            "low52": low52,
+            "ur_signal": ur_signal,
+            "prior_60d_low": prior_60d_low
+        }
+    except Exception as e:
+        logging.error("Error calculating indicators: %s", e)
+        return {
+            "sma50": 0.0, "sma200": 0.0, "rsi": 50.0,
+            "high52": 0.0, "low52": 0.0, "ur_signal": False, "prior_60d_low": 0.0
+        }
+
+def calculate_rank(indicators: Dict[str, Any], current_price: float) -> int:
+    score = 0
+    if current_price > indicators["sma50"]: score += 20
+    if current_price > indicators["sma200"]: score += 20
+    if indicators["sma50"] > indicators["sma200"]: score += 10
+    if 40 <= indicators["rsi"] <= 65: score += 20
+    elif indicators["rsi"] > 65 and indicators["rsi"] <= 75: score += 10
+
+    if indicators["high52"] > 0:
+        dist_from_high = (indicators["high52"] - current_price) / indicators["high52"]
+        if dist_from_high < 0.15: score += 30
+
+    return score
 
 def send_webhook(webhook: str, message: str) -> bool:
     try:
@@ -161,18 +207,25 @@ def is_market_close_window() -> bool:
     # Run recap if within 55 minutes *after* market close.
     return market_close_dt <= now <= market_close_dt + timedelta(minutes=55)
 
-def generate_html_recap(recap_data: Dict[str, Dict[str, float]]) -> str:
+def generate_html_recap(recap_data: Dict[str, Dict[str, Any]]) -> str:
     """Generates an HTML table from the recap data."""
     rows = []
-    for symbol, data in sorted(recap_data.items()):
+    # Sort by rank (descending), then symbol
+    sorted_items = sorted(recap_data.items(), key=lambda x: (-x[1].get("rank", 0), x[0]))
+
+    for symbol, data in sorted_items:
         price = data.get("price", 0)
         change = data.get("change", 0)
+        rank = data.get("rank", 0)
+        ur = "🚀 U&R" if data.get("ur") else ""
         color = "#1f9d55" if change >= 0 else "#e3342f"
         rows.append(f"""
         <tr>
             <td style="padding:10px;border-bottom:1px solid #eee;"><strong>{symbol}</strong></td>
             <td style="padding:10px;border-bottom:1px solid #eee;">${price:.2f}</td>
             <td style="padding:10px;border-bottom:1px solid #eee;color:{color};">{change:+.2f}%</td>
+            <td style="padding:10px;border-bottom:1px solid #eee;">{rank}/100</td>
+            <td style="padding:10px;border-bottom:1px solid #eee;font-weight:bold;color:#1f9d55;">{ur}</td>
         </tr>
         """)
 
@@ -185,6 +238,8 @@ def generate_html_recap(recap_data: Dict[str, Dict[str, float]]) -> str:
                         <th style="padding:10px;border-bottom:2px solid #ddd;text-align:left;">Symbol</th>
                         <th style="padding:10px;border-bottom:2px solid #ddd;text-align:left;">Price</th>
                         <th style="padding:10px;border-bottom:2px solid #ddd;text-align:left;">Change (%)</th>
+                        <th style="padding:10px;border-bottom:2px solid #ddd;text-align:left;">Tech Rank</th>
+                        <th style="padding:10px;border-bottom:2px solid #ddd;text-align:left;">Signal</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -205,16 +260,29 @@ def evaluate_row(row: Dict[str, str], recap: Dict, state: Dict) -> Optional[Dict
     pct_down = safe_float(row.get("pct_down"))
     webhook = row.get("webhook") or None
 
-    data = fetch_price_and_prev_close(symbol)
+    data = fetch_stock_data(symbol)
     if data is None: return None
     price = data["price"]
     prev_close = data["prev_close"]
+    history = data["history"]
+    low_today = data["low_today"]
     change = (price - prev_close) / prev_close * 100.0
 
+    # Calculate indicators
+    indicators = calculate_indicators(history, price, low_today)
+    rank = calculate_rank(indicators, price)
+
     # --- Update daily recap for ALL symbols (in-memory) ---
-    recap[symbol] = {"price": round(price,2), "change": round(change,2)}
+    recap[symbol] = {
+        "price": round(price, 2),
+        "change": round(change, 2),
+        "rank": rank,
+        "ur": indicators["ur_signal"]
+    }
 
     triggers: List[str] = []
+    if indicators["ur_signal"]:
+        triggers.append(f"U&R: Undercut & Rally entry (Price ${price:.2f} > Low ${indicators['prior_60d_low']:.2f})")
     if low is not None and price <= low:
         triggers.append(f"low: price <= low ({price:.2f} <= {low})")
     if high is not None and price >= high:
@@ -253,16 +321,17 @@ def evaluate_row(row: Dict[str, str], recap: Dict, state: Dict) -> Optional[Dict
         # --- Build alert text ---
         text = (
             f"ALERT for {symbol}: {', '.join(new_triggers)}\n"
-            f"Price: {price:.2f} | Prev close: {prev_close:.2f} | Change: {change:.2f}%"
+            f"Price: {price:.2f} | Change: {change:.2f}% | Rank: {rank}/100"
         )
         severity = "info"
-        if any(keyword in t.lower() for t in triggers for keyword in ["down", "low"]):
-            severity = "down"
-        elif any(keyword in t.lower() for t in triggers for keyword in ["up", "high"]):
+        if any(keyword in t.lower() for t in triggers for keyword in ["u&r", "up", "high"]):
             severity = "up"
+        elif any(keyword in t.lower() for t in triggers for keyword in ["down", "low"]):
+            severity = "down"
 
         return {"symbol": symbol, "triggers": triggers, "price": round(price,2),
                 "prev_close": round(prev_close,2), "change": round(change,2),
+                "rank": rank, "ur": indicators["ur_signal"],
                 "text": text, "severity": severity}
     return None
 
@@ -339,9 +408,12 @@ def main() -> int:
 
             # Generate JSON recap for plaintext fallback
             recap_alerts = []
-            for symbol, data in recap.items():
+            # Sort by rank (descending), then symbol
+            sorted_recap = sorted(recap.items(), key=lambda x: (-x[1].get("rank", 0), x[0]))
+            for symbol, data in sorted_recap:
                 sign = "▲" if data["change"] >= 0 else "▼"
-                recap_alerts.append(f"**{symbol}** {sign} {abs(data['change'])}% — ${data['price']}")
+                ur_str = " (U&R!)" if data.get("ur") else ""
+                recap_alerts.append(f"**{symbol}** {sign} {abs(data['change'])}% — ${data['price']} | Rank: {data.get('rank')}/100{ur_str}")
             recap_payload = {
                 "type": "recap",
                 "title": f"📊 Market Close Recap ({TODAY})",
