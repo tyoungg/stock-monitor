@@ -217,6 +217,9 @@ def generate_html_recap(recap_data: Dict[str, Dict[str, Any]]) -> str:
         price = data.get("price", 0)
         change = data.get("change", 0)
         rank = data.get("rank", 0)
+        sma50 = data.get("sma50", 0)
+        sma200 = data.get("sma200", 0)
+        rsi = data.get("rsi", 0)
         ur = "🚀 U&R" if data.get("ur") else ""
         color = "#1f9d55" if change >= 0 else "#e3342f"
         rows.append(f"""
@@ -224,6 +227,9 @@ def generate_html_recap(recap_data: Dict[str, Dict[str, Any]]) -> str:
             <td style="padding:10px;border-bottom:1px solid #eee;"><strong>{symbol}</strong></td>
             <td style="padding:10px;border-bottom:1px solid #eee;">${price:.2f}</td>
             <td style="padding:10px;border-bottom:1px solid #eee;color:{color};">{change:+.2f}%</td>
+            <td style="padding:10px;border-bottom:1px solid #eee;">{sma50:.2f}</td>
+            <td style="padding:10px;border-bottom:1px solid #eee;">{sma200:.2f}</td>
+            <td style="padding:10px;border-bottom:1px solid #eee;">{rsi:.1f}</td>
             <td style="padding:10px;border-bottom:1px solid #eee;">{rank}/100</td>
             <td style="padding:10px;border-bottom:1px solid #eee;font-weight:bold;color:#1f9d55;">{ur}</td>
         </tr>
@@ -238,6 +244,9 @@ def generate_html_recap(recap_data: Dict[str, Dict[str, Any]]) -> str:
                         <th style="padding:10px;border-bottom:2px solid #ddd;text-align:left;">Symbol</th>
                         <th style="padding:10px;border-bottom:2px solid #ddd;text-align:left;">Price</th>
                         <th style="padding:10px;border-bottom:2px solid #ddd;text-align:left;">Change (%)</th>
+                        <th style="padding:10px;border-bottom:2px solid #ddd;text-align:left;">SMA 50</th>
+                        <th style="padding:10px;border-bottom:2px solid #ddd;text-align:left;">SMA 200</th>
+                        <th style="padding:10px;border-bottom:2px solid #ddd;text-align:left;">RSI</th>
                         <th style="padding:10px;border-bottom:2px solid #ddd;text-align:left;">Tech Rank</th>
                         <th style="padding:10px;border-bottom:2px solid #ddd;text-align:left;">Signal</th>
                     </tr>
@@ -277,7 +286,10 @@ def evaluate_row(row: Dict[str, str], recap: Dict, state: Dict) -> Optional[Dict
         "price": round(price, 2),
         "change": round(change, 2),
         "rank": rank,
-        "ur": indicators["ur_signal"]
+        "ur": indicators["ur_signal"],
+        "sma50": round(indicators["sma50"], 2),
+        "sma200": round(indicators["sma200"], 2),
+        "rsi": round(indicators["rsi"], 2)
     }
 
     triggers: List[str] = []
@@ -413,7 +425,12 @@ def main() -> int:
             for symbol, data in sorted_recap:
                 sign = "▲" if data["change"] >= 0 else "▼"
                 ur_str = " (U&R!)" if data.get("ur") else ""
-                recap_alerts.append(f"**{symbol}** {sign} {abs(data['change'])}% — ${data['price']} | Rank: {data.get('rank')}/100{ur_str}")
+                sma50 = data.get("sma50", 0)
+                rsi = data.get("rsi", 0)
+                recap_alerts.append(
+                    f"**{symbol}** {sign} {abs(data['change'])}% — ${data['price']} | "
+                    f"Rank: {data.get('rank')}/100 | SMA50: {sma50} | RSI: {rsi}{ur_str}"
+                )
             recap_payload = {
                 "type": "recap",
                 "title": f"📊 Market Close Recap ({TODAY})",
