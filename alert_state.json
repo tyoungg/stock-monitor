@@ -1,29 +1,4 @@
 {
-  "date": "2026-02-25",
-  "state": {
-    "JPM": [
-      "U&R:"
-    ],
-    "OCSL": [
-      "U&R:"
-    ],
-    "RTX": [
-      "low:"
-    ],
-    "SLV": [
-      "high:"
-    ],
-    "GLD": [
-      "high:"
-    ],
-    "MATX": [
-      "high:"
-    ],
-    "REMX": [
-      "high:"
-    ],
-    "BITI": [
-      "down"
-    ]
-  }
+  "date": "2026-02-26",
+  "state": {}
 }
