@@ -1,4 +1,5 @@
 AAPL
+AG
 ALNY
 AWK
 BEN
