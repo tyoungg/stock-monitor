@@ -1,24 +1,23 @@
 {
-  "date": "2026-03-02",
+  "date": "2026-03-03",
   "state": {
-    "CAT": [
-      "low:"
-    ],
-    "RF": [
-      "low:"
-    ],
-    "XYZ": [
-      "high:"
-    ],
     "BITI": [
-      "low:",
-      "down"
+      "low:"
     ],
     "OCSL": [
       "U&R:"
     ],
     "PLUG": [
       "U&R:"
+    ],
+    "RF": [
+      "low:"
+    ],
+    "^VIX": [
+      "high:"
+    ],
+    "XYZ": [
+      "high:"
     ]
   }
 }
