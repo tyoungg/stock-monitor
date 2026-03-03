@@ -18,6 +18,32 @@
     ],
     "XYZ": [
       "high:"
+    ],
+    "CAT": [
+      "low:"
+    ],
+    "JPM": [
+      "U&R:",
+      "low:"
+    ],
+    "QQQ": [
+      "low:"
+    ],
+    "SLV": [
+      "low:"
+    ],
+    "^SPX": [
+      "U&R:",
+      "low:"
+    ],
+    "SQQQ": [
+      "high:"
+    ],
+    "UL": [
+      "low:"
+    ],
+    "UVXY": [
+      "up"
     ]
   }
 }
