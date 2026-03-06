@@ -1,34 +1,31 @@
 {
-  "date": "2026-03-05",
+  "date": "2026-03-06",
   "state": {
+    "AG": [
+      "low:"
+    ],
     "BITI": [
       "low:"
     ],
     "CAT": [
       "low:"
     ],
+    "JPM": [
+      "low:"
+    ],
     "RF": [
-      "low:"
-    ],
-    "UL": [
-      "low:"
-    ],
-    "XYZ": [
-      "high:"
-    ],
-    "AG": [
       "low:"
     ],
     "SLV": [
       "low:"
     ],
-    "UVXY": [
-      "up"
-    ],
-    "JPM": [
+    "UL": [
       "low:"
     ],
     "^VIX": [
+      "high:"
+    ],
+    "XYZ": [
       "high:"
     ]
   }
