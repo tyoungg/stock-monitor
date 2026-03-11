@@ -1,23 +1,13 @@
 {
-  "date": "2026-03-10",
+  "date": "2026-03-11",
   "state": {
     "AG": [
       "low:"
     ],
-    "BITI": [
-      "low:"
-    ],
-    "BP": [
-      "high:",
-      "low:"
-    ],
-    "CAT": [
+    "BEN": [
       "low:"
     ],
     "HE": [
-      "low:"
-    ],
-    "JPM": [
       "low:"
     ],
     "RF": [
@@ -26,11 +16,8 @@
     "UL": [
       "low:"
     ],
-    "XYZ": [
+    "^VIX": [
       "high:"
-    ],
-    "UVXY": [
-      "down"
     ],
     "VTRS": [
       "low:"
