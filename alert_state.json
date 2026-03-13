@@ -25,6 +25,30 @@
     ],
     "VTRS": [
       "low:"
+    ],
+    "CAT": [
+      "low:"
+    ],
+    "GLD": [
+      "low:"
+    ],
+    "KR": [
+      "high:"
+    ],
+    "OCSL": [
+      "U&R:"
+    ],
+    "QQQ": [
+      "low:"
+    ],
+    "SLV": [
+      "low:"
+    ],
+    "SQQQ": [
+      "high:"
+    ],
+    "^VIX": [
+      "high:"
     ]
   }
 }
