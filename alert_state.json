@@ -1,5 +1,5 @@
 {
-  "date": "2026-03-13",
+  "date": "2026-03-16",
   "state": {
     "AG": [
       "low:"
@@ -10,49 +10,29 @@
     "BITI": [
       "low:"
     ],
-    "HE": [
-      "low:"
-    ],
-    "RF": [
-      "U&R:",
-      "low:"
-    ],
-    "^SPX": [
-      "low:",
-      "U&R:"
-    ],
-    "UL": [
-      "low:"
-    ],
-    "VTRS": [
-      "low:"
-    ],
-    "CAT": [
-      "low:"
-    ],
     "GLD": [
       "low:"
     ],
-    "KR": [
-      "high:"
-    ],
     "OCSL": [
-      "U&R:"
+      "low:"
     ],
-    "QQQ": [
+    "RF": [
       "low:"
     ],
     "SLV": [
       "low:"
     ],
-    "SQQQ": [
-      "high:"
+    "^SPX": [
+      "low:"
     ],
-    "^VIX": [
-      "high:"
+    "UL": [
+      "low:"
     ],
-    "^DJI": [
-      "U&R:"
+    "UVXY": [
+      "down"
+    ],
+    "VTRS": [
+      "low:"
     ]
   }
 }
