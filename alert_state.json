@@ -1,13 +1,20 @@
 {
-  "date": "2026-03-18",
+  "date": "2026-03-19",
   "state": {
     "AG": [
       "low:"
     ],
     "BEN": [
+      "U&R:",
       "low:"
     ],
-    "BITI": [
+    "BP": [
+      "high:"
+    ],
+    "CAT": [
+      "low:"
+    ],
+    "GE": [
       "low:"
     ],
     "GLD": [
@@ -16,39 +23,37 @@
     "HE": [
       "low:"
     ],
+    "PBI": [
+      "U&R:"
+    ],
+    "QQQ": [
+      "U&R:",
+      "low:"
+    ],
+    "REMX": [
+      "low:"
+    ],
     "RF": [
+      "U&R:",
       "low:"
     ],
     "SLV": [
       "low:"
     ],
     "^SPX": [
-      "low:",
-      "U&R:"
-    ],
-    "UL": [
-      "low:"
-    ],
-    "UVXY": [
-      "up"
-    ],
-    "VTRS": [
-      "low:"
-    ],
-    "^DJI": [
-      "U&R:"
-    ],
-    "CAT": [
-      "low:"
-    ],
-    "QQQ": [
       "low:"
     ],
     "SQQQ": [
       "high:"
     ],
+    "UL": [
+      "low:"
+    ],
     "^VIX": [
       "high:"
+    ],
+    "VTRS": [
+      "low:"
     ]
   }
 }
