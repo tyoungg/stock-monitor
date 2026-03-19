@@ -15,7 +15,8 @@
       "low:"
     ],
     "GE": [
-      "low:"
+      "low:",
+      "U&R:"
     ],
     "GLD": [
       "low:"
@@ -47,13 +48,23 @@
       "high:"
     ],
     "UL": [
-      "low:"
+      "low:",
+      "U&R:"
     ],
     "^VIX": [
       "high:"
     ],
     "VTRS": [
       "low:"
+    ],
+    "DIS": [
+      "U&R:"
+    ],
+    "PFF": [
+      "U&R:"
+    ],
+    "UVXY": [
+      "down"
     ]
   }
 }
