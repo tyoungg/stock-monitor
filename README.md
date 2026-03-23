@@ -54,6 +54,15 @@ You can receive a single email with all alerts. To do so, you will need to confi
 ### 📊 Market Recap Email
 In addition to alerts, a daily market recap email is sent shortly after the market closes. This email provides a summary of the day's performance for all monitored stocks in a formatted HTML table.
 
+### 🖥️ Visual Dashboard
+A visual dashboard is automatically generated and updated twice daily (at Noon and Market Close ET). The dashboard provides a comprehensive view of all monitored stocks, including:
+- **Price Rules**: Visual progress bars showing where the current price sits relative to your `low` and `high` rules.
+- **52-Week Range**: Visual indicators for the current price relative to its 52-week high and low.
+- **Technical Indicators**: Summaries of SMA50, SMA200, and RSI for each stock.
+- **Signals**: Highlighting special chart patterns like "Undercut & Rally".
+
+The dashboard is stored in the `docs/` directory of the repository and can be hosted via **GitHub Pages**. To view it, enable GitHub Pages in your repository settings and point it to the `docs/` folder on your main branch.
+
 ### 🤫 Daily Alert Deduplication
 To prevent repeat notifications, once a stock triggers a specific alert (e.g., "low price"), it is silenced for the remainder of the trading day. The alert state is stored in `alert_state.json` and automatically resets each day.
 
