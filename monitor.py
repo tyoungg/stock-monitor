@@ -273,9 +273,11 @@ def generate_dashboard(recap_data: Dict[str, Dict[str, Any]]) -> None:
 
         # Calculate visual position between low and high
         progress_bar = ""
+        pos_sort = -1
         if low is not None and high is not None and high > low:
             pos = (price - low) / (high - low) * 100
             pos = max(0, min(100, pos))
+            pos_sort = pos
             color = "#3490dc" # blue
             if pos < 10: color = "#e3342f" # red
             elif pos > 90: color = "#38c172" # green
@@ -297,9 +299,11 @@ def generate_dashboard(recap_data: Dict[str, Dict[str, Any]]) -> None:
         low52 = data.get("low52")
         high52 = data.get("high52")
         progress_bar_52w = ""
+        pos52_sort = -1
         if low52 and high52 and high52 > low52:
             pos52 = (price - low52) / (high52 - low52) * 100
             pos52 = max(0, min(100, pos52))
+            pos52_sort = pos52
             progress_bar_52w = f"""
             <div style="width:100px; background:#eee; height:12px; border-radius:6px; position:relative; overflow:hidden;">
                 <div style="width:{pos52}%; background:#6c757d; height:100%;"></div>
@@ -310,16 +314,18 @@ def generate_dashboard(recap_data: Dict[str, Dict[str, Any]]) -> None:
             """
 
         change_color = "#1f9d55" if change >= 0 else "#e3342f"
+        ur_sort = 1 if data.get("ur") else 0
+        rsi_sort = data.get("rsi", 0)
 
         rows.append(f"""
         <tr>
             <td style="padding:12px; border-bottom:1px solid #eee;"><strong>{symbol}</strong></td>
-            <td style="padding:12px; border-bottom:1px solid #eee;">${price:.2f} <span style="color:{change_color}; font-size:0.9em;">({change:+.2f}%)</span></td>
-            <td style="padding:12px; border-bottom:1px solid #eee;">{progress_bar}</td>
-            <td style="padding:12px; border-bottom:1px solid #eee;">{progress_bar_52w}</td>
-            <td style="padding:12px; border-bottom:1px solid #eee;"><span style="display:inline-block; padding:2px 8px; background:#f0f0f0; border-radius:12px; font-size:0.9em;">{rank}/100</span></td>
-            <td style="padding:12px; border-bottom:1px solid #eee;">{ur}</td>
-            <td style="padding:12px; border-bottom:1px solid #eee; font-size:0.85em; color:#666;">
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="{price}">${price:.2f} <span style="color:{change_color}; font-size:0.9em;">({change:+.2f}%)</span></td>
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="{pos_sort}">{progress_bar}</td>
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="{pos52_sort}">{progress_bar_52w}</td>
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="{rank}"><span style="display:inline-block; padding:2px 8px; background:#f0f0f0; border-radius:12px; font-size:0.9em;">{rank}/100</span></td>
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="{ur_sort}">{ur}</td>
+            <td style="padding:12px; border-bottom:1px solid #eee; font-size:0.85em; color:#666;" data-sort="{rsi_sort}">
                 SMA50: {data.get('sma50')}<br/>
                 SMA200: {data.get('sma200')}<br/>
                 RSI: {data.get('rsi')}
@@ -342,7 +348,10 @@ def generate_dashboard(recap_data: Dict[str, Dict[str, Any]]) -> None:
             h1 {{ margin-top: 0; color: #2c3e50; }}
             .updated {{ font-size: 0.9em; color: #7f8c8d; margin-bottom: 20px; }}
             table {{ width: 100%; border-collapse: collapse; margin-top: 10px; }}
-            th {{ text-align: left; padding: 12px; border-bottom: 2px solid #eee; color: #7f8c8d; font-weight: 600; text-transform: uppercase; font-size: 0.8em; }}
+            th {{ text-align: left; padding: 12px; border-bottom: 2px solid #eee; color: #7f8c8d; font-weight: 600; text-transform: uppercase; font-size: 0.8em; cursor: pointer; user-select: none; }}
+            th:hover {{ color: #2c3e50; background: #f9f9f9; }}
+            th.sort-asc::after {{ content: " ↑"; }}
+            th.sort-desc::after {{ content: " ↓"; }}
             tr:hover {{ background-color: #f9f9f9; }}
         </style>
     </head>
@@ -350,16 +359,16 @@ def generate_dashboard(recap_data: Dict[str, Dict[str, Any]]) -> None:
         <div class="container">
             <h1>📈 Stock Monitor Dashboard</h1>
             <div class="updated">Last updated: {timestamp}</div>
-            <table>
+            <table id="stockTable">
                 <thead>
                     <tr>
-                        <th>Symbol</th>
-                        <th>Price</th>
-                        <th>Position / Rules</th>
-                        <th>52W Range</th>
-                        <th>Rank</th>
-                        <th>Signal</th>
-                        <th>Indicators</th>
+                        <th onclick="sortTable(0)">Symbol</th>
+                        <th onclick="sortTable(1)">Price</th>
+                        <th onclick="sortTable(2)">Position / Rules</th>
+                        <th onclick="sortTable(3)">52W Range</th>
+                        <th onclick="sortTable(4)">Rank</th>
+                        <th onclick="sortTable(5)">Signal</th>
+                        <th onclick="sortTable(6)">Indicators</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -367,6 +376,66 @@ def generate_dashboard(recap_data: Dict[str, Dict[str, Any]]) -> None:
                 </tbody>
             </table>
         </div>
+        <script>
+        function sortTable(n) {{
+            var table, rows, switching, i, x, y, shouldSwitch, dir, switchcount = 0;
+            table = document.getElementById("stockTable");
+            switching = true;
+            dir = "asc";
+
+            // Clear all sort classes
+            var headers = table.getElementsByTagName("TH");
+            for (i = 0; i < headers.length; i++) {{
+                headers[i].classList.remove("sort-asc", "sort-desc");
+            }}
+
+            while (switching) {{
+                switching = false;
+                rows = table.rows;
+                for (i = 1; i < (rows.length - 1); i++) {{
+                    shouldSwitch = false;
+                    x = rows[i].getElementsByTagName("TD")[n];
+                    y = rows[i + 1].getElementsByTagName("TD")[n];
+
+                    var xVal = x.getAttribute("data-sort") || x.innerText.toLowerCase();
+                    var yVal = y.getAttribute("data-sort") || y.innerText.toLowerCase();
+
+                    if (!isNaN(parseFloat(xVal)) && !isNaN(parseFloat(yVal))) {{
+                        xVal = parseFloat(xVal);
+                        yVal = parseFloat(yVal);
+                    }}
+
+                    if (dir == "asc") {{
+                        if (xVal > yVal) {{
+                            shouldSwitch = true;
+                            break;
+                        }}
+                    }} else if (dir == "desc") {{
+                        if (xVal < yVal) {{
+                            shouldSwitch = true;
+                            break;
+                        }}
+                    }}
+                }}
+                if (shouldSwitch) {{
+                    rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
+                    switching = true;
+                    switchcount ++;
+                }} else {{
+                    if (switchcount == 0 && dir == "asc") {{
+                        dir = "desc";
+                        switching = true;
+                    }}
+                }}
+            }}
+
+            if (dir == "asc") {{
+                headers[n].classList.add("sort-asc");
+            }} else {{
+                headers[n].classList.add("sort-desc");
+            }}
+        }}
+        </script>
     </body>
     </html>
     """
