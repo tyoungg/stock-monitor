@@ -7,7 +7,7 @@
     "BEN": [
       "low:"
     ],
-    "CAT": [
+    "BITI": [
       "low:"
     ],
     "GLD": [
@@ -38,11 +38,17 @@
       "U&R:",
       "low:"
     ],
-    "^VIX": [
-      "high:"
+    "UVXY": [
+      "down"
     ],
     "VTRS": [
       "low:"
+    ],
+    "CAT": [
+      "low:"
+    ],
+    "^VIX": [
+      "high:"
     ]
   }
 }

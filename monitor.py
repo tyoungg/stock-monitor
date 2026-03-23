@@ -293,22 +293,6 @@ def generate_dashboard(recap_data: Dict[str, Dict[str, Any]]) -> None:
         elif high is not None:
             progress_bar = f"<div style='font-size:10px; color:#777;'>High Rule: ${high}</div>"
 
-        # 52-week range visual
-        h52 = data.get("high52")
-        l52 = data.get("low52")
-        range_52w = ""
-        if h52 and l52 and h52 > l52:
-            pos_52 = (price - l52) / (h52 - l52) * 100
-            pos_52 = max(0, min(100, pos_52))
-            range_52w = f"""
-            <div style="width:100px; background:#eee; height:12px; border-radius:6px; position:relative; overflow:hidden;">
-                <div style="width:{pos_52}%; background:#6c757d; height:100%;"></div>
-            </div>
-            <div style="font-size:10px; color:#777; margin-top:2px;">
-                ${l52:.2f} - ${h52:.2f}
-            </div>
-            """
-
         change_color = "#1f9d55" if change >= 0 else "#e3342f"
 
         rows.append(f"""
@@ -316,7 +300,6 @@ def generate_dashboard(recap_data: Dict[str, Dict[str, Any]]) -> None:
             <td style="padding:12px; border-bottom:1px solid #eee;"><strong>{symbol}</strong></td>
             <td style="padding:12px; border-bottom:1px solid #eee;">${price:.2f} <span style="color:{change_color}; font-size:0.9em;">({change:+.2f}%)</span></td>
             <td style="padding:12px; border-bottom:1px solid #eee;">{progress_bar}</td>
-            <td style="padding:12px; border-bottom:1px solid #eee;">{range_52w}</td>
             <td style="padding:12px; border-bottom:1px solid #eee;"><span style="display:inline-block; padding:2px 8px; background:#f0f0f0; border-radius:12px; font-size:0.9em;">{rank}/100</span></td>
             <td style="padding:12px; border-bottom:1px solid #eee;">{ur}</td>
             <td style="padding:12px; border-bottom:1px solid #eee; font-size:0.85em; color:#666;">
@@ -356,7 +339,6 @@ def generate_dashboard(recap_data: Dict[str, Dict[str, Any]]) -> None:
                         <th>Symbol</th>
                         <th>Price</th>
                         <th>Position / Rules</th>
-                        <th>52W Range</th>
                         <th>Rank</th>
                         <th>Signal</th>
                         <th>Indicators</th>
