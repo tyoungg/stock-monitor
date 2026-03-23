@@ -1,24 +1,13 @@
 {
-  "date": "2026-03-21",
+  "date": "2026-03-23",
   "state": {
     "AG": [
       "low:"
     ],
     "BEN": [
-      "U&R:",
       "low:"
     ],
-    "BP": [
-      "high:"
-    ],
-    "CAT": [
-      "low:"
-    ],
-    "DIS": [
-      "U&R:"
-    ],
-    "GE": [
-      "U&R:",
+    "BITI": [
       "low:"
     ],
     "GLD": [
@@ -36,9 +25,6 @@
     "RF": [
       "low:"
     ],
-    "SDIV": [
-      "low:"
-    ],
     "SLV": [
       "low:"
     ],
@@ -52,10 +38,7 @@
       "low:"
     ],
     "UVXY": [
-      "up"
-    ],
-    "^VIX": [
-      "high:"
+      "down"
     ],
     "VTRS": [
       "low:"
