@@ -207,6 +207,11 @@ def is_market_close_window() -> bool:
     # Run recap if within 55 minutes *after* market close.
     return market_close_dt <= now <= market_close_dt + timedelta(minutes=55)
 
+def is_noon_window() -> bool:
+    now = datetime.now(ZoneInfo("America/New_York"))
+    # Noon ET: 12:00 PM to 12:55 PM
+    return 12 == now.hour and 0 <= now.minute <= 55
+
 def generate_html_recap(recap_data: Dict[str, Dict[str, Any]]) -> str:
     """Generates an HTML table from the recap data."""
     rows = []
@@ -250,6 +255,126 @@ def generate_html_recap(recap_data: Dict[str, Dict[str, Any]]) -> str:
     </html>
     """
 
+def generate_dashboard(recap_data: Dict[str, Dict[str, Any]]) -> None:
+    """Generates a comprehensive HTML dashboard in the docs/ directory."""
+    os.makedirs("docs", exist_ok=True)
+
+    rows = []
+    # Sort by rank (descending), then symbol
+    sorted_items = sorted(recap_data.items(), key=lambda x: (-x[1].get("rank", 0), x[0]))
+
+    for symbol, data in sorted_items:
+        price = data.get("price", 0)
+        change = data.get("change", 0)
+        rank = data.get("rank", 0)
+        ur = "🚀 U&R" if data.get("ur") else ""
+        low = data.get("low")
+        high = data.get("high")
+
+        # Calculate visual position between low and high
+        progress_bar = ""
+        if low is not None and high is not None and high > low:
+            pos = (price - low) / (high - low) * 100
+            pos = max(0, min(100, pos))
+            color = "#3490dc" # blue
+            if pos < 10: color = "#e3342f" # red
+            elif pos > 90: color = "#38c172" # green
+
+            progress_bar = f"""
+            <div style="width:100px; background:#eee; height:12px; border-radius:6px; position:relative; overflow:hidden;">
+                <div style="width:{pos}%; background:{color}; height:100%;"></div>
+            </div>
+            <div style="font-size:10px; color:#777; margin-top:2px;">
+                ${low} - ${high}
+            </div>
+            """
+        elif low is not None:
+            progress_bar = f"<div style='font-size:10px; color:#777;'>Low Rule: ${low}</div>"
+        elif high is not None:
+            progress_bar = f"<div style='font-size:10px; color:#777;'>High Rule: ${high}</div>"
+
+        # 52-week range visual
+        h52 = data.get("high52")
+        l52 = data.get("low52")
+        range_52w = ""
+        if h52 and l52 and h52 > l52:
+            pos_52 = (price - l52) / (h52 - l52) * 100
+            pos_52 = max(0, min(100, pos_52))
+            range_52w = f"""
+            <div style="width:100px; background:#eee; height:12px; border-radius:6px; position:relative; overflow:hidden;">
+                <div style="width:{pos_52}%; background:#6c757d; height:100%;"></div>
+            </div>
+            <div style="font-size:10px; color:#777; margin-top:2px;">
+                ${l52:.2f} - ${h52:.2f}
+            </div>
+            """
+
+        change_color = "#1f9d55" if change >= 0 else "#e3342f"
+
+        rows.append(f"""
+        <tr>
+            <td style="padding:12px; border-bottom:1px solid #eee;"><strong>{symbol}</strong></td>
+            <td style="padding:12px; border-bottom:1px solid #eee;">${price:.2f} <span style="color:{change_color}; font-size:0.9em;">({change:+.2f}%)</span></td>
+            <td style="padding:12px; border-bottom:1px solid #eee;">{progress_bar}</td>
+            <td style="padding:12px; border-bottom:1px solid #eee;">{range_52w}</td>
+            <td style="padding:12px; border-bottom:1px solid #eee;"><span style="display:inline-block; padding:2px 8px; background:#f0f0f0; border-radius:12px; font-size:0.9em;">{rank}/100</span></td>
+            <td style="padding:12px; border-bottom:1px solid #eee;">{ur}</td>
+            <td style="padding:12px; border-bottom:1px solid #eee; font-size:0.85em; color:#666;">
+                SMA50: {data.get('sma50')}<br/>
+                SMA200: {data.get('sma200')}<br/>
+                RSI: {data.get('rsi')}
+            </td>
+        </tr>
+        """)
+
+    timestamp = datetime.now(ZoneInfo("America/New_York")).strftime("%Y-%m-%d %I:%M %p ET")
+
+    html = f"""
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Stock Monitor Dashboard</title>
+        <style>
+            body {{ font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background: #f4f7f6; color: #333; margin: 0; padding: 20px; }}
+            .container {{ max-width: 1000px; margin: 0 auto; background: #fff; padding: 30px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }}
+            h1 {{ margin-top: 0; color: #2c3e50; }}
+            .updated {{ font-size: 0.9em; color: #7f8c8d; margin-bottom: 20px; }}
+            table {{ width: 100%; border-collapse: collapse; margin-top: 10px; }}
+            th {{ text-align: left; padding: 12px; border-bottom: 2px solid #eee; color: #7f8c8d; font-weight: 600; text-transform: uppercase; font-size: 0.8em; }}
+            tr:hover {{ background-color: #f9f9f9; }}
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <h1>📈 Stock Monitor Dashboard</h1>
+            <div class="updated">Last updated: {timestamp}</div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Symbol</th>
+                        <th>Price</th>
+                        <th>Position / Rules</th>
+                        <th>52W Range</th>
+                        <th>Rank</th>
+                        <th>Signal</th>
+                        <th>Indicators</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {''.join(rows)}
+                </tbody>
+            </table>
+        </div>
+    </body>
+    </html>
+    """
+
+    with open("docs/index.html", "w", encoding="utf-8") as f:
+        f.write(html)
+    logging.info("Dashboard generated at docs/index.html")
+
 # --- Evaluate one row ---
 def evaluate_row(row: Dict[str, str], recap: Dict, state: Dict) -> Optional[Dict[str, Any]]:
     symbol = row.get("symbol")
@@ -277,7 +402,16 @@ def evaluate_row(row: Dict[str, str], recap: Dict, state: Dict) -> Optional[Dict
         "price": round(price, 2),
         "change": round(change, 2),
         "rank": rank,
-        "ur": indicators["ur_signal"]
+        "ur": indicators["ur_signal"],
+        "low": low,
+        "high": high,
+        "pct_up": pct_up,
+        "pct_down": pct_down,
+        "sma50": round(indicators["sma50"], 2),
+        "sma200": round(indicators["sma200"], 2),
+        "rsi": round(indicators["rsi"], 2),
+        "high52": round(indicators["high52"], 2),
+        "low52": round(indicators["low52"], 2)
     }
 
     triggers: List[str] = []
@@ -394,12 +528,16 @@ def main() -> int:
             logging.debug("Could not remove alerts file: %s", e)
         logging.info("No alerts triggered")
 
+    # --- Dashboard generation (Noon and Close) ---
+    if is_noon_window() or is_market_close_window() or os.environ.get("FORCE_DASHBOARD") == "true":
+        if recap:
+            generate_dashboard(recap)
+
     # --- Market-close recap ---
     if is_market_close_window():
         if os.environ.get("GITHUB_OUTPUT"):
             with open(os.environ["GITHUB_OUTPUT"], "a") as f:
                 print("is_market_close=true", file=f)
-        recap = load_recap()
         if recap:
             # Generate HTML recap
             html_recap = generate_html_recap(recap)
