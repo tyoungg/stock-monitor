@@ -11,683 +11,637 @@
             h1 { margin-top: 0; color: #2c3e50; }
             .updated { font-size: 0.9em; color: #7f8c8d; margin-bottom: 20px; }
             table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-            th { text-align: left; padding: 12px; border-bottom: 2px solid #eee; color: #7f8c8d; font-weight: 600; text-transform: uppercase; font-size: 0.8em; }
+            th { text-align: left; padding: 12px; border-bottom: 2px solid #eee; color: #7f8c8d; font-weight: 600; text-transform: uppercase; font-size: 0.8em; cursor: pointer; user-select: none; }
+            th:hover { color: #2c3e50; background: #f9f9f9; }
+            th.sort-asc::after { content: " ↑"; }
+            th.sort-desc::after { content: " ↓"; }
             tr:hover { background-color: #f9f9f9; }
         </style>
     </head>
     <body>
         <div class="container">
             <h1>📈 Stock Monitor Dashboard</h1>
-            <div class="updated">Last updated: 2026-03-23 02:53 PM ET</div>
-            <table>
+            <div class="updated">Last updated: 2026-03-23 03:16 PM ET</div>
+            <table id="stockTable">
                 <thead>
                     <tr>
-                        <th>Symbol</th>
-                        <th>Price</th>
-                        <th>Position / Rules</th>
-                        <th>52W Range</th>
-                        <th>Rank</th>
-                        <th>Signal</th>
-                        <th>Indicators</th>
+                        <th onclick="sortTable(0)">Symbol</th>
+                        <th onclick="sortTable(1)">Price</th>
+                        <th onclick="sortTable(2)">Position / Rules</th>
+                        <th onclick="sortTable(3)">52W Range</th>
+                        <th onclick="sortTable(4)">Rank</th>
+                        <th onclick="sortTable(5)">Signal</th>
+                        <th onclick="sortTable(6)">Indicators</th>
                     </tr>
                 </thead>
                 <tbody>
                     
         <tr>
             <td style="padding:12px; border-bottom:1px solid #eee;"><strong>BITI</strong></td>
-            <td style="padding:12px; border-bottom:1px solid #eee;">$25.53 <span style="color:#e3342f; font-size:0.9em;">(-1.03%)</span></td>
-            <td style="padding:12px; border-bottom:1px solid #eee;">
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="25.56">$25.56 <span style="color:#e3342f; font-size:0.9em;">(-0.93%)</span></td>
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="8.266666666666632">
             <div style="width:100px; background:#eee; height:12px; border-radius:6px; position:relative; overflow:hidden;">
-                <div style="width:7.466666666666696%; background:#e3342f; height:100%;"></div>
+                <div style="width:8.266666666666632%; background:#e3342f; height:100%;"></div>
             </div>
             <div style="font-size:10px; color:#777; margin-top:2px;">
                 $25.25 - $29.0
             </div>
             </td>
-            <td style="padding:12px; border-bottom:1px solid #eee;">
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="69.25795053003533">
             <div style="width:100px; background:#eee; height:12px; border-radius:6px; position:relative; overflow:hidden;">
-                <div style="width:69.04593639575972%; background:#6c757d; height:100%;"></div>
+                <div style="width:69.25795053003533%; background:#6c757d; height:100%;"></div>
             </div>
             <div style="font-size:10px; color:#777; margin-top:2px;">
                 $15.76 - $29.91
             </div>
             </td>
-            <td style="padding:12px; border-bottom:1px solid #eee;"><span style="display:inline-block; padding:2px 8px; background:#f0f0f0; border-radius:12px; font-size:0.9em;">100/100</span></td>
-            <td style="padding:12px; border-bottom:1px solid #eee;"></td>
-            <td style="padding:12px; border-bottom:1px solid #eee; font-size:0.85em; color:#666;">
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="100"><span style="display:inline-block; padding:2px 8px; background:#f0f0f0; border-radius:12px; font-size:0.9em;">100/100</span></td>
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="0"></td>
+            <td style="padding:12px; border-bottom:1px solid #eee; font-size:0.85em; color:#666;" data-sort="42.07">
                 SMA50: 24.94<br/>
                 SMA200: 20.32<br/>
-                RSI: 41.94
+                RSI: 42.07
             </td>
         </tr>
 
         <tr>
             <td style="padding:12px; border-bottom:1px solid #eee;"><strong>CAT</strong></td>
-            <td style="padding:12px; border-bottom:1px solid #eee;">$702.08 <span style="color:#1f9d55; font-size:0.9em;">(+2.42%)</span></td>
-            <td style="padding:12px; border-bottom:1px solid #eee;">
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="701.82">$701.82 <span style="color:#1f9d55; font-size:0.9em;">(+2.38%)</span></td>
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="1.82000000000005">
             <div style="width:100px; background:#eee; height:12px; border-radius:6px; position:relative; overflow:hidden;">
-                <div style="width:2.080000000000041%; background:#e3342f; height:100%;"></div>
+                <div style="width:1.82000000000005%; background:#e3342f; height:100%;"></div>
             </div>
             <div style="font-size:10px; color:#777; margin-top:2px;">
                 $700.0 - $800.0
             </div>
             </td>
-            <td style="padding:12px; border-bottom:1px solid #eee;">
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="83.27631428897254">
             <div style="width:100px; background:#eee; height:12px; border-radius:6px; position:relative; overflow:hidden;">
-                <div style="width:83.32573079408525%; background:#6c757d; height:100%;"></div>
+                <div style="width:83.27631428897254%; background:#6c757d; height:100%;"></div>
             </div>
             <div style="font-size:10px; color:#777; margin-top:2px;">
                 $263.67 - $789.81
             </div>
             </td>
-            <td style="padding:12px; border-bottom:1px solid #eee;"><span style="display:inline-block; padding:2px 8px; background:#f0f0f0; border-radius:12px; font-size:0.9em;">100/100</span></td>
-            <td style="padding:12px; border-bottom:1px solid #eee;"></td>
-            <td style="padding:12px; border-bottom:1px solid #eee; font-size:0.85em; color:#666;">
-                SMA50: 699.77<br/>
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="100"><span style="display:inline-block; padding:2px 8px; background:#f0f0f0; border-radius:12px; font-size:0.9em;">100/100</span></td>
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="0"></td>
+            <td style="padding:12px; border-bottom:1px solid #eee; font-size:0.85em; color:#666;" data-sort="43.99">
+                SMA50: 699.76<br/>
                 SMA200: 534.03<br/>
-                RSI: 44.08
+                RSI: 43.99
             </td>
         </tr>
         
         <tr>
             <td style="padding:12px; border-bottom:1px solid #eee;"><strong>CSCO</strong></td>
-            <td style="padding:12px; border-bottom:1px solid #eee;">$78.92 <span style="color:#1f9d55; font-size:0.9em;">(+0.53%)</span></td>
-            <td style="padding:12px; border-bottom:1px solid #eee;"><div style='font-size:10px; color:#777;'>Low Rule: $37.5</div></td>
-            <td style="padding:12px; border-bottom:1px solid #eee;">
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="78.9">$78.90 <span style="color:#1f9d55; font-size:0.9em;">(+0.51%)</span></td>
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="-1"><div style='font-size:10px; color:#777;'>Low Rule: $37.5</div></td>
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="74.87831260140618">
             <div style="width:100px; background:#eee; height:12px; border-radius:6px; position:relative; overflow:hidden;">
-                <div style="width:74.9323958896701%; background:#6c757d; height:100%;"></div>
+                <div style="width:74.87831260140618%; background:#6c757d; height:100%;"></div>
             </div>
             <div style="font-size:10px; color:#777; margin-top:2px;">
                 $51.21 - $88.19
             </div>
             </td>
-            <td style="padding:12px; border-bottom:1px solid #eee;"><span style="display:inline-block; padding:2px 8px; background:#f0f0f0; border-radius:12px; font-size:0.9em;">100/100</span></td>
-            <td style="padding:12px; border-bottom:1px solid #eee;"></td>
-            <td style="padding:12px; border-bottom:1px solid #eee; font-size:0.85em; color:#666;">
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="100"><span style="display:inline-block; padding:2px 8px; background:#f0f0f0; border-radius:12px; font-size:0.9em;">100/100</span></td>
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="0"></td>
+            <td style="padding:12px; border-bottom:1px solid #eee; font-size:0.85em; color:#666;" data-sort="49.8">
                 SMA50: 78.41<br/>
                 SMA200: 72.2<br/>
-                RSI: 49.85
+                RSI: 49.8
             </td>
         </tr>
         
         <tr>
             <td style="padding:12px; border-bottom:1px solid #eee;"><strong>CTVA</strong></td>
-            <td style="padding:12px; border-bottom:1px solid #eee;">$78.44 <span style="color:#1f9d55; font-size:0.9em;">(+0.26%)</span></td>
-            <td style="padding:12px; border-bottom:1px solid #eee;"><div style='font-size:10px; color:#777;'>Low Rule: $40.0</div></td>
-            <td style="padding:12px; border-bottom:1px solid #eee;">
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="78.22">$78.22 <span style="color:#e3342f; font-size:0.9em;">(-0.02%)</span></td>
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="-1"><div style='font-size:10px; color:#777;'>Low Rule: $40.0</div></td>
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="90.435403283369">
             <div style="width:100px; background:#eee; height:12px; border-radius:6px; position:relative; overflow:hidden;">
-                <div style="width:91.220556745182%; background:#6c757d; height:100%;"></div>
+                <div style="width:90.435403283369%; background:#6c757d; height:100%;"></div>
             </div>
             <div style="font-size:10px; color:#777; margin-top:2px;">
                 $52.88 - $80.9
             </div>
             </td>
-            <td style="padding:12px; border-bottom:1px solid #eee;"><span style="display:inline-block; padding:2px 8px; background:#f0f0f0; border-radius:12px; font-size:0.9em;">100/100</span></td>
-            <td style="padding:12px; border-bottom:1px solid #eee;"></td>
-            <td style="padding:12px; border-bottom:1px solid #eee; font-size:0.85em; color:#666;">
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="100"><span style="display:inline-block; padding:2px 8px; background:#f0f0f0; border-radius:12px; font-size:0.9em;">100/100</span></td>
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="0"></td>
+            <td style="padding:12px; border-bottom:1px solid #eee; font-size:0.85em; color:#666;" data-sort="47.62">
                 SMA50: 75.04<br/>
-                SMA200: 70.3<br/>
-                RSI: 48.37
+                SMA200: 70.29<br/>
+                RSI: 47.62
             </td>
         </tr>
         
         <tr>
             <td style="padding:12px; border-bottom:1px solid #eee;"><strong>ENOR</strong></td>
-            <td style="padding:12px; border-bottom:1px solid #eee;">$34.59 <span style="color:#e3342f; font-size:0.9em;">(-2.04%)</span></td>
-            <td style="padding:12px; border-bottom:1px solid #eee;"><div style='font-size:10px; color:#777;'>Low Rule: $25.95</div></td>
-            <td style="padding:12px; border-bottom:1px solid #eee;">
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="34.61">$34.61 <span style="color:#e3342f; font-size:0.9em;">(-1.98%)</span></td>
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="-1"><div style='font-size:10px; color:#777;'>Low Rule: $25.95</div></td>
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="87.7444589308996">
             <div style="width:100px; background:#eee; height:12px; border-radius:6px; position:relative; overflow:hidden;">
-                <div style="width:87.61408083441982%; background:#6c757d; height:100%;"></div>
+                <div style="width:87.7444589308996%; background:#6c757d; height:100%;"></div>
             </div>
             <div style="font-size:10px; color:#777; margin-top:2px;">
                 $21.15 - $36.49
             </div>
             </td>
-            <td style="padding:12px; border-bottom:1px solid #eee;"><span style="display:inline-block; padding:2px 8px; background:#f0f0f0; border-radius:12px; font-size:0.9em;">100/100</span></td>
-            <td style="padding:12px; border-bottom:1px solid #eee;"></td>
-            <td style="padding:12px; border-bottom:1px solid #eee; font-size:0.85em; color:#666;">
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="100"><span style="display:inline-block; padding:2px 8px; background:#f0f0f0; border-radius:12px; font-size:0.9em;">100/100</span></td>
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="0"></td>
+            <td style="padding:12px; border-bottom:1px solid #eee; font-size:0.85em; color:#666;" data-sort="50.57">
                 SMA50: 32.92<br/>
                 SMA200: 29.11<br/>
-                RSI: 50.41
+                RSI: 50.57
             </td>
         </tr>
 
         <tr>
             <td style="padding:12px; border-bottom:1px solid #eee;"><strong>IRM</strong></td>
-            <td style="padding:12px; border-bottom:1px solid #eee;">$103.56 <span style="color:#1f9d55; font-size:0.9em;">(+3.56%)</span></td>
-            <td style="padding:12px; border-bottom:1px solid #eee;">
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="103.1">$103.10 <span style="color:#1f9d55; font-size:0.9em;">(+3.10%)</span></td>
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="45.249999999999986">
             <div style="width:100px; background:#eee; height:12px; border-radius:6px; position:relative; overflow:hidden;">
-                <div style="width:46.400000000000006%; background:#3490dc; height:100%;"></div>
+                <div style="width:45.249999999999986%; background:#3490dc; height:100%;"></div>
             </div>
             <div style="font-size:10px; color:#777; margin-top:2px;">
                 $85.0 - $125.0
             </div>
             </td>
-            <td style="padding:12px; border-bottom:1px solid #eee;">
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="74.7693000225073">
             <div style="width:100px; background:#eee; height:12px; border-radius:6px; position:relative; overflow:hidden;">
-                <div style="width:75.80463650686472%; background:#6c757d; height:100%;"></div>
+                <div style="width:74.7693000225073%; background:#6c757d; height:100%;"></div>
             </div>
             <div style="font-size:10px; color:#777; margin-top:2px;">
                 $69.88 - $114.31
             </div>
             </td>
-            <td style="padding:12px; border-bottom:1px solid #eee;"><span style="display:inline-block; padding:2px 8px; background:#f0f0f0; border-radius:12px; font-size:0.9em;">100/100</span></td>
-            <td style="padding:12px; border-bottom:1px solid #eee;"></td>
-            <td style="padding:12px; border-bottom:1px solid #eee; font-size:0.85em; color:#666;">
-                SMA50: 100.17<br/>
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="100"><span style="display:inline-block; padding:2px 8px; background:#f0f0f0; border-radius:12px; font-size:0.9em;">100/100</span></td>
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="0"></td>
+            <td style="padding:12px; border-bottom:1px solid #eee; font-size:0.85em; color:#666;" data-sort="40.49">
+                SMA50: 100.16<br/>
                 SMA200: 95.1<br/>
-                RSI: 41.82
+                RSI: 40.49
             </td>
         </tr>
         
         <tr>
             <td style="padding:12px; border-bottom:1px solid #eee;"><strong>KR</strong></td>
-            <td style="padding:12px; border-bottom:1px solid #eee;">$72.32 <span style="color:#e3342f; font-size:0.9em;">(-1.30%)</span></td>
-            <td style="padding:12px; border-bottom:1px solid #eee;">
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="72.36">$72.36 <span style="color:#e3342f; font-size:0.9em;">(-1.26%)</span></td>
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="71.45945945945945">
             <div style="width:100px; background:#eee; height:12px; border-radius:6px; position:relative; overflow:hidden;">
-                <div style="width:71.02702702702696%; background:#3490dc; height:100%;"></div>
+                <div style="width:71.45945945945945%; background:#3490dc; height:100%;"></div>
             </div>
             <div style="font-size:10px; color:#777; margin-top:2px;">
                 $65.75 - $75.0
             </div>
             </td>
-            <td style="padding:12px; border-bottom:1px solid #eee;">
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="76.90202517788724">
             <div style="width:100px; background:#eee; height:12px; border-radius:6px; position:relative; overflow:hidden;">
-                <div style="width:76.68308702791458%; background:#6c757d; height:100%;"></div>
+                <div style="width:76.90202517788724%; background:#6c757d; height:100%;"></div>
             </div>
             <div style="font-size:10px; color:#777; margin-top:2px;">
                 $58.31 - $76.58
             </div>
             </td>
-            <td style="padding:12px; border-bottom:1px solid #eee;"><span style="display:inline-block; padding:2px 8px; background:#f0f0f0; border-radius:12px; font-size:0.9em;">100/100</span></td>
-            <td style="padding:12px; border-bottom:1px solid #eee;"></td>
-            <td style="padding:12px; border-bottom:1px solid #eee; font-size:0.85em; color:#666;">
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="100"><span style="display:inline-block; padding:2px 8px; background:#f0f0f0; border-radius:12px; font-size:0.9em;">100/100</span></td>
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="0"></td>
+            <td style="padding:12px; border-bottom:1px solid #eee; font-size:0.85em; color:#666;" data-sort="61.41">
                 SMA50: 67.59<br/>
                 SMA200: 66.9<br/>
-                RSI: 61.28
+                RSI: 61.41
             </td>
         </tr>
 
         <tr>
             <td style="padding:12px; border-bottom:1px solid #eee;"><strong>MATX</strong></td>
-            <td style="padding:12px; border-bottom:1px solid #eee;">$160.93 <span style="color:#1f9d55; font-size:0.9em;">(+3.78%)</span></td>
-            <td style="padding:12px; border-bottom:1px solid #eee;"><div style='font-size:10px; color:#777;'>High Rule: $175.0</div></td>
-            <td style="padding:12px; border-bottom:1px solid #eee;">
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="160.31">$160.31 <span style="color:#1f9d55; font-size:0.9em;">(+3.38%)</span></td>
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="-1"><div style='font-size:10px; color:#777;'>High Rule: $175.0</div></td>
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="81.10305427378599">
             <div style="width:100px; background:#eee; height:12px; border-radius:6px; position:relative; overflow:hidden;">
-                <div style="width:81.7842232476379%; background:#6c757d; height:100%;"></div>
+                <div style="width:81.10305427378599%; background:#6c757d; height:100%;"></div>
             </div>
             <div style="font-size:10px; color:#777; margin-top:2px;">
                 $86.49 - $177.51
             </div>
             </td>
-            <td style="padding:12px; border-bottom:1px solid #eee;"><span style="display:inline-block; padding:2px 8px; background:#f0f0f0; border-radius:12px; font-size:0.9em;">100/100</span></td>
-            <td style="padding:12px; border-bottom:1px solid #eee;"></td>
-            <td style="padding:12px; border-bottom:1px solid #eee; font-size:0.85em; color:#666;">
-                SMA50: 157.46<br/>
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="100"><span style="display:inline-block; padding:2px 8px; background:#f0f0f0; border-radius:12px; font-size:0.9em;">100/100</span></td>
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="0"></td>
+            <td style="padding:12px; border-bottom:1px solid #eee; font-size:0.85em; color:#666;" data-sort="40.68">
+                SMA50: 157.45<br/>
                 SMA200: 120.21<br/>
-                RSI: 41.51
+                RSI: 40.68
             </td>
         </tr>
         
         <tr>
             <td style="padding:12px; border-bottom:1px solid #eee;"><strong>AWK</strong></td>
-            <td style="padding:12px; border-bottom:1px solid #eee;">$136.46 <span style="color:#e3342f; font-size:0.9em;">(-0.45%)</span></td>
-            <td style="padding:12px; border-bottom:1px solid #eee;"><div style='font-size:10px; color:#777;'>Low Rule: $100.0</div></td>
-            <td style="padding:12px; border-bottom:1px solid #eee;">
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="136.09">$136.09 <span style="color:#e3342f; font-size:0.9em;">(-0.72%)</span></td>
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="-1"><div style='font-size:10px; color:#777;'>Low Rule: $100.0</div></td>
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="50.06406149903909">
             <div style="width:100px; background:#eee; height:12px; border-radius:6px; position:relative; overflow:hidden;">
-                <div style="width:51.24919923126203%; background:#6c757d; height:100%;"></div>
+                <div style="width:50.06406149903909%; background:#6c757d; height:100%;"></div>
             </div>
             <div style="font-size:10px; color:#777; margin-top:2px;">
                 $120.46 - $151.68
             </div>
             </td>
-            <td style="padding:12px; border-bottom:1px solid #eee;"><span style="display:inline-block; padding:2px 8px; background:#f0f0f0; border-radius:12px; font-size:0.9em;">90/100</span></td>
-            <td style="padding:12px; border-bottom:1px solid #eee;"></td>
-            <td style="padding:12px; border-bottom:1px solid #eee; font-size:0.85em; color:#666;">
-                SMA50: 131.68<br/>
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="90"><span style="display:inline-block; padding:2px 8px; background:#f0f0f0; border-radius:12px; font-size:0.9em;">90/100</span></td>
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="0"></td>
+            <td style="padding:12px; border-bottom:1px solid #eee; font-size:0.85em; color:#666;" data-sort="50.63">
+                SMA50: 131.67<br/>
                 SMA200: 134.68<br/>
-                RSI: 51.45
+                RSI: 50.63
             </td>
         </tr>
         
         <tr>
             <td style="padding:12px; border-bottom:1px solid #eee;"><strong>BP</strong></td>
-            <td style="padding:12px; border-bottom:1px solid #eee;">$43.57 <span style="color:#e3342f; font-size:0.9em;">(-2.88%)</span></td>
-            <td style="padding:12px; border-bottom:1px solid #eee;">
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="43.47">$43.47 <span style="color:#e3342f; font-size:0.9em;">(-3.09%)</span></td>
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="73.3333333333333">
             <div style="width:100px; background:#eee; height:12px; border-radius:6px; position:relative; overflow:hidden;">
-                <div style="width:75.41666666666666%; background:#3490dc; height:100%;"></div>
+                <div style="width:73.3333333333333%; background:#3490dc; height:100%;"></div>
             </div>
             <div style="font-size:10px; color:#777; margin-top:2px;">
                 $39.95 - $44.75
             </div>
             </td>
-            <td style="padding:12px; border-bottom:1px solid #eee;">
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="85.54636482368306">
             <div style="width:100px; background:#eee; height:12px; border-radius:6px; position:relative; overflow:hidden;">
-                <div style="width:85.98171528080105%; background:#6c757d; height:100%;"></div>
+                <div style="width:85.54636482368306%; background:#6c757d; height:100%;"></div>
             </div>
             <div style="font-size:10px; color:#777; margin-top:2px;">
                 $23.82 - $46.79
             </div>
             </td>
-            <td style="padding:12px; border-bottom:1px solid #eee;"><span style="display:inline-block; padding:2px 8px; background:#f0f0f0; border-radius:12px; font-size:0.9em;">90/100</span></td>
-            <td style="padding:12px; border-bottom:1px solid #eee;"></td>
-            <td style="padding:12px; border-bottom:1px solid #eee; font-size:0.85em; color:#666;">
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="90"><span style="display:inline-block; padding:2px 8px; background:#f0f0f0; border-radius:12px; font-size:0.9em;">90/100</span></td>
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="0"></td>
+            <td style="padding:12px; border-bottom:1px solid #eee; font-size:0.85em; color:#666;" data-sort="71.28">
                 SMA50: 38.5<br/>
                 SMA200: 34.34<br/>
-                RSI: 71.91
+                RSI: 71.28
             </td>
         </tr>
         
         <tr>
             <td style="padding:12px; border-bottom:1px solid #eee;"><strong>MRVL</strong></td>
-            <td style="padding:12px; border-bottom:1px solid #eee;">$90.60 <span style="color:#1f9d55; font-size:0.9em;">(+2.37%)</span></td>
-            <td style="padding:12px; border-bottom:1px solid #eee;"><div style='font-size:10px; color:#777;'>Low Rule: $17.0</div></td>
-            <td style="padding:12px; border-bottom:1px solid #eee;">
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="90.53">$90.53 <span style="color:#1f9d55; font-size:0.9em;">(+2.29%)</span></td>
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="-1"><div style='font-size:10px; color:#777;'>Low Rule: $17.0</div></td>
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="78.17823202438588">
             <div style="width:100px; background:#eee; height:12px; border-radius:6px; position:relative; overflow:hidden;">
-                <div style="width:78.30374753451676%; background:#6c757d; height:100%;"></div>
+                <div style="width:78.17823202438588%; background:#6c757d; height:100%;"></div>
             </div>
             <div style="font-size:10px; color:#777; margin-top:2px;">
                 $46.93 - $102.7
             </div>
             </td>
-            <td style="padding:12px; border-bottom:1px solid #eee;"><span style="display:inline-block; padding:2px 8px; background:#f0f0f0; border-radius:12px; font-size:0.9em;">90/100</span></td>
-            <td style="padding:12px; border-bottom:1px solid #eee;"></td>
-            <td style="padding:12px; border-bottom:1px solid #eee; font-size:0.85em; color:#666;">
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="90"><span style="display:inline-block; padding:2px 8px; background:#f0f0f0; border-radius:12px; font-size:0.9em;">90/100</span></td>
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="0"></td>
+            <td style="padding:12px; border-bottom:1px solid #eee; font-size:0.85em; color:#666;" data-sort="66.17">
                 SMA50: 82.35<br/>
                 SMA200: 80.37<br/>
-                RSI: 66.23
+                RSI: 66.17
             </td>
         </tr>
         
         <tr>
             <td style="padding:12px; border-bottom:1px solid #eee;"><strong>EWJ</strong></td>
-            <td style="padding:12px; border-bottom:1px solid #eee;">$83.96 <span style="color:#1f9d55; font-size:0.9em;">(+1.87%)</span></td>
-            <td style="padding:12px; border-bottom:1px solid #eee;"><div style='font-size:10px; color:#777;'>Low Rule: $50.0</div></td>
-            <td style="padding:12px; border-bottom:1px solid #eee;">
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="83.89">$83.89 <span style="color:#1f9d55; font-size:0.9em;">(+2.05%)</span></td>
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="-1"><div style='font-size:10px; color:#777;'>Low Rule: $50.0</div></td>
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="71.96438208310848">
             <div style="width:100px; background:#eee; height:12px; border-radius:6px; position:relative; overflow:hidden;">
-                <div style="width:72.15326497571503%; background:#6c757d; height:100%;"></div>
+                <div style="width:71.96438208310848%; background:#6c757d; height:100%;"></div>
             </div>
             <div style="font-size:10px; color:#777; margin-top:2px;">
                 $57.22 - $94.28
             </div>
             </td>
-            <td style="padding:12px; border-bottom:1px solid #eee;"><span style="display:inline-block; padding:2px 8px; background:#f0f0f0; border-radius:12px; font-size:0.9em;">80/100</span></td>
-            <td style="padding:12px; border-bottom:1px solid #eee;"></td>
-            <td style="padding:12px; border-bottom:1px solid #eee; font-size:0.85em; color:#666;">
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="80"><span style="display:inline-block; padding:2px 8px; background:#f0f0f0; border-radius:12px; font-size:0.9em;">80/100</span></td>
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="0"></td>
+            <td style="padding:12px; border-bottom:1px solid #eee; font-size:0.85em; color:#666;" data-sort="42.11">
                 SMA50: 87.36<br/>
                 SMA200: 79.26<br/>
-                RSI: 42.34
+                RSI: 42.11
             </td>
         </tr>
         
         <tr>
             <td style="padding:12px; border-bottom:1px solid #eee;"><strong>ICVT</strong></td>
-            <td style="padding:12px; border-bottom:1px solid #eee;">$103.55 <span style="color:#1f9d55; font-size:0.9em;">(+1.06%)</span></td>
-            <td style="padding:12px; border-bottom:1px solid #eee;">
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="103.36">$103.36 <span style="color:#1f9d55; font-size:0.9em;">(+0.88%)</span></td>
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="55.733333333333334">
             <div style="width:100px; background:#eee; height:12px; border-radius:6px; position:relative; overflow:hidden;">
-                <div style="width:56.999999999999986%; background:#3490dc; height:100%;"></div>
+                <div style="width:55.733333333333334%; background:#3490dc; height:100%;"></div>
             </div>
             <div style="font-size:10px; color:#777; margin-top:2px;">
                 $95.0 - $110.0
             </div>
             </td>
-            <td style="padding:12px; border-bottom:1px solid #eee;">
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="91.01420548397753">
             <div style="width:100px; background:#eee; height:12px; border-radius:6px; position:relative; overflow:hidden;">
-                <div style="width:91.6418896597291%; background:#6c757d; height:100%;"></div>
+                <div style="width:91.01420548397753%; background:#6c757d; height:100%;"></div>
             </div>
             <div style="font-size:10px; color:#777; margin-top:2px;">
                 $75.81 - $106.08
             </div>
             </td>
-            <td style="padding:12px; border-bottom:1px solid #eee;"><span style="display:inline-block; padding:2px 8px; background:#f0f0f0; border-radius:12px; font-size:0.9em;">80/100</span></td>
-            <td style="padding:12px; border-bottom:1px solid #eee;"></td>
-            <td style="padding:12px; border-bottom:1px solid #eee; font-size:0.85em; color:#666;">
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="80"><span style="display:inline-block; padding:2px 8px; background:#f0f0f0; border-radius:12px; font-size:0.9em;">80/100</span></td>
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="0"></td>
+            <td style="padding:12px; border-bottom:1px solid #eee; font-size:0.85em; color:#666;" data-sort="50.16">
                 SMA50: 103.78<br/>
-                SMA200: 97.7<br/>
-                RSI: 50.76
+                SMA200: 97.69<br/>
+                RSI: 50.16
             </td>
         </tr>
         
         <tr>
             <td style="padding:12px; border-bottom:1px solid #eee;"><strong>JNJ</strong></td>
-            <td style="padding:12px; border-bottom:1px solid #eee;">$235.58 <span style="color:#e3342f; font-size:0.9em;">(-0.62%)</span></td>
-            <td style="padding:12px; border-bottom:1px solid #eee;"><div style='font-size:10px; color:#777;'>Low Rule: $125.0</div></td>
-            <td style="padding:12px; border-bottom:1px solid #eee;">
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="235.54">$235.54 <span style="color:#e3342f; font-size:0.9em;">(-0.64%)</span></td>
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="-1"><div style='font-size:10px; color:#777;'>Low Rule: $125.0</div></td>
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="85.82200789127575">
             <div style="width:100px; background:#eee; height:12px; border-radius:6px; position:relative; overflow:hidden;">
-                <div style="width:85.8570802279702%; background:#6c757d; height:100%;"></div>
+                <div style="width:85.82200789127575%; background:#6c757d; height:100%;"></div>
             </div>
             <div style="font-size:10px; color:#777; margin-top:2px;">
                 $137.66 - $251.71
             </div>
             </td>
-            <td style="padding:12px; border-bottom:1px solid #eee;"><span style="display:inline-block; padding:2px 8px; background:#f0f0f0; border-radius:12px; font-size:0.9em;">80/100</span></td>
-            <td style="padding:12px; border-bottom:1px solid #eee;"></td>
-            <td style="padding:12px; border-bottom:1px solid #eee; font-size:0.85em; color:#666;">
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="80"><span style="display:inline-block; padding:2px 8px; background:#f0f0f0; border-radius:12px; font-size:0.9em;">80/100</span></td>
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="0"></td>
+            <td style="padding:12px; border-bottom:1px solid #eee; font-size:0.85em; color:#666;" data-sort="26.34">
                 SMA50: 234.01<br/>
                 SMA200: 193.1<br/>
-                RSI: 26.47
+                RSI: 26.34
             </td>
         </tr>
         
         <tr>
             <td style="padding:12px; border-bottom:1px solid #eee;"><strong>SBLK</strong></td>
-            <td style="padding:12px; border-bottom:1px solid #eee;">$22.81 <span style="color:#1f9d55; font-size:0.9em;">(+2.47%)</span></td>
-            <td style="padding:12px; border-bottom:1px solid #eee;"><div style='font-size:10px; color:#777;'>Low Rule: $6.0</div></td>
-            <td style="padding:12px; border-bottom:1px solid #eee;">
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="22.85">$22.85 <span style="color:#1f9d55; font-size:0.9em;">(+2.67%)</span></td>
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="-1"><div style='font-size:10px; color:#777;'>Low Rule: $6.0</div></td>
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="73.91882900864938">
             <div style="width:100px; background:#eee; height:12px; border-radius:6px; position:relative; overflow:hidden;">
-                <div style="width:73.65269461077844%; background:#6c757d; height:100%;"></div>
+                <div style="width:73.91882900864938%; background:#6c757d; height:100%;"></div>
             </div>
             <div style="font-size:10px; color:#777; margin-top:2px;">
                 $11.74 - $26.77
             </div>
             </td>
-            <td style="padding:12px; border-bottom:1px solid #eee;"><span style="display:inline-block; padding:2px 8px; background:#f0f0f0; border-radius:12px; font-size:0.9em;">80/100</span></td>
-            <td style="padding:12px; border-bottom:1px solid #eee;"></td>
-            <td style="padding:12px; border-bottom:1px solid #eee; font-size:0.85em; color:#666;">
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="80"><span style="display:inline-block; padding:2px 8px; background:#f0f0f0; border-radius:12px; font-size:0.9em;">80/100</span></td>
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="0"></td>
+            <td style="padding:12px; border-bottom:1px solid #eee; font-size:0.85em; color:#666;" data-sort="28.67">
                 SMA50: 22.76<br/>
                 SMA200: 19.34<br/>
-                RSI: 28.2
+                RSI: 28.67
             </td>
         </tr>
         
         <tr>
             <td style="padding:12px; border-bottom:1px solid #eee;"><strong>SBUX</strong></td>
-            <td style="padding:12px; border-bottom:1px solid #eee;">$94.65 <span style="color:#1f9d55; font-size:0.9em;">(+1.76%)</span></td>
-            <td style="padding:12px; border-bottom:1px solid #eee;">
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="94.22">$94.22 <span style="color:#1f9d55; font-size:0.9em;">(+1.31%)</span></td>
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="73.92307692307692">
             <div style="width:100px; background:#eee; height:12px; border-radius:6px; position:relative; overflow:hidden;">
-                <div style="width:75.5769230769231%; background:#3490dc; height:100%;"></div>
+                <div style="width:73.92307692307692%; background:#3490dc; height:100%;"></div>
             </div>
             <div style="font-size:10px; color:#777; margin-top:2px;">
                 $75.0 - $101.0
             </div>
             </td>
-            <td style="padding:12px; border-bottom:1px solid #eee;">
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="67.63363754889177">
             <div style="width:100px; background:#eee; height:12px; border-radius:6px; position:relative; overflow:hidden;">
-                <div style="width:69.03520208604955%; background:#6c757d; height:100%;"></div>
+                <div style="width:67.63363754889177%; background:#6c757d; height:100%;"></div>
             </div>
             <div style="font-size:10px; color:#777; margin-top:2px;">
                 $73.47 - $104.15
             </div>
             </td>
-            <td style="padding:12px; border-bottom:1px solid #eee;"><span style="display:inline-block; padding:2px 8px; background:#f0f0f0; border-radius:12px; font-size:0.9em;">80/100</span></td>
-            <td style="padding:12px; border-bottom:1px solid #eee;"></td>
-            <td style="padding:12px; border-bottom:1px solid #eee; font-size:0.85em; color:#666;">
-                SMA50: 95.65<br/>
-                SMA200: 88.62<br/>
-                RSI: 45.41
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="80"><span style="display:inline-block; padding:2px 8px; background:#f0f0f0; border-radius:12px; font-size:0.9em;">80/100</span></td>
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="0"></td>
+            <td style="padding:12px; border-bottom:1px solid #eee; font-size:0.85em; color:#666;" data-sort="44.33">
+                SMA50: 95.64<br/>
+                SMA200: 88.61<br/>
+                RSI: 44.33
             </td>
         </tr>
         
         <tr>
             <td style="padding:12px; border-bottom:1px solid #eee;"><strong>TBT</strong></td>
-            <td style="padding:12px; border-bottom:1px solid #eee;">$35.35 <span style="color:#e3342f; font-size:0.9em;">(-1.44%)</span></td>
-            <td style="padding:12px; border-bottom:1px solid #eee;">
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="35.38">$35.38 <span style="color:#e3342f; font-size:0.9em;">(-1.34%)</span></td>
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="55.17948717948721">
             <div style="width:100px; background:#eee; height:12px; border-radius:6px; position:relative; overflow:hidden;">
-                <div style="width:54.87179487179489%; background:#3490dc; height:100%;"></div>
+                <div style="width:55.17948717948721%; background:#3490dc; height:100%;"></div>
             </div>
             <div style="font-size:10px; color:#777; margin-top:2px;">
                 $30.0 - $39.75
             </div>
             </td>
-            <td style="padding:12px; border-bottom:1px solid #eee;">
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="59.855769230769276">
             <div style="width:100px; background:#eee; height:12px; border-radius:6px; position:relative; overflow:hidden;">
-                <div style="width:59.495192307692335%; background:#6c757d; height:100%;"></div>
+                <div style="width:59.855769230769276%; background:#6c757d; height:100%;"></div>
             </div>
             <div style="font-size:10px; color:#777; margin-top:2px;">
                 $30.4 - $38.72
             </div>
             </td>
-            <td style="padding:12px; border-bottom:1px solid #eee;"><span style="display:inline-block; padding:2px 8px; background:#f0f0f0; border-radius:12px; font-size:0.9em;">80/100</span></td>
-            <td style="padding:12px; border-bottom:1px solid #eee;"></td>
-            <td style="padding:12px; border-bottom:1px solid #eee; font-size:0.85em; color:#666;">
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="80"><span style="display:inline-block; padding:2px 8px; background:#f0f0f0; border-radius:12px; font-size:0.9em;">80/100</span></td>
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="0"></td>
+            <td style="padding:12px; border-bottom:1px solid #eee; font-size:0.85em; color:#666;" data-sort="66.81">
                 SMA50: 34.15<br/>
                 SMA200: 34.29<br/>
-                RSI: 66.47
+                RSI: 66.81
             </td>
         </tr>
         
         <tr>
             <td style="padding:12px; border-bottom:1px solid #eee;"><strong>WU</strong></td>
-            <td style="padding:12px; border-bottom:1px solid #eee;">$9.30 <span style="color:#1f9d55; font-size:0.9em;">(+2.26%)</span></td>
-            <td style="padding:12px; border-bottom:1px solid #eee;">
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="9.26">$9.26 <span style="color:#1f9d55; font-size:0.9em;">(+1.82%)</span></td>
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="35.52941176470588">
             <div style="width:100px; background:#eee; height:12px; border-radius:6px; position:relative; overflow:hidden;">
-                <div style="width:36.47058823529413%; background:#3490dc; height:100%;"></div>
+                <div style="width:35.52941176470588%; background:#3490dc; height:100%;"></div>
             </div>
             <div style="font-size:10px; color:#777; margin-top:2px;">
                 $7.75 - $12.0
             </div>
             </td>
-            <td style="padding:12px; border-bottom:1px solid #eee;">
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="70.25089605734766">
             <div style="width:100px; background:#eee; height:12px; border-radius:6px; position:relative; overflow:hidden;">
-                <div style="width:71.6845878136201%; background:#6c757d; height:100%;"></div>
+                <div style="width:70.25089605734766%; background:#6c757d; height:100%;"></div>
             </div>
             <div style="font-size:10px; color:#777; margin-top:2px;">
                 $7.3 - $10.09
             </div>
             </td>
-            <td style="padding:12px; border-bottom:1px solid #eee;"><span style="display:inline-block; padding:2px 8px; background:#f0f0f0; border-radius:12px; font-size:0.9em;">80/100</span></td>
-            <td style="padding:12px; border-bottom:1px solid #eee;"></td>
-            <td style="padding:12px; border-bottom:1px solid #eee; font-size:0.85em; color:#666;">
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="80"><span style="display:inline-block; padding:2px 8px; background:#f0f0f0; border-radius:12px; font-size:0.9em;">80/100</span></td>
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="0"></td>
+            <td style="padding:12px; border-bottom:1px solid #eee; font-size:0.85em; color:#666;" data-sort="47.39">
                 SMA50: 9.32<br/>
                 SMA200: 8.42<br/>
-                RSI: 48.76
+                RSI: 47.39
             </td>
         </tr>
         
         <tr>
             <td style="padding:12px; border-bottom:1px solid #eee;"><strong>PLUG</strong></td>
-            <td style="padding:12px; border-bottom:1px solid #eee;">$2.34 <span style="color:#1f9d55; font-size:0.9em;">(+3.31%)</span></td>
-            <td style="padding:12px; border-bottom:1px solid #eee;">
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="2.32">$2.32 <span style="color:#1f9d55; font-size:0.9em;">(+2.65%)</span></td>
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="32.92307692307691">
             <div style="width:100px; background:#eee; height:12px; border-radius:6px; position:relative; overflow:hidden;">
-                <div style="width:33.53846153846153%; background:#3490dc; height:100%;"></div>
+                <div style="width:32.92307692307691%; background:#3490dc; height:100%;"></div>
             </div>
             <div style="font-size:10px; color:#777; margin-top:2px;">
                 $1.25 - $4.5
             </div>
             </td>
-            <td style="padding:12px; border-bottom:1px solid #eee;">
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="41.90231362467866">
             <div style="width:100px; background:#eee; height:12px; border-radius:6px; position:relative; overflow:hidden;">
-                <div style="width:42.41645244215938%; background:#6c757d; height:100%;"></div>
+                <div style="width:41.90231362467866%; background:#6c757d; height:100%;"></div>
             </div>
             <div style="font-size:10px; color:#777; margin-top:2px;">
                 $0.69 - $4.58
             </div>
             </td>
-            <td style="padding:12px; border-bottom:1px solid #eee;"><span style="display:inline-block; padding:2px 8px; background:#f0f0f0; border-radius:12px; font-size:0.9em;">70/100</span></td>
-            <td style="padding:12px; border-bottom:1px solid #eee;"></td>
-            <td style="padding:12px; border-bottom:1px solid #eee; font-size:0.85em; color:#666;">
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="70"><span style="display:inline-block; padding:2px 8px; background:#f0f0f0; border-radius:12px; font-size:0.9em;">70/100</span></td>
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="0"></td>
+            <td style="padding:12px; border-bottom:1px solid #eee; font-size:0.85em; color:#666;" data-sort="53.15">
                 SMA50: 2.15<br/>
                 SMA200: 2.07<br/>
-                RSI: 53.63
+                RSI: 53.15
             </td>
         </tr>
         
         <tr>
             <td style="padding:12px; border-bottom:1px solid #eee;"><strong>^VIX</strong></td>
-            <td style="padding:12px; border-bottom:1px solid #eee;">$24.85 <span style="color:#e3342f; font-size:0.9em;">(-7.14%)</span></td>
-            <td style="padding:12px; border-bottom:1px solid #eee;">
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="25.4">$25.40 <span style="color:#e3342f; font-size:0.9em;">(-5.08%)</span></td>
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="100">
             <div style="width:100px; background:#eee; height:12px; border-radius:6px; position:relative; overflow:hidden;">
-                <div style="width:98.63636363636364%; background:#38c172; height:100%;"></div>
+                <div style="width:100%; background:#38c172; height:100%;"></div>
             </div>
             <div style="font-size:10px; color:#777; margin-top:2px;">
                 $14.0 - $25.0
             </div>
             </td>
-            <td style="padding:12px; border-bottom:1px solid #eee;">
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="25.71122994652406">
             <div style="width:100px; background:#eee; height:12px; border-radius:6px; position:relative; overflow:hidden;">
-                <div style="width:24.53475935828877%; background:#6c757d; height:100%;"></div>
+                <div style="width:25.71122994652406%; background:#6c757d; height:100%;"></div>
             </div>
             <div style="font-size:10px; color:#777; margin-top:2px;">
                 $13.38 - $60.13
             </div>
             </td>
-            <td style="padding:12px; border-bottom:1px solid #eee;"><span style="display:inline-block; padding:2px 8px; background:#f0f0f0; border-radius:12px; font-size:0.9em;">70/100</span></td>
-            <td style="padding:12px; border-bottom:1px solid #eee;"></td>
-            <td style="padding:12px; border-bottom:1px solid #eee; font-size:0.85em; color:#666;">
-                SMA50: 20.13<br/>
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="70"><span style="display:inline-block; padding:2px 8px; background:#f0f0f0; border-radius:12px; font-size:0.9em;">70/100</span></td>
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="0"></td>
+            <td style="padding:12px; border-bottom:1px solid #eee; font-size:0.85em; color:#666;" data-sort="52.87">
+                SMA50: 20.14<br/>
                 SMA200: 17.75<br/>
-                RSI: 51.98
+                RSI: 52.87
             </td>
         </tr>
         
         <tr>
             <td style="padding:12px; border-bottom:1px solid #eee;"><strong>AAPL</strong></td>
-            <td style="padding:12px; border-bottom:1px solid #eee;">$252.02 <span style="color:#1f9d55; font-size:0.9em;">(+0.89%)</span></td>
-            <td style="padding:12px; border-bottom:1px solid #eee;">
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="251.88">$251.88 <span style="color:#1f9d55; font-size:0.9em;">(+0.83%)</span></td>
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="21.59999999999999">
             <div style="width:100px; background:#eee; height:12px; border-radius:6px; position:relative; overflow:hidden;">
-                <div style="width:21.854545454545473%; background:#3490dc; height:100%;"></div>
+                <div style="width:21.59999999999999%; background:#3490dc; height:100%;"></div>
             </div>
             <div style="font-size:10px; color:#777; margin-top:2px;">
                 $240.0 - $295.0
             </div>
             </td>
-            <td style="padding:12px; border-bottom:1px solid #eee;">
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="69.57537332109784">
             <div style="width:100px; background:#eee; height:12px; border-radius:6px; position:relative; overflow:hidden;">
-                <div style="width:69.6921665137232%; background:#6c757d; height:100%;"></div>
+                <div style="width:69.57537332109784%; background:#6c757d; height:100%;"></div>
             </div>
             <div style="font-size:10px; color:#777; margin-top:2px;">
                 $168.48 - $288.35
             </div>
             </td>
-            <td style="padding:12px; border-bottom:1px solid #eee;"><span style="display:inline-block; padding:2px 8px; background:#f0f0f0; border-radius:12px; font-size:0.9em;">60/100</span></td>
-            <td style="padding:12px; border-bottom:1px solid #eee;"></td>
-            <td style="padding:12px; border-bottom:1px solid #eee; font-size:0.85em; color:#666;">
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="60"><span style="display:inline-block; padding:2px 8px; background:#f0f0f0; border-radius:12px; font-size:0.9em;">60/100</span></td>
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="0"></td>
+            <td style="padding:12px; border-bottom:1px solid #eee; font-size:0.85em; color:#666;" data-sort="32.85">
                 SMA50: 260.89<br/>
                 SMA200: 246.7<br/>
-                RSI: 33.13
-            </td>
-        </tr>
-        
-        <tr>
-            <td style="padding:12px; border-bottom:1px solid #eee;"><strong>BEN</strong></td>
-            <td style="padding:12px; border-bottom:1px solid #eee;">$24.09 <span style="color:#1f9d55; font-size:0.9em;">(+1.69%)</span></td>
-            <td style="padding:12px; border-bottom:1px solid #eee;">
-            <div style="width:100px; background:#eee; height:12px; border-radius:6px; position:relative; overflow:hidden;">
-                <div style="width:0%; background:#e3342f; height:100%;"></div>
-            </div>
-            <div style="font-size:10px; color:#777; margin-top:2px;">
-                $25.0 - $28.5
-            </div>
-            </td>
-            <td style="padding:12px; border-bottom:1px solid #eee;">
-            <div style="width:100px; background:#eee; height:12px; border-radius:6px; position:relative; overflow:hidden;">
-                <div style="width:66.74528301886792%; background:#6c757d; height:100%;"></div>
-            </div>
-            <div style="font-size:10px; color:#777; margin-top:2px;">
-                $15.6 - $28.32
-            </div>
-            </td>
-            <td style="padding:12px; border-bottom:1px solid #eee;"><span style="display:inline-block; padding:2px 8px; background:#f0f0f0; border-radius:12px; font-size:0.9em;">60/100</span></td>
-            <td style="padding:12px; border-bottom:1px solid #eee;"></td>
-            <td style="padding:12px; border-bottom:1px solid #eee; font-size:0.85em; color:#666;">
-                SMA50: 26.1<br/>
-                SMA200: 23.95<br/>
-                RSI: 31.77
+                RSI: 32.85
             </td>
         </tr>
         
         <tr>
             <td style="padding:12px; border-bottom:1px solid #eee;"><strong>IJR</strong></td>
-            <td style="padding:12px; border-bottom:1px solid #eee;">$123.93 <span style="color:#1f9d55; font-size:0.9em;">(+1.92%)</span></td>
-            <td style="padding:12px; border-bottom:1px solid #eee;"><div style='font-size:10px; color:#777;'>Low Rule: $92.5</div></td>
-            <td style="padding:12px; border-bottom:1px solid #eee;">
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="123.63">$123.63 <span style="color:#1f9d55; font-size:0.9em;">(+1.67%)</span></td>
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="-1"><div style='font-size:10px; color:#777;'>Low Rule: $92.5</div></td>
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="78.63134657836643">
             <div style="width:100px; background:#eee; height:12px; border-radius:6px; position:relative; overflow:hidden;">
-                <div style="width:79.2935982339956%; background:#6c757d; height:100%;"></div>
+                <div style="width:78.63134657836643%; background:#6c757d; height:100%;"></div>
             </div>
             <div style="font-size:10px; color:#777; margin-top:2px;">
                 $88.01 - $133.31
             </div>
             </td>
-            <td style="padding:12px; border-bottom:1px solid #eee;"><span style="display:inline-block; padding:2px 8px; background:#f0f0f0; border-radius:12px; font-size:0.9em;">60/100</span></td>
-            <td style="padding:12px; border-bottom:1px solid #eee;"></td>
-            <td style="padding:12px; border-bottom:1px solid #eee; font-size:0.85em; color:#666;">
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="60"><span style="display:inline-block; padding:2px 8px; background:#f0f0f0; border-radius:12px; font-size:0.9em;">60/100</span></td>
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="0"></td>
+            <td style="padding:12px; border-bottom:1px solid #eee; font-size:0.85em; color:#666;" data-sort="36.17">
                 SMA50: 127.67<br/>
                 SMA200: 118.59<br/>
-                RSI: 37.15
-            </td>
-        </tr>
-        
-        <tr>
-            <td style="padding:12px; border-bottom:1px solid #eee;"><strong>PBI</strong></td>
-            <td style="padding:12px; border-bottom:1px solid #eee;">$10.68 <span style="color:#1f9d55; font-size:0.9em;">(+3.60%)</span></td>
-            <td style="padding:12px; border-bottom:1px solid #eee;"><div style='font-size:10px; color:#777;'>Low Rule: $9.0</div></td>
-            <td style="padding:12px; border-bottom:1px solid #eee;">
-            <div style="width:100px; background:#eee; height:12px; border-radius:6px; position:relative; overflow:hidden;">
-                <div style="width:62.522202486678516%; background:#6c757d; height:100%;"></div>
-            </div>
-            <div style="font-size:10px; color:#777; margin-top:2px;">
-                $7.16 - $12.79
-            </div>
-            </td>
-            <td style="padding:12px; border-bottom:1px solid #eee;"><span style="display:inline-block; padding:2px 8px; background:#f0f0f0; border-radius:12px; font-size:0.9em;">60/100</span></td>
-            <td style="padding:12px; border-bottom:1px solid #eee;"></td>
-            <td style="padding:12px; border-bottom:1px solid #eee; font-size:0.85em; color:#666;">
-                SMA50: 10.41<br/>
-                SMA200: 10.65<br/>
-                RSI: 51.97
+                RSI: 36.17
             </td>
         </tr>
         
         <tr>
             <td style="padding:12px; border-bottom:1px solid #eee;"><strong>PSQ</strong></td>
-            <td style="padding:12px; border-bottom:1px solid #eee;">$31.62 <span style="color:#e3342f; font-size:0.9em;">(-0.72%)</span></td>
-            <td style="padding:12px; border-bottom:1px solid #eee;">
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="31.65">$31.65 <span style="color:#e3342f; font-size:0.9em;">(-0.64%)</span></td>
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="44.16666666666664">
             <div style="width:100px; background:#eee; height:12px; border-radius:6px; position:relative; overflow:hidden;">
-                <div style="width:43.66666666666668%; background:#3490dc; height:100%;"></div>
+                <div style="width:44.16666666666664%; background:#3490dc; height:100%;"></div>
             </div>
             <div style="font-size:10px; color:#777; margin-top:2px;">
                 $29.0 - $35.0
             </div>
             </td>
-            <td style="padding:12px; border-bottom:1px solid #eee;">
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="16.513761467889907">
             <div style="width:100px; background:#eee; height:12px; border-radius:6px; position:relative; overflow:hidden;">
-                <div style="width:16.33027522935781%; background:#6c757d; height:100%;"></div>
+                <div style="width:16.513761467889907%; background:#6c757d; height:100%;"></div>
             </div>
             <div style="font-size:10px; color:#777; margin-top:2px;">
                 $28.95 - $45.3
             </div>
             </td>
-            <td style="padding:12px; border-bottom:1px solid #eee;"><span style="display:inline-block; padding:2px 8px; background:#f0f0f0; border-radius:12px; font-size:0.9em;">60/100</span></td>
-            <td style="padding:12px; border-bottom:1px solid #eee;"></td>
-            <td style="padding:12px; border-bottom:1px solid #eee; font-size:0.85em; color:#666;">
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="60"><span style="display:inline-block; padding:2px 8px; background:#f0f0f0; border-radius:12px; font-size:0.9em;">60/100</span></td>
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="0"></td>
+            <td style="padding:12px; border-bottom:1px solid #eee; font-size:0.85em; color:#666;" data-sort="56.98">
                 SMA50: 30.56<br/>
                 SMA200: 31.11<br/>
-                RSI: 56.65
+                RSI: 56.98
             </td>
         </tr>
         
         <tr>
             <td style="padding:12px; border-bottom:1px solid #eee;"><strong>QID</strong></td>
-            <td style="padding:12px; border-bottom:1px solid #eee;">$21.86 <span style="color:#e3342f; font-size:0.9em;">(-1.80%)</span></td>
-            <td style="padding:12px; border-bottom:1px solid #eee;">
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="21.9">$21.90 <span style="color:#e3342f; font-size:0.9em;">(-1.62%)</span></td>
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="50.39999999999998">
             <div style="width:100px; background:#eee; height:12px; border-radius:6px; position:relative; overflow:hidden;">
-                <div style="width:49.75999999999999%; background:#3490dc; height:100%;"></div>
+                <div style="width:50.39999999999998%; background:#3490dc; height:100%;"></div>
             </div>
             <div style="font-size:10px; color:#777; margin-top:2px;">
                 $18.75 - $25.0
             </div>
             </td>
-            <td style="padding:12px; border-bottom:1px solid #eee;">
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="10.545822102425872">
             <div style="width:100px; background:#eee; height:12px; border-radius:6px; position:relative; overflow:hidden;">
-                <div style="width:10.411051212938004%; background:#6c757d; height:100%;"></div>
+                <div style="width:10.545822102425872%; background:#6c757d; height:100%;"></div>
             </div>
             <div style="font-size:10px; color:#777; margin-top:2px;">
                 $18.77 - $48.45
             </div>
             </td>
-            <td style="padding:12px; border-bottom:1px solid #eee;"><span style="display:inline-block; padding:2px 8px; background:#f0f0f0; border-radius:12px; font-size:0.9em;">60/100</span></td>
-            <td style="padding:12px; border-bottom:1px solid #eee;"></td>
-            <td style="padding:12px; border-bottom:1px solid #eee; font-size:0.85em; color:#666;">
-                SMA50: 20.54<br/>
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="60"><span style="display:inline-block; padding:2px 8px; background:#f0f0f0; border-radius:12px; font-size:0.9em;">60/100</span></td>
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="0"></td>
+            <td style="padding:12px; border-bottom:1px solid #eee; font-size:0.85em; color:#666;" data-sort="56.56">
+                SMA50: 20.55<br/>
                 SMA200: 21.71<br/>
-                RSI: 56.18
+                RSI: 56.56
             </td>
         </tr>
         
         <tr>
             <td style="padding:12px; border-bottom:1px solid #eee;"><strong>QQQ</strong></td>
-            <td style="padding:12px; border-bottom:1px solid #eee;">$590.92 <span style="color:#1f9d55; font-size:0.9em;">(+0.65%)</span></td>
-            <td style="padding:12px; border-bottom:1px solid #eee;">
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="590.32">$590.32 <span style="color:#1f9d55; font-size:0.9em;">(+0.55%)</span></td>
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="0">
             <div style="width:100px; background:#eee; height:12px; border-radius:6px; position:relative; overflow:hidden;">
                 <div style="width:0%; background:#e3342f; height:100%;"></div>
             </div>
@@ -695,265 +649,286 @@
                 $595.0 - $633.0
             </div>
             </td>
-            <td style="padding:12px; border-bottom:1px solid #eee;">
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="80.35987098964523">
             <div style="width:100px; background:#eee; height:12px; border-radius:6px; position:relative; overflow:hidden;">
-                <div style="width:80.61449668986587%; background:#6c757d; height:100%;"></div>
+                <div style="width:80.35987098964523%; background:#6c757d; height:100%;"></div>
             </div>
             <div style="font-size:10px; color:#777; margin-top:2px;">
                 $400.96 - $636.6
             </div>
             </td>
-            <td style="padding:12px; border-bottom:1px solid #eee;"><span style="display:inline-block; padding:2px 8px; background:#f0f0f0; border-radius:12px; font-size:0.9em;">60/100</span></td>
-            <td style="padding:12px; border-bottom:1px solid #eee;"></td>
-            <td style="padding:12px; border-bottom:1px solid #eee; font-size:0.85em; color:#666;">
-                SMA50: 610.36<br/>
-                SMA200: 592.35<br/>
-                RSI: 43.49
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="60"><span style="display:inline-block; padding:2px 8px; background:#f0f0f0; border-radius:12px; font-size:0.9em;">60/100</span></td>
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="0"></td>
+            <td style="padding:12px; border-bottom:1px solid #eee; font-size:0.85em; color:#666;" data-sort="43.08">
+                SMA50: 610.35<br/>
+                SMA200: 592.34<br/>
+                RSI: 43.08
             </td>
         </tr>
         
         <tr>
             <td style="padding:12px; border-bottom:1px solid #eee;"><strong>RTX</strong></td>
-            <td style="padding:12px; border-bottom:1px solid #eee;">$198.01 <span style="color:#e3342f; font-size:0.9em;">(-0.05%)</span></td>
-            <td style="padding:12px; border-bottom:1px solid #eee;">
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="197.14">$197.14 <span style="color:#e3342f; font-size:0.9em;">(-0.49%)</span></td>
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="20.39999999999996">
             <div style="width:100px; background:#eee; height:12px; border-radius:6px; position:relative; overflow:hidden;">
-                <div style="width:22.885714285714258%; background:#3490dc; height:100%;"></div>
+                <div style="width:20.39999999999996%; background:#3490dc; height:100%;"></div>
             </div>
             <div style="font-size:10px; color:#777; margin-top:2px;">
                 $190.0 - $225.0
             </div>
             </td>
-            <td style="padding:12px; border-bottom:1px solid #eee;">
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="83.32212508406187">
             <div style="width:100px; background:#eee; height:12px; border-radius:6px; position:relative; overflow:hidden;">
-                <div style="width:84.15794024401958%; background:#6c757d; height:100%;"></div>
+                <div style="width:83.32212508406187%; background:#6c757d; height:100%;"></div>
             </div>
             <div style="font-size:10px; color:#777; margin-top:2px;">
                 $110.41 - $214.5
             </div>
             </td>
-            <td style="padding:12px; border-bottom:1px solid #eee;"><span style="display:inline-block; padding:2px 8px; background:#f0f0f0; border-radius:12px; font-size:0.9em;">60/100</span></td>
-            <td style="padding:12px; border-bottom:1px solid #eee;"></td>
-            <td style="padding:12px; border-bottom:1px solid #eee; font-size:0.85em; color:#666;">
-                SMA50: 200.45<br/>
-                SMA200: 171.32<br/>
-                RSI: 37.45
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="60"><span style="display:inline-block; padding:2px 8px; background:#f0f0f0; border-radius:12px; font-size:0.9em;">60/100</span></td>
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="0"></td>
+            <td style="padding:12px; border-bottom:1px solid #eee; font-size:0.85em; color:#666;" data-sort="36.52">
+                SMA50: 200.44<br/>
+                SMA200: 171.31<br/>
+                RSI: 36.52
             </td>
         </tr>
         
         <tr>
             <td style="padding:12px; border-bottom:1px solid #eee;"><strong>SDIV</strong></td>
-            <td style="padding:12px; border-bottom:1px solid #eee;">$24.74 <span style="color:#1f9d55; font-size:0.9em;">(+1.37%)</span></td>
-            <td style="padding:12px; border-bottom:1px solid #eee;">
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="24.73">$24.73 <span style="color:#1f9d55; font-size:0.9em;">(+1.33%)</span></td>
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="4.842105263157904">
             <div style="width:100px; background:#eee; height:12px; border-radius:6px; position:relative; overflow:hidden;">
-                <div style="width:5.052631578947335%; background:#e3342f; height:100%;"></div>
+                <div style="width:4.842105263157904%; background:#e3342f; height:100%;"></div>
             </div>
             <div style="font-size:10px; color:#777; margin-top:2px;">
                 $24.5 - $29.25
             </div>
             </td>
-            <td style="padding:12px; border-bottom:1px solid #eee;">
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="84.74747474747475">
             <div style="width:100px; background:#eee; height:12px; border-radius:6px; position:relative; overflow:hidden;">
-                <div style="width:84.84848484848484%; background:#6c757d; height:100%;"></div>
+                <div style="width:84.74747474747475%; background:#6c757d; height:100%;"></div>
             </div>
             <div style="font-size:10px; color:#777; margin-top:2px;">
                 $16.34 - $26.24
             </div>
             </td>
-            <td style="padding:12px; border-bottom:1px solid #eee;"><span style="display:inline-block; padding:2px 8px; background:#f0f0f0; border-radius:12px; font-size:0.9em;">60/100</span></td>
-            <td style="padding:12px; border-bottom:1px solid #eee;"></td>
-            <td style="padding:12px; border-bottom:1px solid #eee; font-size:0.85em; color:#666;">
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="60"><span style="display:inline-block; padding:2px 8px; background:#f0f0f0; border-radius:12px; font-size:0.9em;">60/100</span></td>
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="0"></td>
+            <td style="padding:12px; border-bottom:1px solid #eee; font-size:0.85em; color:#666;" data-sort="36.79">
                 SMA50: 25.4<br/>
                 SMA200: 23.25<br/>
-                RSI: 36.96
+                RSI: 36.79
             </td>
         </tr>
         
         <tr>
             <td style="padding:12px; border-bottom:1px solid #eee;"><strong>SYY</strong></td>
-            <td style="padding:12px; border-bottom:1px solid #eee;">$82.46 <span style="color:#1f9d55; font-size:0.9em;">(+0.37%)</span></td>
-            <td style="padding:12px; border-bottom:1px solid #eee;">
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="82.4">$82.40 <span style="color:#1f9d55; font-size:0.9em;">(+0.30%)</span></td>
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="42.28571428571432">
             <div style="width:100px; background:#eee; height:12px; border-radius:6px; position:relative; overflow:hidden;">
-                <div style="width:42.62857142857139%; background:#3490dc; height:100%;"></div>
+                <div style="width:42.28571428571432%; background:#3490dc; height:100%;"></div>
             </div>
             <div style="font-size:10px; color:#777; margin-top:2px;">
                 $75.0 - $92.5
             </div>
             </td>
-            <td style="padding:12px; border-bottom:1px solid #eee;">
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="63.80697050938342">
             <div style="width:100px; background:#eee; height:12px; border-radius:6px; position:relative; overflow:hidden;">
-                <div style="width:64.0367675220222%; background:#6c757d; height:100%;"></div>
+                <div style="width:63.80697050938342%; background:#6c757d; height:100%;"></div>
             </div>
             <div style="font-size:10px; color:#777; margin-top:2px;">
                 $65.74 - $91.85
             </div>
             </td>
-            <td style="padding:12px; border-bottom:1px solid #eee;"><span style="display:inline-block; padding:2px 8px; background:#f0f0f0; border-radius:12px; font-size:0.9em;">60/100</span></td>
-            <td style="padding:12px; border-bottom:1px solid #eee;"></td>
-            <td style="padding:12px; border-bottom:1px solid #eee; font-size:0.85em; color:#666;">
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="60"><span style="display:inline-block; padding:2px 8px; background:#f0f0f0; border-radius:12px; font-size:0.9em;">60/100</span></td>
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="0"></td>
+            <td style="padding:12px; border-bottom:1px solid #eee; font-size:0.85em; color:#666;" data-sort="22.36">
                 SMA50: 84.17<br/>
                 SMA200: 78.49<br/>
-                RSI: 22.78
+                RSI: 22.36
             </td>
         </tr>
         
         <tr>
             <td style="padding:12px; border-bottom:1px solid #eee;"><strong>TLTW</strong></td>
-            <td style="padding:12px; border-bottom:1px solid #eee;">$22.50 <span style="color:#1f9d55; font-size:0.9em;">(+0.43%)</span></td>
-            <td style="padding:12px; border-bottom:1px solid #eee;">
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="22.49">$22.49 <span style="color:#1f9d55; font-size:0.9em;">(+0.40%)</span></td>
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="16.33333333333328">
             <div style="width:100px; background:#eee; height:12px; border-radius:6px; position:relative; overflow:hidden;">
-                <div style="width:16.666666666666664%; background:#3490dc; height:100%;"></div>
+                <div style="width:16.33333333333328%; background:#3490dc; height:100%;"></div>
             </div>
             <div style="font-size:10px; color:#777; margin-top:2px;">
                 $22.0 - $25.0
             </div>
             </td>
-            <td style="padding:12px; border-bottom:1px solid #eee;">
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="75.85227272727269">
             <div style="width:100px; background:#eee; height:12px; border-radius:6px; position:relative; overflow:hidden;">
-                <div style="width:76.13636363636364%; background:#6c757d; height:100%;"></div>
+                <div style="width:75.85227272727269%; background:#6c757d; height:100%;"></div>
             </div>
             <div style="font-size:10px; color:#777; margin-top:2px;">
                 $19.82 - $23.34
             </div>
             </td>
-            <td style="padding:12px; border-bottom:1px solid #eee;"><span style="display:inline-block; padding:2px 8px; background:#f0f0f0; border-radius:12px; font-size:0.9em;">60/100</span></td>
-            <td style="padding:12px; border-bottom:1px solid #eee;"></td>
-            <td style="padding:12px; border-bottom:1px solid #eee; font-size:0.85em; color:#666;">
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="60"><span style="display:inline-block; padding:2px 8px; background:#f0f0f0; border-radius:12px; font-size:0.9em;">60/100</span></td>
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="0"></td>
+            <td style="padding:12px; border-bottom:1px solid #eee; font-size:0.85em; color:#666;" data-sort="33.66">
                 SMA50: 22.73<br/>
                 SMA200: 22.08<br/>
-                RSI: 33.82
+                RSI: 33.66
             </td>
         </tr>
         
         <tr>
             <td style="padding:12px; border-bottom:1px solid #eee;"><strong>WMT</strong></td>
-            <td style="padding:12px; border-bottom:1px solid #eee;">$120.85 <span style="color:#1f9d55; font-size:0.9em;">(+1.29%)</span></td>
-            <td style="padding:12px; border-bottom:1px solid #eee;"><div style='font-size:10px; color:#777;'>Low Rule: $46.0</div></td>
-            <td style="padding:12px; border-bottom:1px solid #eee;">
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="120.54">$120.54 <span style="color:#1f9d55; font-size:0.9em;">(+1.03%)</span></td>
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="-1"><div style='font-size:10px; color:#777;'>Low Rule: $46.0</div></td>
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="74.91862567811937">
             <div style="width:100px; background:#eee; height:12px; border-radius:6px; position:relative; overflow:hidden;">
-                <div style="width:75.47920433996383%; background:#6c757d; height:100%;"></div>
+                <div style="width:74.91862567811937%; background:#6c757d; height:100%;"></div>
             </div>
             <div style="font-size:10px; color:#777; margin-top:2px;">
                 $79.11 - $134.41
             </div>
             </td>
-            <td style="padding:12px; border-bottom:1px solid #eee;"><span style="display:inline-block; padding:2px 8px; background:#f0f0f0; border-radius:12px; font-size:0.9em;">60/100</span></td>
-            <td style="padding:12px; border-bottom:1px solid #eee;"></td>
-            <td style="padding:12px; border-bottom:1px solid #eee; font-size:0.85em; color:#666;">
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="60"><span style="display:inline-block; padding:2px 8px; background:#f0f0f0; border-radius:12px; font-size:0.9em;">60/100</span></td>
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="0"></td>
+            <td style="padding:12px; border-bottom:1px solid #eee; font-size:0.85em; color:#666;" data-sort="32.06">
                 SMA50: 123.47<br/>
                 SMA200: 107.76<br/>
-                RSI: 33.1
+                RSI: 32.06
             </td>
         </tr>
         
         <tr>
             <td style="padding:12px; border-bottom:1px solid #eee;"><strong>INTC</strong></td>
-            <td style="padding:12px; border-bottom:1px solid #eee;">$44.33 <span style="color:#1f9d55; font-size:0.9em;">(+0.22%)</span></td>
-            <td style="padding:12px; border-bottom:1px solid #eee;"><div style='font-size:10px; color:#777;'>Low Rule: $17.5</div></td>
-            <td style="padding:12px; border-bottom:1px solid #eee;">
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="44.28">$44.28 <span style="color:#1f9d55; font-size:0.9em;">(+0.09%)</span></td>
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="-1"><div style='font-size:10px; color:#777;'>Low Rule: $17.5</div></td>
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="72.05523964256702">
             <div style="width:100px; background:#eee; height:12px; border-radius:6px; position:relative; overflow:hidden;">
-                <div style="width:72.19063092336853%; background:#6c757d; height:100%;"></div>
+                <div style="width:72.05523964256702%; background:#6c757d; height:100%;"></div>
             </div>
             <div style="font-size:10px; color:#777; margin-top:2px;">
                 $17.67 - $54.6
             </div>
             </td>
-            <td style="padding:12px; border-bottom:1px solid #eee;"><span style="display:inline-block; padding:2px 8px; background:#f0f0f0; border-radius:12px; font-size:0.9em;">50/100</span></td>
-            <td style="padding:12px; border-bottom:1px solid #eee;"></td>
-            <td style="padding:12px; border-bottom:1px solid #eee; font-size:0.85em; color:#666;">
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="50"><span style="display:inline-block; padding:2px 8px; background:#f0f0f0; border-radius:12px; font-size:0.9em;">50/100</span></td>
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="0"></td>
+            <td style="padding:12px; border-bottom:1px solid #eee; font-size:0.85em; color:#666;" data-sort="52.99">
                 SMA50: 46.6<br/>
                 SMA200: 34.31<br/>
-                RSI: 53.12
+                RSI: 52.99
             </td>
         </tr>
         
         <tr>
             <td style="padding:12px; border-bottom:1px solid #eee;"><strong>FAX</strong></td>
-            <td style="padding:12px; border-bottom:1px solid #eee;">$14.81 <span style="color:#1f9d55; font-size:0.9em;">(+0.68%)</span></td>
-            <td style="padding:12px; border-bottom:1px solid #eee;">
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="14.84">$14.84 <span style="color:#1f9d55; font-size:0.9em;">(+0.88%)</span></td>
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="13.599999999999996">
             <div style="width:100px; background:#eee; height:12px; border-radius:6px; position:relative; overflow:hidden;">
-                <div style="width:12.40000000000002%; background:#3490dc; height:100%;"></div>
+                <div style="width:13.599999999999996%; background:#3490dc; height:100%;"></div>
             </div>
             <div style="font-size:10px; color:#777; margin-top:2px;">
                 $14.5 - $17.0
             </div>
             </td>
-            <td style="padding:12px; border-bottom:1px solid #eee;">
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="62.962962962962976">
             <div style="width:100px; background:#eee; height:12px; border-radius:6px; position:relative; overflow:hidden;">
-                <div style="width:62.1693121693122%; background:#6c757d; height:100%;"></div>
+                <div style="width:62.962962962962976%; background:#6c757d; height:100%;"></div>
             </div>
             <div style="font-size:10px; color:#777; margin-top:2px;">
                 $12.46 - $16.24
             </div>
             </td>
-            <td style="padding:12px; border-bottom:1px solid #eee;"><span style="display:inline-block; padding:2px 8px; background:#f0f0f0; border-radius:12px; font-size:0.9em;">40/100</span></td>
-            <td style="padding:12px; border-bottom:1px solid #eee;"></td>
-            <td style="padding:12px; border-bottom:1px solid #eee; font-size:0.85em; color:#666;">
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="40"><span style="display:inline-block; padding:2px 8px; background:#f0f0f0; border-radius:12px; font-size:0.9em;">40/100</span></td>
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="0"></td>
+            <td style="padding:12px; border-bottom:1px solid #eee; font-size:0.85em; color:#666;" data-sort="29.04">
                 SMA50: 15.47<br/>
                 SMA200: 15.07<br/>
-                RSI: 28.02
+                RSI: 29.04
             </td>
         </tr>
         
         <tr>
             <td style="padding:12px; border-bottom:1px solid #eee;"><strong>JPM</strong></td>
-            <td style="padding:12px; border-bottom:1px solid #eee;">$292.12 <span style="color:#1f9d55; font-size:0.9em;">(+1.26%)</span></td>
-            <td style="padding:12px; border-bottom:1px solid #eee;">
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="291.66">$291.66 <span style="color:#1f9d55; font-size:0.9em;">(+1.10%)</span></td>
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="41.660000000000025">
             <div style="width:100px; background:#eee; height:12px; border-radius:6px; position:relative; overflow:hidden;">
-                <div style="width:42.120000000000005%; background:#3490dc; height:100%;"></div>
+                <div style="width:41.660000000000025%; background:#3490dc; height:100%;"></div>
             </div>
             <div style="font-size:10px; color:#777; margin-top:2px;">
                 $250.0 - $350.0
             </div>
             </td>
-            <td style="padding:12px; border-bottom:1px solid #eee;">
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="67.62358110582205">
             <div style="width:100px; background:#eee; height:12px; border-radius:6px; position:relative; overflow:hidden;">
-                <div style="width:67.96045404613696%; background:#6c757d; height:100%;"></div>
+                <div style="width:67.62358110582205%; background:#6c757d; height:100%;"></div>
             </div>
             <div style="font-size:10px; color:#777; margin-top:2px;">
                 $199.32 - $335.87
             </div>
             </td>
-            <td style="padding:12px; border-bottom:1px solid #eee;"><span style="display:inline-block; padding:2px 8px; background:#f0f0f0; border-radius:12px; font-size:0.9em;">40/100</span></td>
-            <td style="padding:12px; border-bottom:1px solid #eee;"></td>
-            <td style="padding:12px; border-bottom:1px solid #eee; font-size:0.85em; color:#666;">
-                SMA50: 302.47<br/>
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="40"><span style="display:inline-block; padding:2px 8px; background:#f0f0f0; border-radius:12px; font-size:0.9em;">40/100</span></td>
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="0"></td>
+            <td style="padding:12px; border-bottom:1px solid #eee; font-size:0.85em; color:#666;" data-sort="35.59">
+                SMA50: 302.46<br/>
                 SMA200: 299.72<br/>
-                RSI: 36.57
+                RSI: 35.59
+            </td>
+        </tr>
+
+        <tr>
+            <td style="padding:12px; border-bottom:1px solid #eee;"><strong>PBI</strong></td>
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="10.6">$10.60 <span style="color:#1f9d55; font-size:0.9em;">(+2.92%)</span></td>
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="-1"><div style='font-size:10px; color:#777;'>Low Rule: $9.0</div></td>
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="61.101243339254">
+            <div style="width:100px; background:#eee; height:12px; border-radius:6px; position:relative; overflow:hidden;">
+                <div style="width:61.101243339254%; background:#6c757d; height:100%;"></div>
+            </div>
+            <div style="font-size:10px; color:#777; margin-top:2px;">
+                $7.16 - $12.79
+            </div>
+            </td>
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="40"><span style="display:inline-block; padding:2px 8px; background:#f0f0f0; border-radius:12px; font-size:0.9em;">40/100</span></td>
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="0"></td>
+            <td style="padding:12px; border-bottom:1px solid #eee; font-size:0.85em; color:#666;" data-sort="50.79">
+                SMA50: 10.41<br/>
+                SMA200: 10.65<br/>
+                RSI: 50.79
             </td>
         </tr>
         
         <tr>
             <td style="padding:12px; border-bottom:1px solid #eee;"><strong>PFF</strong></td>
-            <td style="padding:12px; border-bottom:1px solid #eee;">$30.56 <span style="color:#1f9d55; font-size:0.9em;">(+0.86%)</span></td>
-            <td style="padding:12px; border-bottom:1px solid #eee;">
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="30.53">$30.53 <span style="color:#1f9d55; font-size:0.9em;">(+0.78%)</span></td>
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="55.090909090909115">
             <div style="width:100px; background:#eee; height:12px; border-radius:6px; position:relative; overflow:hidden;">
-                <div style="width:55.63636363636362%; background:#3490dc; height:100%;"></div>
+                <div style="width:55.090909090909115%; background:#3490dc; height:100%;"></div>
             </div>
             <div style="font-size:10px; color:#777; margin-top:2px;">
                 $27.5 - $33.0
             </div>
             </td>
-            <td style="padding:12px; border-bottom:1px solid #eee;">
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="71.18279569892475">
             <div style="width:100px; background:#eee; height:12px; border-radius:6px; position:relative; overflow:hidden;">
-                <div style="width:71.82795698924728%; background:#6c757d; height:100%;"></div>
+                <div style="width:71.18279569892475%; background:#6c757d; height:100%;"></div>
             </div>
             <div style="font-size:10px; color:#777; margin-top:2px;">
                 $27.22 - $31.87
             </div>
             </td>
-            <td style="padding:12px; border-bottom:1px solid #eee;"><span style="display:inline-block; padding:2px 8px; background:#f0f0f0; border-radius:12px; font-size:0.9em;">40/100</span></td>
-            <td style="padding:12px; border-bottom:1px solid #eee;"></td>
-            <td style="padding:12px; border-bottom:1px solid #eee; font-size:0.85em; color:#666;">
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="40"><span style="display:inline-block; padding:2px 8px; background:#f0f0f0; border-radius:12px; font-size:0.9em;">40/100</span></td>
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="0"></td>
+            <td style="padding:12px; border-bottom:1px solid #eee; font-size:0.85em; color:#666;" data-sort="32.88">
                 SMA50: 31.35<br/>
                 SMA200: 30.68<br/>
-                RSI: 33.63
+                RSI: 32.88
             </td>
         </tr>
         
         <tr>
             <td style="padding:12px; border-bottom:1px solid #eee;"><strong>SQQQ</strong></td>
-            <td style="padding:12px; border-bottom:1px solid #eee;">$76.31 <span style="color:#e3342f; font-size:0.9em;">(-2.72%)</span></td>
-            <td style="padding:12px; border-bottom:1px solid #eee;">
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="76.6">$76.60 <span style="color:#e3342f; font-size:0.9em;">(-2.35%)</span></td>
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="100">
             <div style="width:100px; background:#eee; height:12px; border-radius:6px; position:relative; overflow:hidden;">
                 <div style="width:100%; background:#38c172; height:100%;"></div>
             </div>
@@ -961,132 +936,132 @@
                 $64.0 - $75.0
             </div>
             </td>
-            <td style="padding:12px; border-bottom:1px solid #eee;">
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="6.985259600037552">
             <div style="width:100px; background:#eee; height:12px; border-radius:6px; position:relative; overflow:hidden;">
-                <div style="width:6.849122148155104%; background:#6c757d; height:100%;"></div>
+                <div style="width:6.985259600037552%; background:#6c757d; height:100%;"></div>
             </div>
             <div style="font-size:10px; color:#777; margin-top:2px;">
                 $61.72 - $274.74
             </div>
             </td>
-            <td style="padding:12px; border-bottom:1px solid #eee;"><span style="display:inline-block; padding:2px 8px; background:#f0f0f0; border-radius:12px; font-size:0.9em;">40/100</span></td>
-            <td style="padding:12px; border-bottom:1px solid #eee;"></td>
-            <td style="padding:12px; border-bottom:1px solid #eee; font-size:0.85em; color:#666;">
-                SMA50: 69.97<br/>
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="40"><span style="display:inline-block; padding:2px 8px; background:#f0f0f0; border-radius:12px; font-size:0.9em;">40/100</span></td>
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="0"></td>
+            <td style="padding:12px; border-bottom:1px solid #eee; font-size:0.85em; color:#666;" data-sort="56.12">
+                SMA50: 69.98<br/>
                 SMA200: 77.44<br/>
-                RSI: 55.6
+                RSI: 56.12
             </td>
         </tr>
         
         <tr>
             <td style="padding:12px; border-bottom:1px solid #eee;"><strong>TLT</strong></td>
-            <td style="padding:12px; border-bottom:1px solid #eee;">$86.53 <span style="color:#1f9d55; font-size:0.9em;">(+0.32%)</span></td>
-            <td style="padding:12px; border-bottom:1px solid #eee;">
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="86.46">$86.46 <span style="color:#1f9d55; font-size:0.9em;">(+0.25%)</span></td>
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="17.599999999999973">
             <div style="width:100px; background:#eee; height:12px; border-radius:6px; position:relative; overflow:hidden;">
-                <div style="width:17.911111111111115%; background:#3490dc; height:100%;"></div>
+                <div style="width:17.599999999999973%; background:#3490dc; height:100%;"></div>
             </div>
             <div style="font-size:10px; color:#777; margin-top:2px;">
                 $82.5 - $105.0
             </div>
             </td>
-            <td style="padding:12px; border-bottom:1px solid #eee;">
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="60.03898635477577">
             <div style="width:100px; background:#eee; height:12px; border-radius:6px; position:relative; overflow:hidden;">
-                <div style="width:60.72124756335283%; background:#6c757d; height:100%;"></div>
+                <div style="width:60.03898635477577%; background:#6c757d; height:100%;"></div>
             </div>
             <div style="font-size:10px; color:#777; margin-top:2px;">
                 $80.3 - $90.56
             </div>
             </td>
-            <td style="padding:12px; border-bottom:1px solid #eee;"><span style="display:inline-block; padding:2px 8px; background:#f0f0f0; border-radius:12px; font-size:0.9em;">40/100</span></td>
-            <td style="padding:12px; border-bottom:1px solid #eee;"></td>
-            <td style="padding:12px; border-bottom:1px solid #eee; font-size:0.85em; color:#666;">
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="40"><span style="display:inline-block; padding:2px 8px; background:#f0f0f0; border-radius:12px; font-size:0.9em;">40/100</span></td>
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="0"></td>
+            <td style="padding:12px; border-bottom:1px solid #eee; font-size:0.85em; color:#666;" data-sort="32.87">
                 SMA50: 87.86<br/>
                 SMA200: 86.75<br/>
-                RSI: 33.33
+                RSI: 32.87
             </td>
         </tr>
         
         <tr>
             <td style="padding:12px; border-bottom:1px solid #eee;"><strong>UVXY</strong></td>
-            <td style="padding:12px; border-bottom:1px solid #eee;">$48.98 <span style="color:#e3342f; font-size:0.9em;">(-5.68%)</span></td>
-            <td style="padding:12px; border-bottom:1px solid #eee;"><div style='font-size:10px; color:#777;'>Low Rule: $34.98</div></td>
-            <td style="padding:12px; border-bottom:1px solid #eee;">
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="49.32">$49.32 <span style="color:#e3342f; font-size:0.9em;">(-5.02%)</span></td>
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="-1"><div style='font-size:10px; color:#777;'>Low Rule: $34.98</div></td>
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="6.622145626884962">
             <div style="width:100px; background:#eee; height:12px; border-radius:6px; position:relative; overflow:hidden;">
-                <div style="width:6.47565704437742%; background:#6c757d; height:100%;"></div>
+                <div style="width:6.622145626884962%; background:#6c757d; height:100%;"></div>
             </div>
             <div style="font-size:10px; color:#777; margin-top:2px;">
                 $33.95 - $266.05
             </div>
             </td>
-            <td style="padding:12px; border-bottom:1px solid #eee;"><span style="display:inline-block; padding:2px 8px; background:#f0f0f0; border-radius:12px; font-size:0.9em;">40/100</span></td>
-            <td style="padding:12px; border-bottom:1px solid #eee;"></td>
-            <td style="padding:12px; border-bottom:1px solid #eee; font-size:0.85em; color:#666;">
-                SMA50: 40.56<br/>
-                SMA200: 58.08<br/>
-                RSI: 54.67
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="40"><span style="display:inline-block; padding:2px 8px; background:#f0f0f0; border-radius:12px; font-size:0.9em;">40/100</span></td>
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="0"></td>
+            <td style="padding:12px; border-bottom:1px solid #eee; font-size:0.85em; color:#666;" data-sort="54.97">
+                SMA50: 40.57<br/>
+                SMA200: 58.09<br/>
+                RSI: 54.97
             </td>
         </tr>
         
         <tr>
             <td style="padding:12px; border-bottom:1px solid #eee;"><strong>XYZ</strong></td>
-            <td style="padding:12px; border-bottom:1px solid #eee;">$61.46 <span style="color:#1f9d55; font-size:0.9em;">(+3.02%)</span></td>
-            <td style="padding:12px; border-bottom:1px solid #eee;">
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="61.43">$61.43 <span style="color:#1f9d55; font-size:0.9em;">(+2.97%)</span></td>
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="45.72">
             <div style="width:100px; background:#eee; height:12px; border-radius:6px; position:relative; overflow:hidden;">
-                <div style="width:45.84%; background:#3490dc; height:100%;"></div>
+                <div style="width:45.72%; background:#3490dc; height:100%;"></div>
             </div>
             <div style="font-size:10px; color:#777; margin-top:2px;">
                 $50.0 - $75.0
             </div>
             </td>
-            <td style="padding:12px; border-bottom:1px solid #eee;">
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="44.88621501438661">
             <div style="width:100px; background:#eee; height:12px; border-radius:6px; position:relative; overflow:hidden;">
-                <div style="width:44.96468741825791%; background:#6c757d; height:100%;"></div>
+                <div style="width:44.88621501438661%; background:#6c757d; height:100%;"></div>
             </div>
             <div style="font-size:10px; color:#777; margin-top:2px;">
                 $44.27 - $82.5
             </div>
             </td>
-            <td style="padding:12px; border-bottom:1px solid #eee;"><span style="display:inline-block; padding:2px 8px; background:#f0f0f0; border-radius:12px; font-size:0.9em;">40/100</span></td>
-            <td style="padding:12px; border-bottom:1px solid #eee;"></td>
-            <td style="padding:12px; border-bottom:1px solid #eee; font-size:0.85em; color:#666;">
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="40"><span style="display:inline-block; padding:2px 8px; background:#f0f0f0; border-radius:12px; font-size:0.9em;">40/100</span></td>
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="0"></td>
+            <td style="padding:12px; border-bottom:1px solid #eee; font-size:0.85em; color:#666;" data-sort="45.88">
                 SMA50: 60.23<br/>
                 SMA200: 68.29<br/>
-                RSI: 45.97
+                RSI: 45.88
             </td>
         </tr>
         
         <tr>
             <td style="padding:12px; border-bottom:1px solid #eee;"><strong>^DJI</strong></td>
-            <td style="padding:12px; border-bottom:1px solid #eee;">$46443.19 <span style="color:#1f9d55; font-size:0.9em;">(+1.90%)</span></td>
-            <td style="padding:12px; border-bottom:1px solid #eee;">
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="46374.17">$46374.17 <span style="color:#1f9d55; font-size:0.9em;">(+1.75%)</span></td>
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="22.9028333333333">
             <div style="width:100px; background:#eee; height:12px; border-radius:6px; position:relative; overflow:hidden;">
-                <div style="width:24.053166666666705%; background:#3490dc; height:100%;"></div>
+                <div style="width:22.9028333333333%; background:#3490dc; height:100%;"></div>
             </div>
             <div style="font-size:10px; color:#777; margin-top:2px;">
                 $45000.0 - $51000.0
             </div>
             </td>
-            <td style="padding:12px; border-bottom:1px solid #eee;">
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="70.22791869080015">
             <div style="width:100px; background:#eee; height:12px; border-radius:6px; position:relative; overflow:hidden;">
-                <div style="width:70.724429375995%; background:#6c757d; height:100%;"></div>
+                <div style="width:70.22791869080015%; background:#6c757d; height:100%;"></div>
             </div>
             <div style="font-size:10px; color:#777; margin-top:2px;">
                 $36611.78 - $50512.79
             </div>
             </td>
-            <td style="padding:12px; border-bottom:1px solid #eee;"><span style="display:inline-block; padding:2px 8px; background:#f0f0f0; border-radius:12px; font-size:0.9em;">40/100</span></td>
-            <td style="padding:12px; border-bottom:1px solid #eee;"></td>
-            <td style="padding:12px; border-bottom:1px solid #eee; font-size:0.85em; color:#666;">
-                SMA50: 48686.37<br/>
-                SMA200: 46582.92<br/>
-                RSI: 31.67
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="40"><span style="display:inline-block; padding:2px 8px; background:#f0f0f0; border-radius:12px; font-size:0.9em;">40/100</span></td>
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="0"></td>
+            <td style="padding:12px; border-bottom:1px solid #eee; font-size:0.85em; color:#666;" data-sort="30.82">
+                SMA50: 48684.99<br/>
+                SMA200: 46582.57<br/>
+                RSI: 30.82
             </td>
         </tr>
         
         <tr>
             <td style="padding:12px; border-bottom:1px solid #eee;"><strong>^SPX</strong></td>
-            <td style="padding:12px; border-bottom:1px solid #eee;">$6620.30 <span style="color:#1f9d55; font-size:0.9em;">(+1.75%)</span></td>
-            <td style="padding:12px; border-bottom:1px solid #eee;">
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="6612.13">$6612.13 <span style="color:#1f9d55; font-size:0.9em;">(+1.62%)</span></td>
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="0">
             <div style="width:100px; background:#eee; height:12px; border-radius:6px; position:relative; overflow:hidden;">
                 <div style="width:0%; background:#e3342f; height:100%;"></div>
             </div>
@@ -1094,27 +1069,27 @@
                 $6750.0 - $6999.0
             </div>
             </td>
-            <td style="padding:12px; border-bottom:1px solid #eee;">
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="81.99784057141804">
             <div style="width:100px; background:#eee; height:12px; border-radius:6px; position:relative; overflow:hidden;">
-                <div style="width:82.37481774053637%; background:#6c757d; height:100%;"></div>
+                <div style="width:81.99784057141804%; background:#6c757d; height:100%;"></div>
             </div>
             <div style="font-size:10px; color:#777; margin-top:2px;">
                 $4835.04 - $7002.28
             </div>
             </td>
-            <td style="padding:12px; border-bottom:1px solid #eee;"><span style="display:inline-block; padding:2px 8px; background:#f0f0f0; border-radius:12px; font-size:0.9em;">40/100</span></td>
-            <td style="padding:12px; border-bottom:1px solid #eee;"></td>
-            <td style="padding:12px; border-bottom:1px solid #eee; font-size:0.85em; color:#666;">
-                SMA50: 6851.74<br/>
-                SMA200: 6624.98<br/>
-                RSI: 37.87
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="40"><span style="display:inline-block; padding:2px 8px; background:#f0f0f0; border-radius:12px; font-size:0.9em;">40/100</span></td>
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="0"></td>
+            <td style="padding:12px; border-bottom:1px solid #eee; font-size:0.85em; color:#666;" data-sort="37.24">
+                SMA50: 6851.58<br/>
+                SMA200: 6624.94<br/>
+                RSI: 37.24
             </td>
         </tr>
         
         <tr>
             <td style="padding:12px; border-bottom:1px solid #eee;"><strong>AG</strong></td>
-            <td style="padding:12px; border-bottom:1px solid #eee;">$19.35 <span style="color:#1f9d55; font-size:0.9em;">(+5.94%)</span></td>
-            <td style="padding:12px; border-bottom:1px solid #eee;">
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="19.17">$19.17 <span style="color:#1f9d55; font-size:0.9em;">(+4.90%)</span></td>
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="0">
             <div style="width:100px; background:#eee; height:12px; border-radius:6px; position:relative; overflow:hidden;">
                 <div style="width:0%; background:#e3342f; height:100%;"></div>
             </div>
@@ -1122,76 +1097,104 @@
                 $27.0 - $32.5
             </div>
             </td>
-            <td style="padding:12px; border-bottom:1px solid #eee;">
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="52.08488458674609">
             <div style="width:100px; background:#eee; height:12px; border-radius:6px; position:relative; overflow:hidden;">
-                <div style="width:52.75502606105734%; background:#6c757d; height:100%;"></div>
+                <div style="width:52.08488458674609%; background:#6c757d; height:100%;"></div>
             </div>
             <div style="font-size:10px; color:#777; margin-top:2px;">
                 $5.18 - $32.04
             </div>
             </td>
-            <td style="padding:12px; border-bottom:1px solid #eee;"><span style="display:inline-block; padding:2px 8px; background:#f0f0f0; border-radius:12px; font-size:0.9em;">30/100</span></td>
-            <td style="padding:12px; border-bottom:1px solid #eee;"></td>
-            <td style="padding:12px; border-bottom:1px solid #eee; font-size:0.85em; color:#666;">
-                SMA50: 23.92<br/>
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="30"><span style="display:inline-block; padding:2px 8px; background:#f0f0f0; border-radius:12px; font-size:0.9em;">30/100</span></td>
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="0"></td>
+            <td style="padding:12px; border-bottom:1px solid #eee; font-size:0.85em; color:#666;" data-sort="15.49">
+                SMA50: 23.91<br/>
                 SMA200: 14.53<br/>
-                RSI: 16.67
+                RSI: 15.49
+            </td>
+        </tr>
+
+        <tr>
+            <td style="padding:12px; border-bottom:1px solid #eee;"><strong>BEN</strong></td>
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="24.04">$24.04 <span style="color:#1f9d55; font-size:0.9em;">(+1.48%)</span></td>
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="0">
+            <div style="width:100px; background:#eee; height:12px; border-radius:6px; position:relative; overflow:hidden;">
+                <div style="width:0%; background:#e3342f; height:100%;"></div>
+            </div>
+            <div style="font-size:10px; color:#777; margin-top:2px;">
+                $25.0 - $28.5
+            </div>
+            </td>
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="66.35220125786164">
+            <div style="width:100px; background:#eee; height:12px; border-radius:6px; position:relative; overflow:hidden;">
+                <div style="width:66.35220125786164%; background:#6c757d; height:100%;"></div>
+            </div>
+            <div style="font-size:10px; color:#777; margin-top:2px;">
+                $15.6 - $28.32
+            </div>
+            </td>
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="30"><span style="display:inline-block; padding:2px 8px; background:#f0f0f0; border-radius:12px; font-size:0.9em;">30/100</span></td>
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="0"></td>
+            <td style="padding:12px; border-bottom:1px solid #eee; font-size:0.85em; color:#666;" data-sort="31.25">
+                SMA50: 26.1<br/>
+                SMA200: 23.95<br/>
+                RSI: 31.25
             </td>
         </tr>
         
         <tr>
             <td style="padding:12px; border-bottom:1px solid #eee;"><strong>FCX</strong></td>
-            <td style="padding:12px; border-bottom:1px solid #eee;">$55.10 <span style="color:#1f9d55; font-size:0.9em;">(+5.24%)</span></td>
-            <td style="padding:12px; border-bottom:1px solid #eee;"><div style='font-size:10px; color:#777;'>Low Rule: $30.0</div></td>
-            <td style="padding:12px; border-bottom:1px solid #eee;">
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="54.96">$54.96 <span style="color:#1f9d55; font-size:0.9em;">(+4.99%)</span></td>
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="-1"><div style='font-size:10px; color:#777;'>Low Rule: $30.0</div></td>
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="65.17541794207676">
             <div style="width:100px; background:#eee; height:12px; border-radius:6px; position:relative; overflow:hidden;">
-                <div style="width:65.50506239698612%; background:#6c757d; height:100%;"></div>
+                <div style="width:65.17541794207676%; background:#6c757d; height:100%;"></div>
             </div>
             <div style="font-size:10px; color:#777; margin-top:2px;">
                 $27.28 - $69.75
             </div>
             </td>
-            <td style="padding:12px; border-bottom:1px solid #eee;"><span style="display:inline-block; padding:2px 8px; background:#f0f0f0; border-radius:12px; font-size:0.9em;">30/100</span></td>
-            <td style="padding:12px; border-bottom:1px solid #eee;"></td>
-            <td style="padding:12px; border-bottom:1px solid #eee; font-size:0.85em; color:#666;">
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="30"><span style="display:inline-block; padding:2px 8px; background:#f0f0f0; border-radius:12px; font-size:0.9em;">30/100</span></td>
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="0"></td>
+            <td style="padding:12px; border-bottom:1px solid #eee; font-size:0.85em; color:#666;" data-sort="30.03">
                 SMA50: 61.47<br/>
                 SMA200: 47.87<br/>
-                RSI: 30.39
+                RSI: 30.03
             </td>
         </tr>
-        
+
         <tr>
             <td style="padding:12px; border-bottom:1px solid #eee;"><strong>GE</strong></td>
-            <td style="padding:12px; border-bottom:1px solid #eee;">$295.15 <span style="color:#1f9d55; font-size:0.9em;">(+2.03%)</span></td>
-            <td style="padding:12px; border-bottom:1px solid #eee;">
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="294.36">$294.36 <span style="color:#1f9d55; font-size:0.9em;">(+1.75%)</span></td>
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="7.26666666666669">
             <div style="width:100px; background:#eee; height:12px; border-radius:6px; position:relative; overflow:hidden;">
-                <div style="width:8.583333333333295%; background:#e3342f; height:100%;"></div>
+                <div style="width:7.26666666666669%; background:#e3342f; height:100%;"></div>
             </div>
             <div style="font-size:10px; color:#777; margin-top:2px;">
                 $290.0 - $350.0
             </div>
             </td>
-            <td style="padding:12px; border-bottom:1px solid #eee;">
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="71.70229612034838">
             <div style="width:100px; background:#eee; height:12px; border-radius:6px; position:relative; overflow:hidden;">
-                <div style="width:72.11929268936392%; background:#6c757d; height:100%;"></div>
+                <div style="width:71.70229612034838%; background:#6c757d; height:100%;"></div>
             </div>
             <div style="font-size:10px; color:#777; margin-top:2px;">
                 $158.52 - $347.97
             </div>
             </td>
-            <td style="padding:12px; border-bottom:1px solid #eee;"><span style="display:inline-block; padding:2px 8px; background:#f0f0f0; border-radius:12px; font-size:0.9em;">30/100</span></td>
-            <td style="padding:12px; border-bottom:1px solid #eee;"></td>
-            <td style="padding:12px; border-bottom:1px solid #eee; font-size:0.85em; color:#666;">
-                SMA50: 316.68<br/>
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="30"><span style="display:inline-block; padding:2px 8px; background:#f0f0f0; border-radius:12px; font-size:0.9em;">30/100</span></td>
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="0"></td>
+            <td style="padding:12px; border-bottom:1px solid #eee; font-size:0.85em; color:#666;" data-sort="26.48">
+                SMA50: 316.67<br/>
                 SMA200: 291.25<br/>
-                RSI: 27.18
+                RSI: 26.48
             </td>
         </tr>
         
         <tr>
             <td style="padding:12px; border-bottom:1px solid #eee;"><strong>GLD</strong></td>
-            <td style="padding:12px; border-bottom:1px solid #eee;">$408.82 <span style="color:#e3342f; font-size:0.9em;">(-0.89%)</span></td>
-            <td style="padding:12px; border-bottom:1px solid #eee;">
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="404.41">$404.41 <span style="color:#e3342f; font-size:0.9em;">(-1.96%)</span></td>
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="0">
             <div style="width:100px; background:#eee; height:12px; border-radius:6px; position:relative; overflow:hidden;">
                 <div style="width:0%; background:#e3342f; height:100%;"></div>
             </div>
@@ -1199,27 +1202,27 @@
                 $465.0 - $495.0
             </div>
             </td>
-            <td style="padding:12px; border-bottom:1px solid #eee;">
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="55.59632253711203">
             <div style="width:100px; background:#eee; height:12px; border-radius:6px; position:relative; overflow:hidden;">
-                <div style="width:57.45614035087719%; background:#6c757d; height:100%;"></div>
+                <div style="width:55.59632253711203%; background:#6c757d; height:100%;"></div>
             </div>
             <div style="font-size:10px; color:#777; margin-top:2px;">
                 $272.58 - $509.7
             </div>
             </td>
-            <td style="padding:12px; border-bottom:1px solid #eee;"><span style="display:inline-block; padding:2px 8px; background:#f0f0f0; border-radius:12px; font-size:0.9em;">30/100</span></td>
-            <td style="padding:12px; border-bottom:1px solid #eee;"></td>
-            <td style="padding:12px; border-bottom:1px solid #eee; font-size:0.85em; color:#666;">
-                SMA50: 456.03<br/>
-                SMA200: 374.63<br/>
-                RSI: 17.78
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="30"><span style="display:inline-block; padding:2px 8px; background:#f0f0f0; border-radius:12px; font-size:0.9em;">30/100</span></td>
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="0"></td>
+            <td style="padding:12px; border-bottom:1px solid #eee; font-size:0.85em; color:#666;" data-sort="16.97">
+                SMA50: 455.95<br/>
+                SMA200: 374.6<br/>
+                RSI: 16.97
             </td>
         </tr>
         
         <tr>
             <td style="padding:12px; border-bottom:1px solid #eee;"><strong>HE</strong></td>
-            <td style="padding:12px; border-bottom:1px solid #eee;">$14.56 <span style="color:#1f9d55; font-size:0.9em;">(+4.15%)</span></td>
-            <td style="padding:12px; border-bottom:1px solid #eee;">
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="14.48">$14.48 <span style="color:#1f9d55; font-size:0.9em;">(+3.58%)</span></td>
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="0">
             <div style="width:100px; background:#eee; height:12px; border-radius:6px; position:relative; overflow:hidden;">
                 <div style="width:0%; background:#e3342f; height:100%;"></div>
             </div>
@@ -1227,55 +1230,55 @@
                 $14.75 - $17.5
             </div>
             </td>
-            <td style="padding:12px; border-bottom:1px solid #eee;">
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="65.14423076923079">
             <div style="width:100px; background:#eee; height:12px; border-radius:6px; position:relative; overflow:hidden;">
-                <div style="width:66.10576923076924%; background:#6c757d; height:100%;"></div>
+                <div style="width:65.14423076923079%; background:#6c757d; height:100%;"></div>
             </div>
             <div style="font-size:10px; color:#777; margin-top:2px;">
                 $9.06 - $17.38
             </div>
             </td>
-            <td style="padding:12px; border-bottom:1px solid #eee;"><span style="display:inline-block; padding:2px 8px; background:#f0f0f0; border-radius:12px; font-size:0.9em;">30/100</span></td>
-            <td style="padding:12px; border-bottom:1px solid #eee;"></td>
-            <td style="padding:12px; border-bottom:1px solid #eee; font-size:0.85em; color:#666;">
-                SMA50: 15.36<br/>
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="30"><span style="display:inline-block; padding:2px 8px; background:#f0f0f0; border-radius:12px; font-size:0.9em;">30/100</span></td>
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="0"></td>
+            <td style="padding:12px; border-bottom:1px solid #eee; font-size:0.85em; color:#666;" data-sort="25.46">
+                SMA50: 15.35<br/>
                 SMA200: 12.42<br/>
-                RSI: 27.25
+                RSI: 25.46
             </td>
         </tr>
         
         <tr>
             <td style="padding:12px; border-bottom:1px solid #eee;"><strong>IAG</strong></td>
-            <td style="padding:12px; border-bottom:1px solid #eee;">$16.81 <span style="color:#1f9d55; font-size:0.9em;">(+4.93%)</span></td>
-            <td style="padding:12px; border-bottom:1px solid #eee;">
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="16.72">$16.72 <span style="color:#1f9d55; font-size:0.9em;">(+4.37%)</span></td>
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="1.1561128526645768">
             <div style="width:100px; background:#eee; height:12px; border-radius:6px; position:relative; overflow:hidden;">
-                <div style="width:1.1673981191222569%; background:#e3342f; height:100%;"></div>
+                <div style="width:1.1561128526645768%; background:#e3342f; height:100%;"></div>
             </div>
             <div style="font-size:10px; color:#777; margin-top:2px;">
                 $7.5 - $805.0
             </div>
             </td>
-            <td style="padding:12px; border-bottom:1px solid #eee;">
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="58.24795081967212">
             <div style="width:100px; background:#eee; height:12px; border-radius:6px; position:relative; overflow:hidden;">
-                <div style="width:58.7090163934426%; background:#6c757d; height:100%;"></div>
+                <div style="width:58.24795081967212%; background:#6c757d; height:100%;"></div>
             </div>
             <div style="font-size:10px; color:#777; margin-top:2px;">
                 $5.35 - $24.87
             </div>
             </td>
-            <td style="padding:12px; border-bottom:1px solid #eee;"><span style="display:inline-block; padding:2px 8px; background:#f0f0f0; border-radius:12px; font-size:0.9em;">30/100</span></td>
-            <td style="padding:12px; border-bottom:1px solid #eee;"></td>
-            <td style="padding:12px; border-bottom:1px solid #eee; font-size:0.85em; color:#666;">
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="30"><span style="display:inline-block; padding:2px 8px; background:#f0f0f0; border-radius:12px; font-size:0.9em;">30/100</span></td>
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="0"></td>
+            <td style="padding:12px; border-bottom:1px solid #eee; font-size:0.85em; color:#666;" data-sort="18.1">
                 SMA50: 20.4<br/>
                 SMA200: 13.46<br/>
-                RSI: 18.92
+                RSI: 18.1
             </td>
         </tr>
         
         <tr>
             <td style="padding:12px; border-bottom:1px solid #eee;"><strong>REMX</strong></td>
-            <td style="padding:12px; border-bottom:1px solid #eee;">$84.49 <span style="color:#1f9d55; font-size:0.9em;">(+6.94%)</span></td>
-            <td style="padding:12px; border-bottom:1px solid #eee;">
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="84.1">$84.10 <span style="color:#1f9d55; font-size:0.9em;">(+6.45%)</span></td>
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="0">
             <div style="width:100px; background:#eee; height:12px; border-radius:6px; position:relative; overflow:hidden;">
                 <div style="width:0%; background:#e3342f; height:100%;"></div>
             </div>
@@ -1283,27 +1286,27 @@
                 $85.0 - $110.5
             </div>
             </td>
-            <td style="padding:12px; border-bottom:1px solid #eee;">
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="72.76773296244782">
             <div style="width:100px; background:#eee; height:12px; border-radius:6px; position:relative; overflow:hidden;">
-                <div style="width:73.31015299026424%; background:#6c757d; height:100%;"></div>
+                <div style="width:72.76773296244782%; background:#6c757d; height:100%;"></div>
             </div>
             <div style="font-size:10px; color:#777; margin-top:2px;">
                 $31.78 - $103.68
             </div>
             </td>
-            <td style="padding:12px; border-bottom:1px solid #eee;"><span style="display:inline-block; padding:2px 8px; background:#f0f0f0; border-radius:12px; font-size:0.9em;">30/100</span></td>
-            <td style="padding:12px; border-bottom:1px solid #eee;"></td>
-            <td style="padding:12px; border-bottom:1px solid #eee; font-size:0.85em; color:#666;">
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="30"><span style="display:inline-block; padding:2px 8px; background:#f0f0f0; border-radius:12px; font-size:0.9em;">30/100</span></td>
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="0"></td>
+            <td style="padding:12px; border-bottom:1px solid #eee; font-size:0.85em; color:#666;" data-sort="35.23">
                 SMA50: 91.32<br/>
                 SMA200: 68.21<br/>
-                RSI: 35.91
+                RSI: 35.23
             </td>
         </tr>
         
         <tr>
             <td style="padding:12px; border-bottom:1px solid #eee;"><strong>RF</strong></td>
-            <td style="padding:12px; border-bottom:1px solid #eee;">$25.72 <span style="color:#e3342f; font-size:0.9em;">(-0.12%)</span></td>
-            <td style="padding:12px; border-bottom:1px solid #eee;">
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="25.69">$25.69 <span style="color:#e3342f; font-size:0.9em;">(-0.23%)</span></td>
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="0">
             <div style="width:100px; background:#eee; height:12px; border-radius:6px; position:relative; overflow:hidden;">
                 <div style="width:0%; background:#e3342f; height:100%;"></div>
             </div>
@@ -1311,27 +1314,27 @@
                 $26.75 - $32.5
             </div>
             </td>
-            <td style="padding:12px; border-bottom:1px solid #eee;">
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="61.013370865587625">
             <div style="width:100px; background:#eee; height:12px; border-radius:6px; position:relative; overflow:hidden;">
-                <div style="width:61.22448979591836%; background:#6c757d; height:100%;"></div>
+                <div style="width:61.013370865587625%; background:#6c757d; height:100%;"></div>
             </div>
             <div style="font-size:10px; color:#777; margin-top:2px;">
                 $17.02 - $31.23
             </div>
             </td>
-            <td style="padding:12px; border-bottom:1px solid #eee;"><span style="display:inline-block; padding:2px 8px; background:#f0f0f0; border-radius:12px; font-size:0.9em;">30/100</span></td>
-            <td style="padding:12px; border-bottom:1px solid #eee;"></td>
-            <td style="padding:12px; border-bottom:1px solid #eee; font-size:0.85em; color:#666;">
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="30"><span style="display:inline-block; padding:2px 8px; background:#f0f0f0; border-radius:12px; font-size:0.9em;">30/100</span></td>
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="0"></td>
+            <td style="padding:12px; border-bottom:1px solid #eee; font-size:0.85em; color:#666;" data-sort="25.07">
                 SMA50: 27.98<br/>
                 SMA200: 25.68<br/>
-                RSI: 25.61
+                RSI: 25.07
             </td>
         </tr>
         
         <tr>
             <td style="padding:12px; border-bottom:1px solid #eee;"><strong>SLV</strong></td>
-            <td style="padding:12px; border-bottom:1px solid #eee;">$63.26 <span style="color:#1f9d55; font-size:0.9em;">(+2.53%)</span></td>
-            <td style="padding:12px; border-bottom:1px solid #eee;">
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="62.6">$62.60 <span style="color:#1f9d55; font-size:0.9em;">(+1.45%)</span></td>
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="0">
             <div style="width:100px; background:#eee; height:12px; border-radius:6px; position:relative; overflow:hidden;">
                 <div style="width:0%; background:#e3342f; height:100%;"></div>
             </div>
@@ -1339,27 +1342,27 @@
                 $75.0 - $88.5
             </div>
             </td>
-            <td style="padding:12px; border-bottom:1px solid #eee;">
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="43.27408119144848">
             <div style="width:100px; background:#eee; height:12px; border-radius:6px; position:relative; overflow:hidden;">
-                <div style="width:44.06677876531348%; background:#6c757d; height:100%;"></div>
+                <div style="width:43.27408119144848%; background:#6c757d; height:100%;"></div>
             </div>
             <div style="font-size:10px; color:#777; margin-top:2px;">
                 $26.57 - $109.83
             </div>
             </td>
-            <td style="padding:12px; border-bottom:1px solid #eee;"><span style="display:inline-block; padding:2px 8px; background:#f0f0f0; border-radius:12px; font-size:0.9em;">30/100</span></td>
-            <td style="padding:12px; border-bottom:1px solid #eee;"></td>
-            <td style="padding:12px; border-bottom:1px solid #eee; font-size:0.85em; color:#666;">
-                SMA50: 78.05<br/>
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="30"><span style="display:inline-block; padding:2px 8px; background:#f0f0f0; border-radius:12px; font-size:0.9em;">30/100</span></td>
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="0"></td>
+            <td style="padding:12px; border-bottom:1px solid #eee; font-size:0.85em; color:#666;" data-sort="28.61">
+                SMA50: 78.04<br/>
                 SMA200: 51.57<br/>
-                RSI: 30.26
+                RSI: 28.61
             </td>
         </tr>
         
         <tr>
             <td style="padding:12px; border-bottom:1px solid #eee;"><strong>VTRS</strong></td>
-            <td style="padding:12px; border-bottom:1px solid #eee;">$13.44 <span style="color:#1f9d55; font-size:0.9em;">(+0.94%)</span></td>
-            <td style="padding:12px; border-bottom:1px solid #eee;">
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="13.38">$13.38 <span style="color:#1f9d55; font-size:0.9em;">(+1.25%)</span></td>
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="0">
             <div style="width:100px; background:#eee; height:12px; border-radius:6px; position:relative; overflow:hidden;">
                 <div style="width:0%; background:#e3342f; height:100%;"></div>
             </div>
@@ -1367,153 +1370,153 @@
                 $14.25 - $16.5
             </div>
             </td>
-            <td style="padding:12px; border-bottom:1px solid #eee;">
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="69.86721144024516">
             <div style="width:100px; background:#eee; height:12px; border-radius:6px; position:relative; overflow:hidden;">
-                <div style="width:70.48008171603676%; background:#6c757d; height:100%;"></div>
+                <div style="width:69.86721144024516%; background:#6c757d; height:100%;"></div>
             </div>
             <div style="font-size:10px; color:#777; margin-top:2px;">
                 $6.54 - $16.33
             </div>
             </td>
-            <td style="padding:12px; border-bottom:1px solid #eee;"><span style="display:inline-block; padding:2px 8px; background:#f0f0f0; border-radius:12px; font-size:0.9em;">30/100</span></td>
-            <td style="padding:12px; border-bottom:1px solid #eee;"></td>
-            <td style="padding:12px; border-bottom:1px solid #eee; font-size:0.85em; color:#666;">
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="30"><span style="display:inline-block; padding:2px 8px; background:#f0f0f0; border-radius:12px; font-size:0.9em;">30/100</span></td>
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="0"></td>
+            <td style="padding:12px; border-bottom:1px solid #eee; font-size:0.85em; color:#666;" data-sort="24.22">
                 SMA50: 14.14<br/>
                 SMA200: 11.01<br/>
-                RSI: 25.74
+                RSI: 24.22
             </td>
         </tr>
         
         <tr>
             <td style="padding:12px; border-bottom:1px solid #eee;"><strong>BITO</strong></td>
-            <td style="padding:12px; border-bottom:1px solid #eee;">$9.77 <span style="color:#1f9d55; font-size:0.9em;">(+0.41%)</span></td>
-            <td style="padding:12px; border-bottom:1px solid #eee;">
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="9.76">$9.76 <span style="color:#1f9d55; font-size:0.9em;">(+0.26%)</span></td>
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="46.46153846153845">
             <div style="width:100px; background:#eee; height:12px; border-radius:6px; position:relative; overflow:hidden;">
-                <div style="width:46.76923076923076%; background:#3490dc; height:100%;"></div>
+                <div style="width:46.46153846153845%; background:#3490dc; height:100%;"></div>
             </div>
             <div style="font-size:10px; color:#777; margin-top:2px;">
                 $8.25 - $11.5
             </div>
             </td>
-            <td style="padding:12px; border-bottom:1px solid #eee;">
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="12.719298245614038">
             <div style="width:100px; background:#eee; height:12px; border-radius:6px; position:relative; overflow:hidden;">
-                <div style="width:12.828947368421053%; background:#6c757d; height:100%;"></div>
+                <div style="width:12.719298245614038%; background:#6c757d; height:100%;"></div>
             </div>
             <div style="font-size:10px; color:#777; margin-top:2px;">
                 $8.6 - $17.72
             </div>
             </td>
-            <td style="padding:12px; border-bottom:1px solid #eee;"><span style="display:inline-block; padding:2px 8px; background:#f0f0f0; border-radius:12px; font-size:0.9em;">20/100</span></td>
-            <td style="padding:12px; border-bottom:1px solid #eee;"></td>
-            <td style="padding:12px; border-bottom:1px solid #eee; font-size:0.85em; color:#666;">
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="20"><span style="display:inline-block; padding:2px 8px; background:#f0f0f0; border-radius:12px; font-size:0.9em;">20/100</span></td>
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="0"></td>
+            <td style="padding:12px; border-bottom:1px solid #eee; font-size:0.85em; color:#666;" data-sort="56.01">
                 SMA50: 10.47<br/>
                 SMA200: 13.85<br/>
-                RSI: 56.23
+                RSI: 56.01
             </td>
         </tr>
         
         <tr>
             <td style="padding:12px; border-bottom:1px solid #eee;"><strong>FBTC</strong></td>
-            <td style="padding:12px; border-bottom:1px solid #eee;">$61.83 <span style="color:#1f9d55; font-size:0.9em;">(+0.72%)</span></td>
-            <td style="padding:12px; border-bottom:1px solid #eee;"><div style='font-size:10px; color:#777;'>Low Rule: $52.5</div></td>
-            <td style="padding:12px; border-bottom:1px solid #eee;">
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="61.73">$61.73 <span style="color:#1f9d55; font-size:0.9em;">(+0.57%)</span></td>
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="-1"><div style='font-size:10px; color:#777;'>Low Rule: $52.5</div></td>
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="13.41898643825838">
             <div style="width:100px; background:#eee; height:12px; border-radius:6px; position:relative; overflow:hidden;">
-                <div style="width:13.597430406852244%; background:#6c757d; height:100%;"></div>
+                <div style="width:13.41898643825838%; background:#6c757d; height:100%;"></div>
             </div>
             <div style="font-size:10px; color:#777; margin-top:2px;">
                 $54.21 - $110.25
             </div>
             </td>
-            <td style="padding:12px; border-bottom:1px solid #eee;"><span style="display:inline-block; padding:2px 8px; background:#f0f0f0; border-radius:12px; font-size:0.9em;">20/100</span></td>
-            <td style="padding:12px; border-bottom:1px solid #eee;"></td>
-            <td style="padding:12px; border-bottom:1px solid #eee; font-size:0.85em; color:#666;">
-                SMA50: 66.06<br/>
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="20"><span style="display:inline-block; padding:2px 8px; background:#f0f0f0; border-radius:12px; font-size:0.9em;">20/100</span></td>
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="0"></td>
+            <td style="padding:12px; border-bottom:1px solid #eee; font-size:0.85em; color:#666;" data-sort="55.98">
+                SMA50: 66.05<br/>
                 SMA200: 86.28<br/>
-                RSI: 56.2
+                RSI: 55.98
             </td>
         </tr>
         
         <tr>
             <td style="padding:12px; border-bottom:1px solid #eee;"><strong>FIS</strong></td>
-            <td style="padding:12px; border-bottom:1px solid #eee;">$50.49 <span style="color:#1f9d55; font-size:0.9em;">(+1.26%)</span></td>
-            <td style="padding:12px; border-bottom:1px solid #eee;">
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="50.38">$50.38 <span style="color:#1f9d55; font-size:0.9em;">(+1.05%)</span></td>
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="36.14814814814817">
             <div style="width:100px; background:#eee; height:12px; border-radius:6px; position:relative; overflow:hidden;">
-                <div style="width:36.962962962962976%; background:#3490dc; height:100%;"></div>
+                <div style="width:36.14814814814817%; background:#3490dc; height:100%;"></div>
             </div>
             <div style="font-size:10px; color:#777; margin-top:2px;">
                 $45.5 - $59.0
             </div>
             </td>
-            <td style="padding:12px; border-bottom:1px solid #eee;">
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="13.063190705582317">
             <div style="width:100px; background:#eee; height:12px; border-radius:6px; position:relative; overflow:hidden;">
-                <div style="width:13.374893737602717%; background:#6c757d; height:100%;"></div>
+                <div style="width:13.063190705582317%; background:#6c757d; height:100%;"></div>
             </div>
             <div style="font-size:10px; color:#777; margin-top:2px;">
                 $45.77 - $81.06
             </div>
             </td>
-            <td style="padding:12px; border-bottom:1px solid #eee;"><span style="display:inline-block; padding:2px 8px; background:#f0f0f0; border-radius:12px; font-size:0.9em;">20/100</span></td>
-            <td style="padding:12px; border-bottom:1px solid #eee;"></td>
-            <td style="padding:12px; border-bottom:1px solid #eee; font-size:0.85em; color:#666;">
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="20"><span style="display:inline-block; padding:2px 8px; background:#f0f0f0; border-radius:12px; font-size:0.9em;">20/100</span></td>
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="0"></td>
+            <td style="padding:12px; border-bottom:1px solid #eee; font-size:0.85em; color:#666;" data-sort="53.76">
                 SMA50: 52.89<br/>
                 SMA200: 65.31<br/>
-                RSI: 54.43
+                RSI: 53.76
             </td>
         </tr>
         
         <tr>
             <td style="padding:12px; border-bottom:1px solid #eee;"><strong>IBM</strong></td>
-            <td style="padding:12px; border-bottom:1px solid #eee;">$248.89 <span style="color:#1f9d55; font-size:0.9em;">(+2.00%)</span></td>
-            <td style="padding:12px; border-bottom:1px solid #eee;"><div style='font-size:10px; color:#777;'>Low Rule: $150.0</div></td>
-            <td style="padding:12px; border-bottom:1px solid #eee;">
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="249.35">$249.35 <span style="color:#1f9d55; font-size:0.9em;">(+2.19%)</span></td>
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="-1"><div style='font-size:10px; color:#777;'>Low Rule: $150.0</div></td>
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="35.205696202531634">
             <div style="width:100px; background:#eee; height:12px; border-radius:6px; position:relative; overflow:hidden;">
-                <div style="width:34.80133614627284%; background:#6c757d; height:100%;"></div>
+                <div style="width:35.205696202531634%; background:#6c757d; height:100%;"></div>
             </div>
             <div style="font-size:10px; color:#777; margin-top:2px;">
                 $209.3 - $323.06
             </div>
             </td>
-            <td style="padding:12px; border-bottom:1px solid #eee;"><span style="display:inline-block; padding:2px 8px; background:#f0f0f0; border-radius:12px; font-size:0.9em;">20/100</span></td>
-            <td style="padding:12px; border-bottom:1px solid #eee;"></td>
-            <td style="padding:12px; border-bottom:1px solid #eee; font-size:0.85em; color:#666;">
-                SMA50: 270.84<br/>
-                SMA200: 276.35<br/>
-                RSI: 53.14
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="20"><span style="display:inline-block; padding:2px 8px; background:#f0f0f0; border-radius:12px; font-size:0.9em;">20/100</span></td>
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="0"></td>
+            <td style="padding:12px; border-bottom:1px solid #eee; font-size:0.85em; color:#666;" data-sort="53.52">
+                SMA50: 270.85<br/>
+                SMA200: 276.36<br/>
+                RSI: 53.52
             </td>
         </tr>
         
         <tr>
             <td style="padding:12px; border-bottom:1px solid #eee;"><strong>OCSL</strong></td>
-            <td style="padding:12px; border-bottom:1px solid #eee;">$11.40 <span style="color:#1f9d55; font-size:0.9em;">(+2.94%)</span></td>
-            <td style="padding:12px; border-bottom:1px solid #eee;">
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="11.41">$11.41 <span style="color:#1f9d55; font-size:0.9em;">(+3.04%)</span></td>
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="4.555555555555557">
             <div style="width:100px; background:#eee; height:12px; border-radius:6px; position:relative; overflow:hidden;">
-                <div style="width:4.444444444444448%; background:#e3342f; height:100%;"></div>
+                <div style="width:4.555555555555557%; background:#e3342f; height:100%;"></div>
             </div>
             <div style="font-size:10px; color:#777; margin-top:2px;">
                 $11.0 - $20.0
             </div>
             </td>
-            <td style="padding:12px; border-bottom:1px solid #eee;">
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="23.283582089552223">
             <div style="width:100px; background:#eee; height:12px; border-radius:6px; position:relative; overflow:hidden;">
-                <div style="width:22.98507462686566%; background:#6c757d; height:100%;"></div>
+                <div style="width:23.283582089552223%; background:#6c757d; height:100%;"></div>
             </div>
             <div style="font-size:10px; color:#777; margin-top:2px;">
                 $10.63 - $13.98
             </div>
             </td>
-            <td style="padding:12px; border-bottom:1px solid #eee;"><span style="display:inline-block; padding:2px 8px; background:#f0f0f0; border-radius:12px; font-size:0.9em;">20/100</span></td>
-            <td style="padding:12px; border-bottom:1px solid #eee;"></td>
-            <td style="padding:12px; border-bottom:1px solid #eee; font-size:0.85em; color:#666;">
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="20"><span style="display:inline-block; padding:2px 8px; background:#f0f0f0; border-radius:12px; font-size:0.9em;">20/100</span></td>
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="0"></td>
+            <td style="padding:12px; border-bottom:1px solid #eee; font-size:0.85em; color:#666;" data-sort="61.3">
                 SMA50: 11.6<br/>
                 SMA200: 12.32<br/>
-                RSI: 61.05
+                RSI: 61.3
             </td>
         </tr>
         
         <tr>
             <td style="padding:12px; border-bottom:1px solid #eee;"><strong>UL</strong></td>
-            <td style="padding:12px; border-bottom:1px solid #eee;">$61.69 <span style="color:#e3342f; font-size:0.9em;">(-0.51%)</span></td>
-            <td style="padding:12px; border-bottom:1px solid #eee;">
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="61.54">$61.54 <span style="color:#e3342f; font-size:0.9em;">(-0.74%)</span></td>
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="0">
             <div style="width:100px; background:#eee; height:12px; border-radius:6px; position:relative; overflow:hidden;">
                 <div style="width:0%; background:#e3342f; height:100%;"></div>
             </div>
@@ -1521,151 +1524,211 @@
                 $66.2 - $75.0
             </div>
             </td>
-            <td style="padding:12px; border-bottom:1px solid #eee;">
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="2.867924528301906">
             <div style="width:100px; background:#eee; height:12px; border-radius:6px; position:relative; overflow:hidden;">
-                <div style="width:4.000000000000008%; background:#6c757d; height:100%;"></div>
+                <div style="width:2.867924528301906%; background:#6c757d; height:100%;"></div>
             </div>
             <div style="font-size:10px; color:#777; margin-top:2px;">
                 $61.16 - $74.41
             </div>
             </td>
-            <td style="padding:12px; border-bottom:1px solid #eee;"><span style="display:inline-block; padding:2px 8px; background:#f0f0f0; border-radius:12px; font-size:0.9em;">10/100</span></td>
-            <td style="padding:12px; border-bottom:1px solid #eee;">🚀 U&R</td>
-            <td style="padding:12px; border-bottom:1px solid #eee; font-size:0.85em; color:#666;">
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="10"><span style="display:inline-block; padding:2px 8px; background:#f0f0f0; border-radius:12px; font-size:0.9em;">10/100</span></td>
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="1">🚀 U&R</td>
+            <td style="padding:12px; border-bottom:1px solid #eee; font-size:0.85em; color:#666;" data-sort="13.87">
                 SMA50: 67.9<br/>
                 SMA200: 67.31<br/>
-                RSI: 15.04
+                RSI: 13.87
             </td>
         </tr>
         
         <tr>
             <td style="padding:12px; border-bottom:1px solid #eee;"><strong>UVV</strong></td>
-            <td style="padding:12px; border-bottom:1px solid #eee;">$51.42 <span style="color:#1f9d55; font-size:0.9em;">(+0.37%)</span></td>
-            <td style="padding:12px; border-bottom:1px solid #eee;">
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="51.47">$51.47 <span style="color:#1f9d55; font-size:0.9em;">(+0.47%)</span></td>
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="32.349999999999994">
             <div style="width:100px; background:#eee; height:12px; border-radius:6px; position:relative; overflow:hidden;">
-                <div style="width:32.10000000000001%; background:#3490dc; height:100%;"></div>
+                <div style="width:32.349999999999994%; background:#3490dc; height:100%;"></div>
             </div>
             <div style="font-size:10px; color:#777; margin-top:2px;">
                 $45.0 - $65.0
             </div>
             </td>
-            <td style="padding:12px; border-bottom:1px solid #eee;">
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="22.5419664268585">
             <div style="width:100px; background:#eee; height:12px; border-radius:6px; position:relative; overflow:hidden;">
-                <div style="width:22.242206235011995%; background:#6c757d; height:100%;"></div>
+                <div style="width:22.5419664268585%; background:#6c757d; height:100%;"></div>
             </div>
             <div style="font-size:10px; color:#777; margin-top:2px;">
                 $47.71 - $64.39
             </div>
             </td>
-            <td style="padding:12px; border-bottom:1px solid #eee;"><span style="display:inline-block; padding:2px 8px; background:#f0f0f0; border-radius:12px; font-size:0.9em;">10/100</span></td>
-            <td style="padding:12px; border-bottom:1px solid #eee;"></td>
-            <td style="padding:12px; border-bottom:1px solid #eee; font-size:0.85em; color:#666;">
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="10"><span style="display:inline-block; padding:2px 8px; background:#f0f0f0; border-radius:12px; font-size:0.9em;">10/100</span></td>
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="0"></td>
+            <td style="padding:12px; border-bottom:1px solid #eee; font-size:0.85em; color:#666;" data-sort="39.01">
                 SMA50: 54.04<br/>
                 SMA200: 53.51<br/>
-                RSI: 38.61
+                RSI: 39.01
             </td>
         </tr>
         
         <tr>
             <td style="padding:12px; border-bottom:1px solid #eee;"><strong>ALNY</strong></td>
-            <td style="padding:12px; border-bottom:1px solid #eee;">$306.91 <span style="color:#e3342f; font-size:0.9em;">(-1.68%)</span></td>
-            <td style="padding:12px; border-bottom:1px solid #eee;">
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="307.17">$307.17 <span style="color:#e3342f; font-size:0.9em;">(-1.60%)</span></td>
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="12.152542372881383">
             <div style="width:100px; background:#eee; height:12px; border-radius:6px; position:relative; overflow:hidden;">
-                <div style="width:11.711864406779704%; background:#3490dc; height:100%;"></div>
+                <div style="width:12.152542372881383%; background:#3490dc; height:100%;"></div>
             </div>
             <div style="font-size:10px; color:#777; margin-top:2px;">
                 $300.0 - $359.0
             </div>
             </td>
-            <td style="padding:12px; border-bottom:1px solid #eee;">
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="34.969621651477496">
             <div style="width:100px; background:#eee; height:12px; border-radius:6px; position:relative; overflow:hidden;">
-                <div style="width:34.879867439933726%; background:#6c757d; height:100%;"></div>
+                <div style="width:34.969621651477496%; background:#6c757d; height:100%;"></div>
             </div>
             <div style="font-size:10px; color:#777; margin-top:2px;">
                 $205.87 - $495.55
             </div>
             </td>
-            <td style="padding:12px; border-bottom:1px solid #eee;"><span style="display:inline-block; padding:2px 8px; background:#f0f0f0; border-radius:12px; font-size:0.9em;">0/100</span></td>
-            <td style="padding:12px; border-bottom:1px solid #eee;"></td>
-            <td style="padding:12px; border-bottom:1px solid #eee; font-size:0.85em; color:#666;">
-                SMA50: 336.05<br/>
-                SMA200: 392.53<br/>
-                RSI: 38.57
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="0"><span style="display:inline-block; padding:2px 8px; background:#f0f0f0; border-radius:12px; font-size:0.9em;">0/100</span></td>
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="0"></td>
+            <td style="padding:12px; border-bottom:1px solid #eee; font-size:0.85em; color:#666;" data-sort="38.77">
+                SMA50: 336.06<br/>
+                SMA200: 392.54<br/>
+                RSI: 38.77
             </td>
         </tr>
         
         <tr>
             <td style="padding:12px; border-bottom:1px solid #eee;"><strong>CBRL</strong></td>
-            <td style="padding:12px; border-bottom:1px solid #eee;">$27.32 <span style="color:#e3342f; font-size:0.9em;">(-1.01%)</span></td>
-            <td style="padding:12px; border-bottom:1px solid #eee;"><div style='font-size:10px; color:#777;'>Low Rule: $22.0</div></td>
-            <td style="padding:12px; border-bottom:1px solid #eee;">
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="27.33">$27.33 <span style="color:#e3342f; font-size:0.9em;">(-1.00%)</span></td>
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="-1"><div style='font-size:10px; color:#777;'>Low Rule: $22.0</div></td>
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="5.721070811744384">
             <div style="width:100px; background:#eee; height:12px; border-radius:6px; position:relative; overflow:hidden;">
-                <div style="width:5.699481865284976%; background:#6c757d; height:100%;"></div>
+                <div style="width:5.721070811744384%; background:#6c757d; height:100%;"></div>
             </div>
             <div style="font-size:10px; color:#777; margin-top:2px;">
                 $24.68 - $71.0
             </div>
             </td>
-            <td style="padding:12px; border-bottom:1px solid #eee;"><span style="display:inline-block; padding:2px 8px; background:#f0f0f0; border-radius:12px; font-size:0.9em;">0/100</span></td>
-            <td style="padding:12px; border-bottom:1px solid #eee;"></td>
-            <td style="padding:12px; border-bottom:1px solid #eee; font-size:0.85em; color:#666;">
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="0"><span style="display:inline-block; padding:2px 8px; background:#f0f0f0; border-radius:12px; font-size:0.9em;">0/100</span></td>
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="0"></td>
+            <td style="padding:12px; border-bottom:1px solid #eee; font-size:0.85em; color:#666;" data-sort="29.57">
                 SMA50: 30.99<br/>
                 SMA200: 41.7<br/>
-                RSI: 29.55
+                RSI: 29.57
             </td>
         </tr>
         
         <tr>
             <td style="padding:12px; border-bottom:1px solid #eee;"><strong>DIS</strong></td>
-            <td style="padding:12px; border-bottom:1px solid #eee;">$98.56 <span style="color:#e3342f; font-size:0.9em;">(-1.57%)</span></td>
-            <td style="padding:12px; border-bottom:1px solid #eee;"><div style='font-size:10px; color:#777;'>Low Rule: $75.0</div></td>
-            <td style="padding:12px; border-bottom:1px solid #eee;">
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="98.44">$98.44 <span style="color:#e3342f; font-size:0.9em;">(-1.69%)</span></td>
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="-1"><div style='font-size:10px; color:#777;'>Low Rule: $75.0</div></td>
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="43.06520277840018">
             <div style="width:100px; background:#eee; height:12px; border-radius:6px; position:relative; overflow:hidden;">
-                <div style="width:43.33408021510196%; background:#6c757d; height:100%;"></div>
+                <div style="width:43.06520277840018%; background:#6c757d; height:100%;"></div>
             </div>
             <div style="font-size:10px; color:#777; margin-top:2px;">
                 $79.22 - $123.85
             </div>
             </td>
-            <td style="padding:12px; border-bottom:1px solid #eee;"><span style="display:inline-block; padding:2px 8px; background:#f0f0f0; border-radius:12px; font-size:0.9em;">0/100</span></td>
-            <td style="padding:12px; border-bottom:1px solid #eee;">🚀 U&R</td>
-            <td style="padding:12px; border-bottom:1px solid #eee; font-size:0.85em; color:#666;">
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="0"><span style="display:inline-block; padding:2px 8px; background:#f0f0f0; border-radius:12px; font-size:0.9em;">0/100</span></td>
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="1">🚀 U&R</td>
+            <td style="padding:12px; border-bottom:1px solid #eee; font-size:0.85em; color:#666;" data-sort="23.0">
                 SMA50: 106.2<br/>
                 SMA200: 111.84<br/>
-                RSI: 23.31
+                RSI: 23.0
             </td>
         </tr>
         
         <tr>
             <td style="padding:12px; border-bottom:1px solid #eee;"><strong>UNH</strong></td>
-            <td style="padding:12px; border-bottom:1px solid #eee;">$271.03 <span style="color:#e3342f; font-size:0.9em;">(-2.55%)</span></td>
-            <td style="padding:12px; border-bottom:1px solid #eee;">
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="270.64">$270.64 <span style="color:#e3342f; font-size:0.9em;">(-2.69%)</span></td>
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="10.885245901639323">
             <div style="width:100px; background:#eee; height:12px; border-radius:6px; position:relative; overflow:hidden;">
-                <div style="width:11.52459016393438%; background:#3490dc; height:100%;"></div>
+                <div style="width:10.885245901639323%; background:#3490dc; height:100%;"></div>
             </div>
             <div style="font-size:10px; color:#777; margin-top:2px;">
                 $264.0 - $325.0
             </div>
             </td>
-            <td style="padding:12px; border-bottom:1px solid #eee;">
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="11.349113741179082">
             <div style="width:100px; background:#eee; height:12px; border-radius:6px; position:relative; overflow:hidden;">
-                <div style="width:11.457465133077728%; background:#6c757d; height:100%;"></div>
+                <div style="width:11.349113741179082%; background:#6c757d; height:100%;"></div>
             </div>
             <div style="font-size:10px; color:#777; margin-top:2px;">
                 $229.79 - $589.73
             </div>
             </td>
-            <td style="padding:12px; border-bottom:1px solid #eee;"><span style="display:inline-block; padding:2px 8px; background:#f0f0f0; border-radius:12px; font-size:0.9em;">0/100</span></td>
-            <td style="padding:12px; border-bottom:1px solid #eee;"></td>
-            <td style="padding:12px; border-bottom:1px solid #eee; font-size:0.85em; color:#666;">
-                SMA50: 295.18<br/>
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="0"><span style="display:inline-block; padding:2px 8px; background:#f0f0f0; border-radius:12px; font-size:0.9em;">0/100</span></td>
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="0"></td>
+            <td style="padding:12px; border-bottom:1px solid #eee; font-size:0.85em; color:#666;" data-sort="33.81">
+                SMA50: 295.17<br/>
                 SMA200: 309.73<br/>
-                RSI: 34.07
+                RSI: 33.81
             </td>
         </tr>
         
                 </tbody>
             </table>
         </div>
+        <script>
+        function sortTable(n) {
+            var table, rows, switching, i, x, y, shouldSwitch, dir, switchcount = 0;
+            table = document.getElementById("stockTable");
+            switching = true;
+            dir = "asc";
+
+            // Clear all sort classes
+            var headers = table.getElementsByTagName("TH");
+            for (i = 0; i < headers.length; i++) {
+                headers[i].classList.remove("sort-asc", "sort-desc");
+            }
+
+            while (switching) {
+                switching = false;
+                rows = table.rows;
+                for (i = 1; i < (rows.length - 1); i++) {
+                    shouldSwitch = false;
+                    x = rows[i].getElementsByTagName("TD")[n];
+                    y = rows[i + 1].getElementsByTagName("TD")[n];
+
+                    var xVal = x.getAttribute("data-sort") || x.innerText.toLowerCase();
+                    var yVal = y.getAttribute("data-sort") || y.innerText.toLowerCase();
+
+                    if (!isNaN(parseFloat(xVal)) && !isNaN(parseFloat(yVal))) {
+                        xVal = parseFloat(xVal);
+                        yVal = parseFloat(yVal);
+                    }
+
+                    if (dir == "asc") {
+                        if (xVal > yVal) {
+                            shouldSwitch = true;
+                            break;
+                        }
+                    } else if (dir == "desc") {
+                        if (xVal < yVal) {
+                            shouldSwitch = true;
+                            break;
+                        }
+                    }
+                }
+                if (shouldSwitch) {
+                    rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
+                    switching = true;
+                    switchcount ++;
+                } else {
+                    if (switchcount == 0 && dir == "asc") {
+                        dir = "desc";
+                        switching = true;
+                    }
+                }
+            }
+
+            if (dir == "asc") {
+                headers[n].classList.add("sort-asc");
+            } else {
+                headers[n].classList.add("sort-desc");
+            }
+        }
+        </script>
     </body>
     </html>
