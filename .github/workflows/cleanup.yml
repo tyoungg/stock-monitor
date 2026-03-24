@@ -3,6 +3,15 @@ on:
   schedule:
     - cron: '0 0 * * *'
   workflow_dispatch:
+    inputs:
+      retainDays:
+        description: 'Number of days to retain workflow runs'
+        required: true
+        default: '2'
+      keepMinimumRuns:
+        description: 'Minimum number of runs to keep for each workflow'
+        required: true
+        default: '10'
 
 jobs:
   delete-runs:
@@ -17,39 +26,66 @@ jobs:
           script: |
             const owner = context.repo.owner;
             const repo = context.repo.repo;
-            const retainDays = 2;
-            const keepMinimumRuns = 10;
             
-            const workflows = await github.rest.actions.listRepoWorkflows({
+            // Get inputs from workflow_dispatch or use defaults
+            const retainDays = parseInt(context.payload.inputs?.retainDays || '2');
+            const keepMinimumRuns = parseInt(context.payload.inputs?.keepMinimumRuns || '10');
+
+            console.log(`Cleaning up runs older than ${retainDays} days, keeping at least ${keepMinimumRuns} per workflow.`);
+
+            const cutoffDate = new Date();
+            cutoffDate.setDate(cutoffDate.getDate() - retainDays);
+
+            // 1. Fetch ALL runs in the repository using pagination
+            const allRuns = await github.paginate(github.rest.actions.listWorkflowRunsForRepo, {
               owner,
               repo
             });
             
-            for (const workflow of workflows.data.workflows) {
-              const runs = await github.rest.actions.listWorkflowRuns({
-                owner,
-                repo,
-                workflow_id: workflow.id,
-                per_page: 100
+            console.log(`Total runs found in repo: ${allRuns.length}`);
+
+            // 2. Group runs by workflow_id
+            const runsByWorkflow = allRuns.reduce((acc, run) => {
+              const workflowId = run.workflow_id;
+              if (!acc[workflowId]) acc[workflowId] = [];
+              acc[workflowId].push(run);
+              return acc;
+            }, {});
+
+            let totalDeleted = 0;
+
+            // 3. Process each workflow's runs
+            for (const workflowId in runsByWorkflow) {
+              const runs = runsByWorkflow[workflowId];
+              
+              // Sort runs by created_at descending (newest first)
+              runs.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+              
+              // Identify runs to delete:
+              // - Must be older than cutoffDate
+              // - Must NOT be among the first keepMinimumRuns (newest runs)
+              const runsToDelete = runs.filter((run, index) => {
+                const isOldEnough = new Date(run.created_at) < cutoffDate;
+                const isBeyondMinimum = index >= keepMinimumRuns;
+                return isOldEnough && isBeyondMinimum;
               });
-              
-              const cutoffDate = new Date();
-              cutoffDate.setDate(cutoffDate.getDate() - retainDays);
-              
-              const runsToDelete = runs.data.workflow_runs
-                .filter(run => new Date(run.created_at) < cutoffDate)
-                .slice(keepMinimumRuns);
-              
-              for (const run of runsToDelete) {
-                try {
-                  await github.rest.actions.deleteWorkflowRun({
-                    owner,
-                    repo,
-                    run_id: run.id
-                  });
-                  console.log(`Deleted run ${run.id} from ${workflow.name}`);
-                } catch (error) {
-                  console.log(`Failed to delete run ${run.id}: ${error.message}`);
+
+              if (runsToDelete.length > 0) {
+                console.log(`Workflow ${workflowId}: found ${runsToDelete.length} runs to delete.`);
+
+                for (const run of runsToDelete) {
+                  try {
+                    await github.rest.actions.deleteWorkflowRun({
+                      owner,
+                      repo,
+                      run_id: run.id
+                    });
+                    totalDeleted++;
+                  } catch (error) {
+                    console.log(`Failed to delete run ${run.id}: ${error.message}`);
+                  }
                 }
               }
             }
+
+            console.log(`Cleanup complete. Total runs deleted: ${totalDeleted}`);
