@@ -36,7 +36,8 @@
       "low:"
     ],
     "^SPX": [
-      "low:"
+      "low:",
+      "U&R:"
     ],
     "SQQQ": [
       "high:"
