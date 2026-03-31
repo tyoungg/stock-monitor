@@ -1,5 +1,5 @@
 {
-  "date": "2026-03-30",
+  "date": "2026-03-31",
   "state": {
     "AG": [
       "low:"
@@ -22,22 +22,20 @@
     "GLD": [
       "low:"
     ],
-    "QQQ": [
-      "low:",
-      "U&R:"
-    ],
-    "RF": [
+    "HE": [
       "low:"
     ],
-    "RTX": [
+    "QQQ": [
+      "low:"
+    ],
+    "RF": [
       "low:"
     ],
     "SLV": [
       "low:"
     ],
     "^SPX": [
-      "low:",
-      "U&R:"
+      "low:"
     ],
     "SQQQ": [
       "high:"
@@ -49,8 +47,8 @@
     "UL": [
       "low:"
     ],
-    "UNH": [
-      "low:"
+    "UVXY": [
+      "down"
     ],
     "^VIX": [
       "high:"
@@ -59,15 +57,6 @@
       "low:"
     ],
     "WMT": [
-      "low:"
-    ],
-    "REMX": [
-      "low:"
-    ],
-    "^DJI": [
-      "U&R:"
-    ],
-    "HE": [
       "low:"
     ]
   }
