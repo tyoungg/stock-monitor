@@ -1,5 +1,5 @@
 {
-  "date": "2026-03-31",
+  "date": "2026-04-01",
   "state": {
     "AG": [
       "low:"
@@ -10,20 +10,17 @@
     "BP": [
       "high:"
     ],
-    "CAT": [
-      "low:"
-    ],
     "FAX": [
       "low:"
     ],
-    "GE": [
+    "FIS": [
       "low:"
     ],
     "GLD": [
       "low:"
     ],
-    "HE": [
-      "low:"
+    "MRVL": [
+      "high:"
     ],
     "QQQ": [
       "low:"
@@ -41,17 +38,10 @@
       "high:"
     ],
     "SYY": [
-      "U&R:",
       "low:"
     ],
     "UL": [
       "low:"
-    ],
-    "UVXY": [
-      "down"
-    ],
-    "^VIX": [
-      "high:"
     ],
     "VTRS": [
       "low:"
