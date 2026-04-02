@@ -1,5 +1,5 @@
 {
-  "date": "2026-04-01",
+  "date": "2026-04-02",
   "state": {
     "AG": [
       "low:"
@@ -7,20 +7,18 @@
     "BEN": [
       "low:"
     ],
-    "BP": [
-      "high:"
-    ],
     "FAX": [
       "low:"
     ],
     "FIS": [
+      "U&R:",
+      "low:"
+    ],
+    "GE": [
       "low:"
     ],
     "GLD": [
       "low:"
-    ],
-    "MRVL": [
-      "high:"
     ],
     "QQQ": [
       "low:"
@@ -34,21 +32,23 @@
     "^SPX": [
       "low:"
     ],
-    "SQQQ": [
-      "high:"
-    ],
     "SYY": [
       "low:"
     ],
     "UL": [
-      "low:",
-      "U&R:"
+      "low:"
+    ],
+    "^VIX": [
+      "high:"
     ],
     "VTRS": [
       "low:"
     ],
     "WMT": [
       "low:"
+    ],
+    "WU": [
+      "U&R:"
     ]
   }
 }
