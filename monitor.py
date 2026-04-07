@@ -41,6 +41,7 @@ DEFAULT_PCT_DOWN = os.environ.get("DEFAULT_PCT_DOWN")
 ALERTS_FILE = "alerts.json"
 STATE_FILE = "alert_state.json"
 RECAP_FILE = "daily_recap.json"
+FINANCIALS_CACHE_FILE = "financials_cache.json"
 TODAY = datetime.now(ZoneInfo("America/New_York")).strftime("%Y-%m-%d")
 
 # --- Helpers ---
@@ -157,6 +158,47 @@ def calculate_rank(indicators: Dict[str, Any], current_price: float) -> int:
 
     return score
 
+def get_burry_take(symbol: str) -> Optional[float]:
+    """Calculates Burry's Owner's Earnings (Burry-take)."""
+    if symbol.startswith("^"):
+        return None
+    try:
+        t = yf.Ticker(symbol)
+
+        # Net Income
+        ni = None
+        if not t.financials.empty and 'Net Income' in t.financials.index:
+            ni = t.financials.loc['Net Income'].iloc[0]
+
+        if ni is None or math.isnan(ni):
+            return None
+
+        # Cashflow items
+        sbc = 0
+        buybacks = 0
+        tax = 0
+
+        if not t.cashflow.empty:
+            if 'Stock Based Compensation' in t.cashflow.index:
+                val = t.cashflow.loc['Stock Based Compensation'].iloc[0]
+                if not math.isnan(val): sbc = val
+            if 'Repurchase Of Capital Stock' in t.cashflow.index:
+                val = t.cashflow.loc['Repurchase Of Capital Stock'].iloc[0]
+                if not math.isnan(val): buybacks = abs(val)
+            if 'Income Tax Paid Supplemental Data' in t.cashflow.index:
+                val = t.cashflow.loc['Income Tax Paid Supplemental Data'].iloc[0]
+                if not math.isnan(val): tax = val
+            elif 'Tax Provision' in t.financials.index:
+                val = t.financials.loc['Tax Provision'].iloc[0]
+                if not math.isnan(val): tax = val
+
+        oe = ni + sbc - buybacks - tax
+        return float(oe)
+
+    except Exception as e:
+        logging.debug("Error calculating Burry-take for %s: %s", symbol, e)
+        return None
+
 def send_webhook(webhook: str, message: str) -> bool:
     try:
         resp = requests.post(webhook, json={"text": message}, timeout=10)
@@ -197,6 +239,21 @@ def save_recap(data: dict) -> None:
             json.dump(data, f, indent=2)
     except Exception as e:
         logging.error("Failed to save recap: %s", e)
+
+def load_financials_cache() -> dict:
+    if os.path.exists(FINANCIALS_CACHE_FILE):
+        try:
+            with open(FINANCIALS_CACHE_FILE, "r", encoding="utf-8") as f:
+                return json.load(f)
+        except: pass
+    return {}
+
+def save_financials_cache(cache: dict) -> None:
+    try:
+        with open(FINANCIALS_CACHE_FILE, "w", encoding="utf-8") as f:
+            json.dump(cache, f, indent=2)
+    except Exception as e:
+        logging.error("Failed to save financials cache: %s", e)
 
 
 def is_market_close_window() -> bool:
@@ -254,6 +311,19 @@ def generate_html_recap(recap_data: Dict[str, Dict[str, Any]]) -> str:
         </body>
     </html>
     """
+
+def format_large_number(n: float) -> str:
+    """Formats a large number into a human-readable string (e.g., $27.5B)."""
+    abs_n = abs(n)
+    sign = "-" if n < 0 else ""
+    if abs_n >= 1e12:
+        return f"{sign}${abs_n/1e12:.1f}T"
+    elif abs_n >= 1e9:
+        return f"{sign}${abs_n/1e9:.1f}B"
+    elif abs_n >= 1e6:
+        return f"{sign}${abs_n/1e6:.1f}M"
+    else:
+        return f"{sign}${abs_n:,.0f}"
 
 def generate_dashboard(recap_data: Dict[str, Dict[str, Any]]) -> None:
     """Generates a comprehensive HTML dashboard in the docs/ directory."""
@@ -317,6 +387,10 @@ def generate_dashboard(recap_data: Dict[str, Dict[str, Any]]) -> None:
         ur_sort = 1 if data.get("ur") else 0
         rsi_sort = data.get("rsi", 0)
 
+        burry_take_val = data.get("burry_take")
+        burry_take_str = format_large_number(burry_take_val) if burry_take_val is not None else "N/A"
+        burry_sort = burry_take_val if burry_take_val is not None else -1e15
+
         rows.append(f"""
         <tr>
             <td style="padding:12px; border-bottom:1px solid #eee;"><strong>{symbol}</strong></td>
@@ -325,6 +399,7 @@ def generate_dashboard(recap_data: Dict[str, Dict[str, Any]]) -> None:
             <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="{pos52_sort}">{progress_bar_52w}</td>
             <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="{rank}"><span style="display:inline-block; padding:2px 8px; background:#f0f0f0; border-radius:12px; font-size:0.9em;">{rank}/100</span></td>
             <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="{ur_sort}">{ur}</td>
+            <td style="padding:12px; border-bottom:1px solid #eee; font-style:italic; color:#555;" data-sort="{burry_sort}">{burry_take_str}</td>
             <td style="padding:12px; border-bottom:1px solid #eee; font-size:0.85em; color:#666;" data-sort="{rsi_sort}">
                 SMA50: {data.get('sma50')}<br/>
                 SMA200: {data.get('sma200')}<br/>
@@ -368,7 +443,8 @@ def generate_dashboard(recap_data: Dict[str, Dict[str, Any]]) -> None:
                         <th onclick="sortTable(3)">52W Range</th>
                         <th onclick="sortTable(4)">Rank</th>
                         <th onclick="sortTable(5)">Signal</th>
-                        <th onclick="sortTable(6)">Indicators</th>
+                        <th onclick="sortTable(6)">Burry-Take</th>
+                        <th onclick="sortTable(7)">Indicators</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -445,7 +521,7 @@ def generate_dashboard(recap_data: Dict[str, Dict[str, Any]]) -> None:
     logging.info("Dashboard generated at docs/index.html")
 
 # --- Evaluate one row ---
-def evaluate_row(row: Dict[str, str], recap: Dict, state: Dict) -> Optional[Dict[str, Any]]:
+def evaluate_row(row: Dict[str, str], recap: Dict, state: Dict, financials_cache: Dict) -> Optional[Dict[str, Any]]:
     symbol = row.get("symbol")
     if not symbol: return None
     low = safe_float(row.get("low"))
@@ -466,6 +542,29 @@ def evaluate_row(row: Dict[str, str], recap: Dict, state: Dict) -> Optional[Dict
     indicators = calculate_indicators(history, price, low_today)
     rank = calculate_rank(indicators, price)
 
+    # --- Fetch Burry-take from caches or yfinance ---
+    # 1. Check in-memory daily recap (recap.json)
+    burry_take = recap.get(symbol, {}).get("burry_take")
+
+    # 2. Check persistent financials cache (financials_cache.json)
+    if burry_take is None:
+        cached_data = financials_cache.get(symbol)
+        if cached_data and isinstance(cached_data, dict):
+            # Cache for 30 days since annual financials don't change often
+            cache_date = datetime.strptime(cached_data["date"], "%Y-%m-%d").date()
+            if (datetime.now().date() - cache_date).days < 30:
+                burry_take = cached_data["value"]
+
+    # 3. Fetch from yfinance as last resort
+    if burry_take is None:
+        logging.info("Fetching financials for %s...", symbol)
+        burry_take = get_burry_take(symbol)
+        # Cache even if None (to avoid re-fetching indices/unsupported symbols)
+        financials_cache[symbol] = {
+            "value": burry_take,
+            "date": TODAY
+        }
+
     # --- Update daily recap for ALL symbols (in-memory) ---
     recap[symbol] = {
         "price": round(price, 2),
@@ -480,7 +579,8 @@ def evaluate_row(row: Dict[str, str], recap: Dict, state: Dict) -> Optional[Dict
         "sma200": round(indicators["sma200"], 2),
         "rsi": round(indicators["rsi"], 2),
         "high52": round(indicators["high52"], 2),
-        "low52": round(indicators["low52"], 2)
+        "low52": round(indicators["low52"], 2),
+        "burry_take": burry_take
     }
 
     triggers: List[str] = []
@@ -576,14 +676,16 @@ def main() -> int:
     alerts: List[Dict[str,Any]] = []
     recap = load_recap()
     state = load_state(TODAY)
+    financials_cache = load_financials_cache()
     for row in rows:
         try:
-            alert = evaluate_row(row, recap, state)
+            alert = evaluate_row(row, recap, state, financials_cache)
             if alert: alerts.append(alert)
         except: logging.exception("Error evaluating row: %s", row)
 
     save_recap(recap)
     save_state(state, TODAY)
+    save_financials_cache(financials_cache)
 
     # Write alerts.json
     if alerts:
