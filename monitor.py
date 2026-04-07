@@ -394,6 +394,8 @@ def generate_dashboard(recap_data: Dict[str, Dict[str, Any]]) -> None:
         rsi_sort = data.get("rsi", 0)
 
         burry_take_data = data.get("burry_take")
+        gaap_ni_str = "N/A"
+        gaap_ni_sort = -1e15
         if isinstance(burry_take_data, dict):
             oe = burry_take_data.get("owner_earnings")
             ni = burry_take_data.get("net_income")
@@ -403,6 +405,10 @@ def generate_dashboard(recap_data: Dict[str, Dict[str, Any]]) -> None:
 
             burry_take_str = format_large_number(oe) if oe is not None else "N/A"
             burry_sort = oe if oe is not None else -1e15
+
+            if ni is not None:
+                gaap_ni_str = format_large_number(ni)
+                gaap_ni_sort = ni
 
             details = f"""
             <div style="font-size:0.8em; color:#777; line-height:1.2;">
@@ -427,6 +433,7 @@ def generate_dashboard(recap_data: Dict[str, Dict[str, Any]]) -> None:
             <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="{pos52_sort}">{progress_bar_52w}</td>
             <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="{rank}"><span style="display:inline-block; padding:2px 8px; background:#f0f0f0; border-radius:12px; font-size:0.9em;">{rank}/100</span></td>
             <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="{ur_sort}">{ur}</td>
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="{gaap_ni_sort}">{gaap_ni_str}</td>
             <td style="padding:12px; border-bottom:1px solid #eee; color:#555;" data-sort="{burry_sort}">
                 <div style="font-weight:bold; margin-bottom:4px;">{burry_take_str}</div>
                 {details}
@@ -474,8 +481,9 @@ def generate_dashboard(recap_data: Dict[str, Dict[str, Any]]) -> None:
                         <th onclick="sortTable(3)">52W Range</th>
                         <th onclick="sortTable(4)">Rank</th>
                         <th onclick="sortTable(5)">Signal</th>
-                        <th onclick="sortTable(6)">Burry-Take</th>
-                        <th onclick="sortTable(7)">Indicators</th>
+                        <th onclick="sortTable(6)">GAAP NI</th>
+                        <th onclick="sortTable(7)">Burry-Take</th>
+                        <th onclick="sortTable(8)">Indicators</th>
                     </tr>
                 </thead>
                 <tbody>
