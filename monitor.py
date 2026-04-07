@@ -158,8 +158,8 @@ def calculate_rank(indicators: Dict[str, Any], current_price: float) -> int:
 
     return score
 
-def get_burry_take(symbol: str) -> Optional[float]:
-    """Calculates Burry's Owner's Earnings (Burry-take)."""
+def get_burry_take(symbol: str) -> Optional[Dict[str, float]]:
+    """Calculates Burry's Owner's Earnings (Burry-take) and its components."""
     if symbol.startswith("^"):
         return None
     try:
@@ -174,26 +174,32 @@ def get_burry_take(symbol: str) -> Optional[float]:
             return None
 
         # Cashflow items
-        sbc = 0
-        buybacks = 0
-        tax = 0
+        sbc = 0.0
+        buybacks = 0.0
+        tax = 0.0
 
         if not t.cashflow.empty:
             if 'Stock Based Compensation' in t.cashflow.index:
                 val = t.cashflow.loc['Stock Based Compensation'].iloc[0]
-                if not math.isnan(val): sbc = val
+                if not math.isnan(val): sbc = float(val)
             if 'Repurchase Of Capital Stock' in t.cashflow.index:
                 val = t.cashflow.loc['Repurchase Of Capital Stock'].iloc[0]
-                if not math.isnan(val): buybacks = abs(val)
+                if not math.isnan(val): buybacks = abs(float(val))
             if 'Income Tax Paid Supplemental Data' in t.cashflow.index:
                 val = t.cashflow.loc['Income Tax Paid Supplemental Data'].iloc[0]
-                if not math.isnan(val): tax = val
+                if not math.isnan(val): tax = float(val)
             elif 'Tax Provision' in t.financials.index:
                 val = t.financials.loc['Tax Provision'].iloc[0]
-                if not math.isnan(val): tax = val
+                if not math.isnan(val): tax = float(val)
 
         oe = ni + sbc - buybacks - tax
-        return float(oe)
+        return {
+            "net_income": float(ni),
+            "sbc": sbc,
+            "buybacks": buybacks,
+            "tax": tax,
+            "owner_earnings": float(oe)
+        }
 
     except Exception as e:
         logging.debug("Error calculating Burry-take for %s: %s", symbol, e)
@@ -387,9 +393,31 @@ def generate_dashboard(recap_data: Dict[str, Dict[str, Any]]) -> None:
         ur_sort = 1 if data.get("ur") else 0
         rsi_sort = data.get("rsi", 0)
 
-        burry_take_val = data.get("burry_take")
-        burry_take_str = format_large_number(burry_take_val) if burry_take_val is not None else "N/A"
-        burry_sort = burry_take_val if burry_take_val is not None else -1e15
+        burry_take_data = data.get("burry_take")
+        if isinstance(burry_take_data, dict):
+            oe = burry_take_data.get("owner_earnings")
+            ni = burry_take_data.get("net_income")
+            sbc = burry_take_data.get("sbc")
+            bb = burry_take_data.get("buybacks")
+            tx = burry_take_data.get("tax")
+
+            burry_take_str = format_large_number(oe) if oe is not None else "N/A"
+            burry_sort = oe if oe is not None else -1e15
+
+            details = f"""
+            <div style="font-size:0.8em; color:#777; line-height:1.2;">
+                NI: {format_large_number(ni) if ni is not None else '-'}<br/>
+                SBC: +{format_large_number(sbc) if sbc is not None else '-'}<br/>
+                BB: -{format_large_number(bb) if bb is not None else '-'}<br/>
+                TX: -{format_large_number(tx) if tx is not None else '-'}
+            </div>
+            """
+        else:
+            # Fallback for old single value if any remain
+            val = burry_take_data
+            burry_take_str = format_large_number(val) if val is not None else "N/A"
+            burry_sort = val if val is not None else -1e15
+            details = ""
 
         rows.append(f"""
         <tr>
@@ -399,7 +427,10 @@ def generate_dashboard(recap_data: Dict[str, Dict[str, Any]]) -> None:
             <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="{pos52_sort}">{progress_bar_52w}</td>
             <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="{rank}"><span style="display:inline-block; padding:2px 8px; background:#f0f0f0; border-radius:12px; font-size:0.9em;">{rank}/100</span></td>
             <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="{ur_sort}">{ur}</td>
-            <td style="padding:12px; border-bottom:1px solid #eee; font-style:italic; color:#555;" data-sort="{burry_sort}">{burry_take_str}</td>
+            <td style="padding:12px; border-bottom:1px solid #eee; color:#555;" data-sort="{burry_sort}">
+                <div style="font-weight:bold; margin-bottom:4px;">{burry_take_str}</div>
+                {details}
+            </td>
             <td style="padding:12px; border-bottom:1px solid #eee; font-size:0.85em; color:#666;" data-sort="{rsi_sort}">
                 SMA50: {data.get('sma50')}<br/>
                 SMA200: {data.get('sma200')}<br/>
@@ -451,6 +482,12 @@ def generate_dashboard(recap_data: Dict[str, Dict[str, Any]]) -> None:
                     {''.join(rows)}
                 </tbody>
             </table>
+            <div style="margin-top:25px; padding-top:15px; border-top:1px solid #eee; font-size:0.85em; color:#777;">
+                <strong>Burry-Take Formula:</strong> Owner's Earnings ≈ Net Income + Stock-Based Compensation (SBC) - Buybacks - Taxes.<br/>
+                <span style="font-size:0.9em; margin-top:5px; display:block;">
+                    * Data fetched from latest annual financials via yfinance. Components: NI (Net Income), SBC (Stock-Based Compensation), BB (Buybacks), TX (Taxes Paid/Provision).
+                </span>
+            </div>
         </div>
         <script>
         function sortTable(n) {{
@@ -553,7 +590,12 @@ def evaluate_row(row: Dict[str, str], recap: Dict, state: Dict, financials_cache
             # Cache for 30 days since annual financials don't change often
             cache_date = datetime.strptime(cached_data["date"], "%Y-%m-%d").date()
             if (datetime.now().date() - cache_date).days < 30:
-                burry_take = cached_data["value"]
+                # Compatibility check for old single-value cache
+                if isinstance(cached_data["value"], (int, float)) or cached_data["value"] is None:
+                    # Invalidate old cache and re-fetch to get components
+                    burry_take = None
+                else:
+                    burry_take = cached_data["value"]
 
     # 3. Fetch from yfinance as last resort
     if burry_take is None:
