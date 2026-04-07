@@ -231,18 +231,20 @@ def save_state(state: dict, current_date: str) -> None:
     except Exception as e:
         logging.error("Failed to save state: %s", e)
 
-def load_recap() -> dict:
+def load_recap(current_date: str) -> dict:
     if os.path.exists(RECAP_FILE):
         try:
             with open(RECAP_FILE, "r", encoding="utf-8") as f:
-                return json.load(f)
-        except: return {}
+                data = json.load(f)
+                if isinstance(data, dict) and data.get("date") == current_date:
+                    return data.get("recap", {})
+        except: pass
     return {}
 
-def save_recap(data: dict) -> None:
+def save_recap(recap: dict, current_date: str) -> None:
     try:
         with open(RECAP_FILE, "w", encoding="utf-8") as f:
-            json.dump(data, f, indent=2)
+            json.dump({"date": current_date, "recap": recap}, f, indent=2)
     except Exception as e:
         logging.error("Failed to save recap: %s", e)
 
@@ -705,26 +707,27 @@ def main() -> int:
             rows.append(row)
 
     # Add symbols from STOCK_LIST or stocks.txt if not already present
-    existing = {row.get("symbol","").upper(): row for row in rows if row.get("symbol")}
+    existing_symbols = {row.get("symbol","").strip().upper() for row in rows if row.get("symbol")}
     stocks_from_env = [s.strip().upper() for s in STOCK_LIST_ENV.split(",") if s.strip()] if STOCK_LIST_ENV else []
     stocks_from_file = []
     if os.path.exists("stocks.txt"):
         with open("stocks.txt","r",encoding="utf-8") as sf:
             stocks_from_file = [line.strip().upper() for line in sf if line.strip()]
-    combined_stocks = []
+
+    seen = set(existing_symbols)
     for s in stocks_from_env + stocks_from_file:
-        if s not in existing: combined_stocks.append(s)
-    for s in combined_stocks:
-        rows.append({
-            "symbol": s, "low": "", "high": "",
-            "pct_up": DEFAULT_PCT_UP or "",
-            "pct_down": DEFAULT_PCT_DOWN or "",
-            "webhook": "",
-        })
+        if s and s not in seen:
+            seen.add(s)
+            rows.append({
+                "symbol": s, "low": "", "high": "",
+                "pct_up": DEFAULT_PCT_UP or "",
+                "pct_down": DEFAULT_PCT_DOWN or "",
+                "webhook": "",
+            })
 
     # Evaluate all rows
     alerts: List[Dict[str,Any]] = []
-    recap = load_recap()
+    recap = load_recap(TODAY)
     state = load_state(TODAY)
     financials_cache = load_financials_cache()
     for row in rows:
@@ -733,7 +736,7 @@ def main() -> int:
             if alert: alerts.append(alert)
         except: logging.exception("Error evaluating row: %s", row)
 
-    save_recap(recap)
+    save_recap(recap, TODAY)
     save_state(state, TODAY)
     save_financials_cache(financials_cache)
 
@@ -749,10 +752,9 @@ def main() -> int:
             logging.debug("Could not remove alerts file: %s", e)
         logging.info("No alerts triggered")
 
-    # --- Dashboard generation (Noon and Close) ---
-    if is_noon_window() or is_market_close_window() or os.environ.get("FORCE_DASHBOARD") == "true":
-        if recap:
-            generate_dashboard(recap)
+    # --- Dashboard generation (Always on run) ---
+    if recap:
+        generate_dashboard(recap)
 
     # --- Market-close recap ---
     if is_market_close_window():
@@ -780,9 +782,6 @@ def main() -> int:
             }
             with open("recap.json","w",encoding="utf-8") as f:
                 json.dump(recap_payload,f,indent=2)
-
-            # Clean up old daily recap file
-            os.remove(RECAP_FILE)
 
     return 0
 
