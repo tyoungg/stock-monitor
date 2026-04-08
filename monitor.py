@@ -630,7 +630,7 @@ def generate_dashboard(recap_data: Dict[str, Dict[str, Any]]) -> None:
         <strong>Buyback Quality:</strong> SBC / Buybacks — % of buybacks used to offset dilution (lower is better).<br/><br/>
 
         <strong>Dilution (3Y):</strong> CAGR of share count — measures ownership erosion.<br/>
-        <strong>3Y Per-Share Growth:</strong> Revenue CAGR − Dilution — growth adjusted for dilution.
+        <strong>3Y Per-Share Growth:</strong> Revenue CAGR − Dilution — growth adjusted for dilution.<br/>
 🟢 <strong>Strong:</strong> High owner earnings, low SBC, and buybacks primarily return capital.<br/>
 🟡 <strong>Mixed:</strong> Moderate earnings quality or offsetting factors.<br/>
 🔴 <strong>Distorted:</strong> Low owner earnings, high SBC, or buybacks mostly offset dilution.
