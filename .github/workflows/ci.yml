@@ -28,6 +28,7 @@ jobs:
 
       - name: Run monitor (test rule should trigger)
         run: |
+          rm -f alert_state.json
           printf 'symbol,low,high,pct_up,pct_down,webhook\nAAPL,,0,,,\n' > rules.csv
           IGNORE_MARKET_HOURS=true RULES_FILE=rules.csv python monitor.py
 
