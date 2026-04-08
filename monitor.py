@@ -287,13 +287,19 @@ def calculate_burry_analytics(data: Dict[str, Any]) -> Dict[str, Any]:
 
 
     # 5. Signal logic
-    score = "⚪"
-    if owner_yield > 4 and sbc_pct_ni < 20 and bb_quality < 50:
-        score = "🟢"
-    elif owner_yield < 2 or sbc_pct_ni > 30 or bb_quality > 70:
-        score = "🔴"
+    # 🟢 Strong: Low SBC (<10%), Real Buybacks (<30%)
+    # 🔴 Distorted: High SBC (>30%) OR Defensive Buybacks (>70%)
+    # 🟡 Mixed: Everything else
+    if sbc_pct_ni < 10 and bb_quality < 30:
+        score = "🟢 Strong"
+    elif sbc_pct_ni > 30 or bb_quality > 70:
+        score = "🔴 Distorted"
     else:
-        score = "🟡"
+        score = "🟡 Mixed"
+
+    # Fallback for indices/no-data
+    if not mcap or oe is None:
+        score = "⚪ No Data"
 
     flags = []
     if bb_quality > 70:
@@ -492,7 +498,7 @@ def generate_dashboard(recap_data: Dict[str, Dict[str, Any]]) -> None:
         bb_quality = a.get("bb_quality", 0)
         dilution = a.get("dilution", 0)
         net_growth = a.get("net_growth", 0)
-        quality_score = a.get("quality_score", "⚪")
+        quality_score = a.get("quality_score", "⚪ No Data")
 
         # Color for yields (green -> red)
         def yield_color(val):
@@ -517,6 +523,13 @@ def generate_dashboard(recap_data: Dict[str, Dict[str, Any]]) -> None:
         </div>
         """
 
+        # Signal pill color
+        pill_bg = "#f0f0f0"
+        pill_color = "#333"
+        if "Strong" in quality_score: pill_bg, pill_color = "#e6fffa", "#047481"
+        elif "Mixed" in quality_score: pill_bg, pill_color = "#fffaf0", "#a0522d"
+        elif "Distorted" in quality_score: pill_bg, pill_color = "#fff5f5", "#c53030"
+
         flags_html = ""
         for flag in a.get("flags", []):
             flags_html += f"<span title='{flag}' style='cursor:help; margin-left:4px;'>⚠️</span>"
@@ -526,13 +539,18 @@ def generate_dashboard(recap_data: Dict[str, Dict[str, Any]]) -> None:
             <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="{rank}"><span style="padding:2px 8px; background:#f0f0f0; border-radius:12px; font-size:0.85em;">{rank}</span></td>
             <td style="padding:12px; border-bottom:1px solid #eee;"><strong>{symbol}</strong></td>
             <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="{price}">${price:.2f} <div style="color:{change_color}; font-size:0.8em;">{change:+.2f}%</div></td>
-            <td style="padding:12px; border-bottom:1px solid #eee; font-weight:bold; color:{yield_color(owner_yield)};" data-sort="{owner_yield}">{owner_yield}%</td>
+            <td style="padding:12px; border-bottom:1px solid #eee; font-weight:bold; color:{yield_color(owner_yield)}; font-size:1.1em; background:#f9fcfb;" data-sort="{owner_yield}">{owner_yield}%</td>
             <td style="padding:12px; border-bottom:1px solid #eee; font-weight:bold; color:{yield_color(real_yield)};" data-sort="{real_yield}">{real_yield}%</td>
             <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="{sbc_pct_ni}">{sbc_bar}</td>
             <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="{bb_quality}">{bb_quality}%</td>
             <td style="padding:12px; border-bottom:1px solid #eee; color:{'#e3342f' if dilution > 2 else '#333'};" data-sort="{dilution}">{dilution:+.1f}%</td>
             <td style="padding:12px; border-bottom:1px solid #eee; font-weight:bold; color:{'#1f9d55' if net_growth > 0 else '#e3342f'};" data-sort="{net_growth}">{net_growth:+.1f}%</td>
-            <td style="padding:12px; border-bottom:1px solid #eee; font-size:1.2em;" data-sort="{quality_score}">{quality_score}{flags_html}</td>
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="{quality_score}">
+                <span style="padding:4px 12px; background:{pill_bg}; color:{pill_color}; border-radius:20px; font-weight:bold; font-size:0.85em; display:inline-block; border:1px solid {pill_color}22;">
+                    {quality_score}
+                </span>
+                {flags_html}
+            </td>
         </tr>
         """)
 
