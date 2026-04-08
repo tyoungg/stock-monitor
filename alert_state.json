@@ -1,11 +1,14 @@
 {
-  "date": "2026-04-07",
+  "date": "2026-04-08",
   "state": {
     "AG": [
       "low:"
     ],
     "BEN": [
       "low:"
+    ],
+    "BP": [
+      "up"
     ],
     "GE": [
       "low:"
@@ -31,14 +34,17 @@
     "UL": [
       "low:"
     ],
-    "^VIX": [
-      "high:"
+    "UVXY": [
+      "up"
     ],
     "VTRS": [
       "low:"
     ],
     "WMT": [
       "low:"
+    ],
+    "AAPL": [
+      "high:"
     ]
   }
 }

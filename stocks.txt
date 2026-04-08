@@ -61,3 +61,5 @@ XYZ
 ^DJI
 ^SPX
 ^VIX
+NVDA
+MSFT

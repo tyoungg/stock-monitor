@@ -158,52 +158,178 @@ def calculate_rank(indicators: Dict[str, Any], current_price: float) -> int:
 
     return score
 
-def get_burry_take(symbol: str) -> Optional[Dict[str, float]]:
-    """Calculates Burry's Owner's Earnings (Burry-take) and its components."""
+def get_burry_take(symbol: str) -> Optional[Dict[str, Any]]:
+    """Calculates Burry's Owner's Earnings (Burry-take) and its components with 4Y history."""
     if symbol.startswith("^"):
         return None
     try:
         t = yf.Ticker(symbol)
 
-        # Net Income
-        ni = None
-        if not t.financials.empty and 'Net Income' in t.financials.index:
-            ni = t.financials.loc['Net Income'].iloc[0]
+        # Market Cap from fast_info
+        try:
+            mcap = t.fast_info.get("market_cap") or t.fast_info.get("marketCap")
+        except:
+            mcap = None
 
-        if ni is None or math.isnan(ni):
+        def get_series(df, keys):
+            for k in keys:
+                if k in df.index:
+                    return df.loc[k].fillna(0).tolist()
+            return []
+
+        # Financials (4Y)
+        ni_series = get_series(t.financials, ['Net Income'])
+        rev_series = get_series(t.financials, ['Total Revenue'])
+        shares_series = get_series(t.financials, ['Basic Average Shares', 'Diluted Average Shares'])
+
+        if not ni_series:
             return None
 
-        # Cashflow items
-        sbc = 0.0
-        buybacks = 0.0
-        tax = 0.0
+        # Cashflow (4Y)
+        sbc_series = get_series(t.cashflow, ['Stock Based Compensation'])
+        buyback_series = [abs(x) for x in get_series(t.cashflow, ['Repurchase Of Capital Stock'])]
+        fcf_series = get_series(t.cashflow, ['Free Cash Flow'])
 
-        if not t.cashflow.empty:
-            if 'Stock Based Compensation' in t.cashflow.index:
-                val = t.cashflow.loc['Stock Based Compensation'].iloc[0]
-                if not math.isnan(val): sbc = float(val)
-            if 'Repurchase Of Capital Stock' in t.cashflow.index:
-                val = t.cashflow.loc['Repurchase Of Capital Stock'].iloc[0]
-                if not math.isnan(val): buybacks = abs(float(val))
-            if 'Income Tax Paid Supplemental Data' in t.cashflow.index:
-                val = t.cashflow.loc['Income Tax Paid Supplemental Data'].iloc[0]
-                if not math.isnan(val): tax = float(val)
-            elif 'Tax Provision' in t.financials.index:
-                val = t.financials.loc['Tax Provision'].iloc[0]
-                if not math.isnan(val): tax = float(val)
+        # RSU Tax Withholding (often under 'Common Stock Payments' or similar)
+        rsu_tax_series = [abs(x) for x in get_series(t.cashflow, [
+            'Payments for tax related to settlement of equity awards',
+            'Cash Paid for Tax Related to Settlement of Equity Awards',
+            'Taxes Paid Related to Settlement of Equity Awards'
+        ])]
 
-        oe = ni + sbc - buybacks - tax
+        # If no RSU tax found, try 'Common Stock Payments' but ONLY if it's not the same as buybacks
+        if not any(rsu_tax_series):
+            csp = [abs(x) for x in get_series(t.cashflow, ['Common Stock Payments'])]
+            if csp and csp != buyback_series:
+                rsu_tax_series = csp
+            else:
+                rsu_tax_series = [0.0] * len(buyback_series)
+
+        # Ensure all series are same length (pad with 0)
+        max_len = max(len(ni_series), len(rev_series), len(shares_series), len(sbc_series), len(buyback_series), len(fcf_series))
+        def pad(s): return (s + [0.0] * max_len)[:max_len]
+
+        ni_series = pad(ni_series)
+        rev_series = pad(rev_series)
+        shares_series = pad(shares_series)
+        sbc_series = pad(sbc_series)
+        buyback_series = pad(buyback_series)
+        fcf_series = pad(fcf_series)
+        rsu_tax_series = pad(rsu_tax_series)
+
+        ni = ni_series[0]
+        sbc = sbc_series[0]
+        bb = buyback_series[0]
+        rsu = rsu_tax_series[0]
+
+        # Current Owner's Earnings
+        oe = ni + sbc - bb - rsu
+
         return {
             "net_income": float(ni),
-            "sbc": sbc,
-            "buybacks": buybacks,
-            "tax": tax,
-            "owner_earnings": float(oe)
+            "sbc": float(sbc),
+            "buybacks": float(bb),
+            "rsu_tax": float(rsu),
+            "owner_earnings": float(oe),
+            "market_cap": float(mcap) if mcap else None,
+            "history": {
+                "ni": ni_series,
+                "rev": rev_series,
+                "shares": shares_series,
+                "sbc": sbc_series,
+                "buybacks": buyback_series,
+                "fcf": fcf_series
+            }
         }
 
     except Exception as e:
         logging.debug("Error calculating Burry-take for %s: %s", symbol, e)
         return None
+
+def calculate_burry_analytics(data: Dict[str, Any]) -> Dict[str, Any]:
+    """Calculates derived metrics and quality scores based on Burry's methodology."""
+    if not data or not data.get("history"):
+        return {}
+
+    mcap = data.get("market_cap")
+    ni = data.get("net_income")
+    oe = data.get("owner_earnings")
+    sbc = data.get("sbc")
+    bb = data.get("buybacks")
+    h = data["history"]
+
+    # 1. Yields
+    gaap_yield = (ni / mcap) * 100 if mcap and ni is not None else 0
+    burry_yield = (oe / mcap) * 100 if mcap and oe is not None else 0
+
+    # 2. Growth (1Y)
+    rev_growth = 0.0
+    if len(h.get("rev", [])) > 1 and h["rev"][1] and h["rev"][1] > 0:
+        rev_growth = (h["rev"][0] / h["rev"][1]) - 1
+
+    share_growth = 0.0
+    if len(h.get("shares", [])) > 1 and h["shares"][1] and h["shares"][1] > 0:
+        share_growth = (h["shares"][0] / h["shares"][1]) - 1
+
+    net_growth = (rev_growth - share_growth) * 100
+
+    # 3. Real Shareholder Yield
+    real_yield = (max(0, bb - sbc) / mcap) * 100 if mcap and bb is not None else 0
+
+    # 4. Buyback Burden
+    fcf = h.get("fcf", [0])[0]
+    burden = (min(sbc, bb) / fcf) * 100 if fcf and fcf > 0 else 0
+
+    # 5. Quality & Flags
+    flags = []
+    if bb is not None and sbc is not None and bb < 1.1 * sbc and bb > 0:
+        flags.append("Defensive Buybacks: mostly offsetting dilution")
+    if share_growth > 0.02:
+        flags.append(f"High Dilution: shares up {share_growth*100:.1f}%")
+    if ni and ni > 0 and mcap and burry_yield < 0.5 * gaap_yield:
+        flags.append("Optical Illusion: GAAP earnings heavily inflated by SBC")
+
+    score = "🟡"
+    sbc_ratio = sbc / ni if ni and ni > 0 else 1.0
+    if sbc_ratio < 0.1 and bb > sbc:
+        score = "🟢"
+    elif sbc_ratio > 0.25 or (oe is not None and oe < 0):
+        score = "🔴"
+
+    # 6. Trends (3Y)
+    sbc_ratios = []
+    share_growths = []
+    bb_coverages = []
+
+    for i in range(min(3, len(h.get("ni", [])))):
+        if h["ni"][i] and h["ni"][i] > 0:
+            sbc_ratios.append(h["sbc"][i] / h["ni"][i])
+
+    for i in range(min(3, len(h.get("shares", [])) - 1)):
+        if h["shares"][i+1] > 0:
+            share_growths.append((h["shares"][i] / h["shares"][i+1]) - 1)
+
+    for i in range(min(3, len(h.get("sbc", [])))):
+        if h["sbc"][i] and h["sbc"][i] > 0:
+            bb_coverages.append(h["buybacks"][i] / h["sbc"][i])
+
+    avg_sbc_ratio = (sum(sbc_ratios) / len(sbc_ratios)) * 100 if sbc_ratios else 0
+    avg_share_growth = (sum(share_growths) / len(share_growths)) * 100 if share_growths else 0
+    avg_bb_coverage = (sum(bb_coverages) / len(bb_coverages)) if bb_coverages else 0
+
+    return {
+        "gaap_yield": round(gaap_yield, 2),
+        "burry_yield": round(burry_yield, 2),
+        "net_growth": round(net_growth, 2),
+        "real_yield": round(real_yield, 2),
+        "burden": round(burden, 1),
+        "quality_score": score,
+        "flags": flags,
+        "avg_sbc_ratio": round(avg_sbc_ratio, 1),
+        "avg_share_growth": round(avg_share_growth, 2),
+        "avg_bb_coverage": round(avg_bb_coverage, 2),
+        "share_growth_pct": round(share_growth * 100, 2)
+    }
 
 def send_webhook(webhook: str, message: str) -> bool:
     try:
@@ -396,14 +522,20 @@ def generate_dashboard(recap_data: Dict[str, Dict[str, Any]]) -> None:
         rsi_sort = data.get("rsi", 0)
 
         burry_take_data = data.get("burry_take")
+        a = data.get("burry_analytics", {})
+
         gaap_ni_str = "N/A"
         gaap_ni_sort = -1e15
+        burry_take_str = "N/A"
+        burry_sort = -1e15
+        details = ""
+
         if isinstance(burry_take_data, dict):
             oe = burry_take_data.get("owner_earnings")
             ni = burry_take_data.get("net_income")
             sbc = burry_take_data.get("sbc")
             bb = burry_take_data.get("buybacks")
-            tx = burry_take_data.get("tax")
+            rsu = burry_take_data.get("rsu_tax", 0.0)
 
             burry_take_str = format_large_number(oe) if oe is not None else "N/A"
             burry_sort = oe if oe is not None else -1e15
@@ -417,15 +549,33 @@ def generate_dashboard(recap_data: Dict[str, Dict[str, Any]]) -> None:
                 NI: {format_large_number(ni) if ni is not None else '-'}<br/>
                 SBC: +{format_large_number(sbc) if sbc is not None else '-'}<br/>
                 BB: -{format_large_number(bb) if bb is not None else '-'}<br/>
-                TX: -{format_large_number(tx) if tx is not None else '-'}
+                RSU Tax: -{format_large_number(rsu) if rsu is not None else '-'}
             </div>
             """
-        else:
-            # Fallback for old single value if any remain
-            val = burry_take_data
-            burry_take_str = format_large_number(val) if val is not None else "N/A"
-            burry_sort = val if val is not None else -1e15
-            details = ""
+
+        # Analytics columns
+        yields_html = f"""
+        <div style="font-weight:bold;">B: {a.get('burry_yield', 'N/A')}%</div>
+        <div style="font-size:0.85em; color:#777;">G: {a.get('gaap_yield', 'N/A')}%</div>
+        """
+
+        net_growth = a.get("net_growth", 0)
+        growth_color = "#1f9d55" if net_growth > 0 else "#e3342f"
+        growth_html = f"""
+        <div style="font-weight:bold; color:{growth_color};">{net_growth:+.1f}%</div>
+        <div style="font-size:0.8em; color:#777;">(1Y Rev-Shares)</div>
+        """
+
+        flags_html = ""
+        for flag in a.get("flags", []):
+            flags_html += f"<div title='{flag}' style='cursor:help; display:inline-block; margin-right:4px;'>⚠️</div>"
+
+        quality_score = a.get("quality_score", "⚪")
+        quality_html = f"""
+        <div style="font-size:1.2em; display:flex; align-items:center;">
+            {quality_score} <span style="font-size:0.6em; margin-left:4px;">{flags_html}</span>
+        </div>
+        """
 
         rows.append(f"""
         <tr>
@@ -434,16 +584,19 @@ def generate_dashboard(recap_data: Dict[str, Dict[str, Any]]) -> None:
             <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="{pos_sort}">{progress_bar}</td>
             <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="{pos52_sort}">{progress_bar_52w}</td>
             <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="{rank}"><span style="display:inline-block; padding:2px 8px; background:#f0f0f0; border-radius:12px; font-size:0.9em;">{rank}/100</span></td>
-            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="{ur_sort}">{ur}</td>
-            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="{gaap_ni_sort}">{gaap_ni_str}</td>
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="{a.get('burry_yield', -100)}">{yields_html}</td>
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="{net_growth}">{growth_html}</td>
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="{a.get('real_yield', 0)}">{a.get('real_yield', 0)}%</td>
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="{a.get('burden', 0)}">{a.get('burden', 0)}%</td>
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="{quality_score}">{quality_html}</td>
             <td style="padding:12px; border-bottom:1px solid #eee; color:#555;" data-sort="{burry_sort}">
                 <div style="font-weight:bold; margin-bottom:4px;">{burry_take_str}</div>
                 {details}
             </td>
             <td style="padding:12px; border-bottom:1px solid #eee; font-size:0.85em; color:#666;" data-sort="{rsi_sort}">
-                SMA50: {data.get('sma50')}<br/>
-                SMA200: {data.get('sma200')}<br/>
-                RSI: {data.get('rsi')}
+                SBC/NI: {a.get('avg_sbc_ratio', 0)}% (3Y)<br/>
+                Shr: {a.get('avg_share_growth', 0):+.1f}% (3Y)<br/>
+                BB/SBC: {a.get('avg_bb_coverage', 0)}x
             </td>
         </tr>
         """)
@@ -479,13 +632,16 @@ def generate_dashboard(recap_data: Dict[str, Dict[str, Any]]) -> None:
                     <tr>
                         <th onclick="sortTable(0)">Symbol</th>
                         <th onclick="sortTable(1)">Price</th>
-                        <th onclick="sortTable(2)">Position / Rules</th>
+                        <th onclick="sortTable(2)">Rules</th>
                         <th onclick="sortTable(3)">52W Range</th>
                         <th onclick="sortTable(4)">Rank</th>
-                        <th onclick="sortTable(5)">Signal</th>
-                        <th onclick="sortTable(6)">GAAP NI</th>
-                        <th onclick="sortTable(7)">Burry-Take</th>
-                        <th onclick="sortTable(8)">Indicators</th>
+                        <th onclick="sortTable(5)">Yields (B/G)</th>
+                        <th onclick="sortTable(6)">Net Growth</th>
+                        <th onclick="sortTable(7)">Real Yield</th>
+                        <th onclick="sortTable(8)">SBC Burden</th>
+                        <th onclick="sortTable(9)">Quality</th>
+                        <th onclick="sortTable(10)">Owner Earnings</th>
+                        <th onclick="sortTable(11)">3Y Trends</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -493,9 +649,10 @@ def generate_dashboard(recap_data: Dict[str, Dict[str, Any]]) -> None:
                 </tbody>
             </table>
             <div style="margin-top:25px; padding-top:15px; border-top:1px solid #eee; font-size:0.85em; color:#777;">
-                <strong>Burry-Take Formula:</strong> Owner's Earnings ≈ Net Income + Stock-Based Compensation (SBC) - Buybacks - Taxes.<br/>
+                <strong>Burry-Take Formula:</strong> Owner's Earnings ≈ Net Income + SBC - Buybacks - RSU Tax.<br/>
                 <span style="font-size:0.9em; margin-top:5px; display:block;">
-                    * Data fetched from latest annual financials via yfinance. Components: NI (Net Income), SBC (Stock-Based Compensation), BB (Buybacks), TX (Taxes Paid/Provision).
+                    * <strong>Burry Yield:</strong> Owner's Earnings / Market Cap. <strong>Real Yield:</strong> (Buybacks - SBC) / Market Cap.<br/>
+                    * <strong>Net Growth:</strong> 1Y Revenue Growth - 1Y Share Growth. <strong>SBC Burden:</strong> min(SBC, Buybacks) / FCF.
                 </span>
             </div>
         </div>
@@ -600,9 +757,8 @@ def evaluate_row(row: Dict[str, str], recap: Dict, state: Dict, financials_cache
             # Cache for 30 days since annual financials don't change often
             cache_date = datetime.strptime(cached_data["date"], "%Y-%m-%d").date()
             if (datetime.now().date() - cache_date).days < 30:
-                # Compatibility check for old single-value cache
-                if isinstance(cached_data["value"], (int, float)) or cached_data["value"] is None:
-                    # Invalidate old cache and re-fetch to get components
+                # Compatibility check for old schema
+                if not isinstance(cached_data["value"], dict) or "history" not in cached_data["value"]:
                     burry_take = None
                 else:
                     burry_take = cached_data["value"]
@@ -616,6 +772,9 @@ def evaluate_row(row: Dict[str, str], recap: Dict, state: Dict, financials_cache
             "value": burry_take,
             "date": TODAY
         }
+
+    # --- Calculate Analytics ---
+    burry_analytics = calculate_burry_analytics(burry_take) if burry_take else {}
 
     # --- Update daily recap for ALL symbols (in-memory) ---
     recap[symbol] = {
@@ -632,7 +791,8 @@ def evaluate_row(row: Dict[str, str], recap: Dict, state: Dict, financials_cache
         "rsi": round(indicators["rsi"], 2),
         "high52": round(indicators["high52"], 2),
         "low52": round(indicators["low52"], 2),
-        "burry_take": burry_take
+        "burry_take": burry_take,
+        "burry_analytics": burry_analytics
     }
 
     triggers: List[str] = []
