@@ -619,13 +619,24 @@ def generate_dashboard(recap_data: Dict[str, Dict[str, Any]]) -> None:
                     {''.join(rows)}
                 </tbody>
             </table>
-            <div style="margin-top:25px; padding-top:15px; border-top:1px solid #eee; font-size:0.85em; color:#777;">
-                <strong>Owner Earnings Formula:</strong> Net Income + SBC - Buybacks - RSU Tax.<br/>
-                <span style="font-size:0.9em; margin-top:5px; display:block;">
-                    * <strong>Owner Yield:</strong> Owner Earnings / Market Cap. <strong>Real Yield:</strong> (Owner Earnings + max(0, Buybacks - SBC)) / Market Cap.<br/>
-                    * <strong>Buyback Quality:</strong> SBC / Buybacks (% of buybacks used to offset SBC). <strong>3Y Per-Share Growth:</strong> 3Y CAGR Revenue - 3Y CAGR Dilution.
-                </span>
-            </div>
+<div style="margin-top:25px; padding-top:15px; border-top:1px solid #eee; font-size:0.85em; color:#777;">
+    <strong>Owner Earnings:</strong> Net Income + Stock-Based Compensation (SBC) − Buybacks − RSU Tax.<br/>
+
+    <span style="font-size:0.9em; margin-top:5px; display:block;">
+        <strong>Owner Yield:</strong> Owner Earnings / Market Cap — baseline valuation.<br/>
+        <strong>Real Yield:</strong> (Owner Earnings + max(0, Buybacks − SBC)) / Market Cap — true shareholder return after offsetting dilution.<br/><br/>
+
+        <strong>SBC %:</strong> SBC / Net Income — portion of earnings paid in equity.<br/>
+        <strong>Buyback Quality:</strong> SBC / Buybacks — % of buybacks used to offset dilution (lower is better).<br/><br/>
+
+        <strong>Dilution (3Y):</strong> CAGR of share count — measures ownership erosion.<br/>
+        <strong>3Y Per-Share Growth:</strong> Revenue CAGR − Dilution — growth adjusted for dilution.
+🟢 <strong>Strong:</strong> High owner earnings, low SBC, and buybacks primarily return capital.<br/>
+🟡 <strong>Mixed:</strong> Moderate earnings quality or offsetting factors.<br/>
+🔴 <strong>Distorted:</strong> Low owner earnings, high SBC, or buybacks mostly offset dilution.
+
+    </span>
+</div>
         </div>
         <script>
         function sortTable(n) {{
