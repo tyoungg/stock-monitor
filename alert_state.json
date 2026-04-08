@@ -3,48 +3,6 @@
   "state": {
     "AAPL": [
       "high:"
-    ],
-    "AG": [
-      "low:"
-    ],
-    "BEN": [
-      "low:"
-    ],
-    "BP": [
-      "up"
-    ],
-    "GE": [
-      "low:"
-    ],
-    "GLD": [
-      "low:"
-    ],
-    "QQQ": [
-      "low:"
-    ],
-    "RF": [
-      "low:"
-    ],
-    "SLV": [
-      "low:"
-    ],
-    "^SPX": [
-      "low:"
-    ],
-    "SYY": [
-      "low:"
-    ],
-    "UL": [
-      "low:"
-    ],
-    "UVXY": [
-      "up"
-    ],
-    "VTRS": [
-      "low:"
-    ],
-    "WMT": [
-      "low:"
     ]
   }
 }
