@@ -554,6 +554,8 @@ def generate_dashboard(recap_data: Dict[str, Dict[str, Any]]) -> None:
         for flag in a.get("flags", []):
             flags_html += f"<span title='{flag}' style='cursor:help; margin-left:4px;'>⚠️</span>"
 
+        history_json = json.dumps(data.get("history_prices", []))
+
         rows.append(f"""
         <tr>
             <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="{rank}"><span style="padding:2px 8px; background:#f0f0f0; border-radius:12px; font-size:0.85em;">{rank}</span></td>
@@ -597,6 +599,9 @@ def generate_dashboard(recap_data: Dict[str, Dict[str, Any]]) -> None:
         </style>
     </head>
     <body>
+        <div id="sparklineTooltip" style="position: absolute; display: none; background: rgba(255,255,255,0.95); border: 1px solid #ccc; padding: 10px; border-radius: 4px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); pointer-events: none; z-index: 1000;">
+            <canvas id="sparklineCanvas" width="200" height="60"></canvas>
+        </div>
         <div class="container">
             <h1>📈 Stock Monitor Dashboard</h1>
             <div class="updated">Last updated: {timestamp}</div>
@@ -697,6 +702,63 @@ def generate_dashboard(recap_data: Dict[str, Dict[str, Any]]) -> None:
                 headers[n].classList.add("sort-desc");
             }}
         }}
+
+        const tooltip = document.getElementById('sparklineTooltip');
+        const canvas = document.getElementById('sparklineCanvas');
+        const ctx = canvas.getContext('2d');
+
+        document.querySelectorAll('.price-cell').forEach(cell => {{
+            cell.addEventListener('mouseenter', (e) => {{
+                const history = JSON.parse(cell.getAttribute('data-history'));
+                if (!history || history.length === 0) return;
+
+                const min = Math.min(...history);
+                const max = Math.max(...history);
+                const range = max - min;
+
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                ctx.beginPath();
+                ctx.strokeStyle = '#3490dc';
+                ctx.lineWidth = 2;
+
+                history.forEach((price, i) => {{
+                    const x = (i / (history.length - 1)) * canvas.width;
+                    const y = canvas.height - ((price - min) / range) * canvas.height * 0.8 - (canvas.height * 0.1);
+                    if (i === 0) ctx.moveTo(x, y);
+                    else ctx.lineTo(x, y);
+                }});
+                ctx.stroke();
+
+                // High point (Green)
+                const maxIdx = history.indexOf(max);
+                const maxX = (maxIdx / (history.length - 1)) * canvas.width;
+                const maxY = canvas.height - ((max - min) / range) * canvas.height * 0.8 - (canvas.height * 0.1);
+                ctx.fillStyle = 'green';
+                ctx.beginPath();
+                ctx.arc(maxX, maxY, 4, 0, Math.PI * 2);
+                ctx.fill();
+
+                // Low point (Red)
+                const minIdx = history.indexOf(min);
+                const minX = (minIdx / (history.length - 1)) * canvas.width;
+                const minY = canvas.height - ((min - min) / range) * canvas.height * 0.8 - (canvas.height * 0.1);
+                ctx.fillStyle = 'red';
+                ctx.beginPath();
+                ctx.arc(minX, minY, 4, 0, Math.PI * 2);
+                ctx.fill();
+
+                tooltip.style.display = 'block';
+            }});
+
+            cell.addEventListener('mousemove', (e) => {{
+                tooltip.style.left = (e.pageX + 15) + 'px';
+                tooltip.style.top = (e.pageY + 15) + 'px';
+            }});
+
+            cell.addEventListener('mouseleave', () => {{
+                tooltip.style.display = 'none';
+            }});
+        }});
         </script>
     </body>
     </html>
@@ -773,6 +835,7 @@ def evaluate_row(row: Dict[str, str], recap: Dict, state: Dict, financials_cache
         "rsi": round(indicators["rsi"], 2),
         "high52": round(indicators["high52"], 2),
         "low52": round(indicators["low52"], 2),
+        "history_prices": [round(float(p), 2) for p in history["Close"].tolist()],
         "burry_take": burry_take,
         "burry_analytics": burry_analytics
     }

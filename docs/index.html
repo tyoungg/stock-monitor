@@ -19,6 +19,9 @@
         </style>
     </head>
     <body>
+        <div id="sparklineTooltip" style="position: absolute; display: none; background: rgba(255,255,255,0.95); border: 1px solid #ccc; padding: 10px; border-radius: 4px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); pointer-events: none; z-index: 1000;">
+            <canvas id="sparklineCanvas" width="200" height="60"></canvas>
+        </div>
         <div class="container">
             <h1>📈 Stock Monitor Dashboard</h1>
             <div class="updated">Last updated: 2026-04-09 05:52 PM ET</div>
@@ -232,6 +235,61 @@ RSU Tax: $0"><strong style="cursor:help; border-bottom:1px dotted #ccc;">DIS</st
                     🟡 Mixed
                 </span>
                 
+            </td>
+        </tr>
+
+        <tr>
+            <td style="padding:12px; border-bottom:1px solid #eee;"><strong>GE</strong></td>
+            <td class="price-cell" style="padding:12px; border-bottom:1px solid #eee; cursor: help;" data-sort="313.02" data-history='[180.55, 180.71, 185.02, 184.69, 181.49, 180.83, 177.41, 188.18, 192.66, 196.37, 197.39, 199.8, 199.44, 200.48, 202.54, 206.61, 207.84, 207.5, 208.81, 213.36, 213.83, 217.8, 220.41, 222.06, 228.17, 230.56, 234.05, 234.02, 232.31, 229.06, 231.56, 240.51, 242.39, 242.87, 244.62, 246.18, 247.56, 249.56, 250.59, 254.28, 250.09, 240.73, 244.23, 238.73, 235.35, 235.29, 234.51, 234.65, 238.11, 246.51, 247.44, 248.58, 249.68, 253.17, 256.03, 247.71, 243.46, 245.58, 247.7, 246.11, 249.38, 251.61, 254.45, 261.34, 263.66, 265.17, 259.29, 262.27, 261.86, 258.01, 262.18, 266.99, 270.55, 269.58, 269.28, 272.51, 270.05, 268.35, 275.18, 271.08, 271.24, 270.98, 273.96, 274.15, 278.56, 267.83, 268.67, 266.83, 267.43, 264.92, 265.42, 267.69, 265.51, 265.59, 272.9, 272.31, 274.95, 274.15, 274.34, 274.88, 281.19, 278.17, 275.0, 275.19, 282.33, 280.49, 280.62, 285.69, 291.85, 288.4, 295.96, 299.99, 299.87, 304.46, 299.16, 296.05, 293.86, 292.87, 300.04, 300.1, 298.67, 296.23, 297.45, 300.96, 301.77, 298.57, 290.73, 296.76, 299.3, 299.34, 299.06, 299.36, 301.89, 305.83, 297.12, 305.59, 303.08, 312.03, 308.99, 313.46, 309.94, 308.15, 307.82, 303.41, 304.32, 304.48, 306.47, 311.13, 309.91, 308.22, 303.38, 304.03, 299.35, 295.24, 300.04, 289.87, 286.69, 293.29, 292.68, 295.85, 297.68, 287.7, 288.57, 287.74, 291.1, 283.2, 286.44, 284.57, 282.86, 287.67, 299.03, 300.2, 297.95, 291.42, 300.91, 306.41, 313.91, 314.71, 315.93, 314.32, 311.13, 311.34, 307.58, 320.28, 323.85, 327.06, 323.17, 313.98, 321.12, 323.7, 326.75, 318.42, 319.47, 324.65, 311.89, 318.04, 294.57, 293.44, 294.63, 297.04, 292.05, 298.43, 306.34, 308.26, 309.48, 307.89, 305.92, 320.53, 316.28, 315.87, 313.27, 312.43, 314.95, 326.6, 329.1, 334.25, 342.72, 338.5, 345.14, 342.39, 340.34, 341.76, 345.24, 333.65, 339.32, 326.51, 322.64, 321.93, 326.52, 325.15, 306.7, 299.69, 304.0, 302.09, 300.96, 291.61, 286.79, 291.54, 290.63, 296.56, 285.24, 282.81, 273.25, 283.77, 292.68, 281.16, 288.69, 288.6, 308.06, 313.02]'>
+                $313.02 <span style="color:#1f9d55; font-size:0.9em;">(+0.10%)</span>
+            </td>
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="38.36666666666664">
+            <div style="width:100px; background:#eee; height:12px; border-radius:6px; position:relative; overflow:hidden;">
+                <div style="width:38.36666666666664%; background:#3490dc; height:100%;"></div>
+            </div>
+            <div style="font-size:10px; color:#777; margin-top:2px;">
+                $290.0 - $350.0
+            </div>
+            </td>
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="79.89530602853196">
+            <div style="width:100px; background:#eee; height:12px; border-radius:6px; position:relative; overflow:hidden;">
+                <div style="width:79.89530602853196%; background:#6c757d; height:100%;"></div>
+            </div>
+            <div style="font-size:10px; color:#777; margin-top:2px;">
+                $174.13 - $347.97
+            </div>
+            </td>
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="100"><span style="display:inline-block; padding:2px 8px; background:#f0f0f0; border-radius:12px; font-size:0.9em;">100/100</span></td>
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="-2.1">
+        <div style="font-weight:bold;">B: -2.1%</div>
+        <div style="font-size:0.85em; color:#777;">G: 2.86%</div>
+        </td>
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="20.69">
+        <div style="font-weight:bold; color:#1f9d55;">+20.7%</div>
+        <div style="font-size:0.8em; color:#777;">(1Y Rev-Shares)</div>
+        </td>
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="2.48">2.48%</td>
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="0.0">0.0%</td>
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="🟢">
+        <div style="font-size:1.2em; display:flex; align-items:center;">
+            🟢 <span style="font-size:0.6em; margin-left:4px;"><div title='Optical Illusion: GAAP earnings heavily inflated by SBC' style='cursor:help; display:inline-block; margin-right:4px;'>⚠️</div></span>
+        </div>
+        </td>
+            <td style="padding:12px; border-bottom:1px solid #eee; color:#555;" data-sort="-6398000000.0">
+                <div style="font-weight:bold; margin-bottom:4px;">-$6.4B</div>
+
+            <div style="font-size:0.8em; color:#777; line-height:1.2;">
+                NI: $8.7B<br/>
+                SBC: +$0<br/>
+                BB: -$7.6B<br/>
+                RSU Tax: -$7.6B
+            </div>
+
+            </td>
+            <td style="padding:12px; border-bottom:1px solid #eee; font-size:0.85em; color:#666;" data-sort="60.42">
+                SBC/NI: 0.0% (3Y)<br/>
+                Shr: -1.1% (3Y)<br/>
+                BB/SBC: 0x
             </td>
         </tr>
         
@@ -1156,6 +1214,13 @@ RSU Tax: $7.6B"><strong style="cursor:help; border-bottom:1px dotted #ccc;">GE</
                     🟢 Strong
                 </span>
                 
+            <div style="font-size:0.8em; color:#777; line-height:1.2;">
+                NI: $499.6M<br/>
+                SBC: +$0<br/>
+                BB: -$234.6M<br/>
+                RSU Tax: -$0
+            </div>
+
             </td>
         </tr>
         
@@ -1265,6 +1330,13 @@ RSU Tax: $0"><strong style="cursor:help; border-bottom:1px dotted #ccc;">PLUG</s
                     ⚪ No Data
                 </span>
                 
+            <div style="font-size:0.8em; color:#777; line-height:1.2;">
+                NI: -$1.6B<br/>
+                SBC: +$50.5M<br/>
+                BB: -$0<br/>
+                RSU Tax: -$0
+            </div>
+
             </td>
         </tr>
         
@@ -1898,6 +1970,63 @@ RSU Tax: $0"><strong style="cursor:help; border-bottom:1px dotted #ccc;">PLUG</s
                 headers[n].classList.add("sort-desc");
             }
         }
+
+        const tooltip = document.getElementById('sparklineTooltip');
+        const canvas = document.getElementById('sparklineCanvas');
+        const ctx = canvas.getContext('2d');
+
+        document.querySelectorAll('.price-cell').forEach(cell => {
+            cell.addEventListener('mouseenter', (e) => {
+                const history = JSON.parse(cell.getAttribute('data-history'));
+                if (!history || history.length === 0) return;
+
+                const min = Math.min(...history);
+                const max = Math.max(...history);
+                const range = max - min;
+
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                ctx.beginPath();
+                ctx.strokeStyle = '#3490dc';
+                ctx.lineWidth = 2;
+
+                history.forEach((price, i) => {
+                    const x = (i / (history.length - 1)) * canvas.width;
+                    const y = canvas.height - ((price - min) / range) * canvas.height * 0.8 - (canvas.height * 0.1);
+                    if (i === 0) ctx.moveTo(x, y);
+                    else ctx.lineTo(x, y);
+                });
+                ctx.stroke();
+
+                // High point (Green)
+                const maxIdx = history.indexOf(max);
+                const maxX = (maxIdx / (history.length - 1)) * canvas.width;
+                const maxY = canvas.height - ((max - min) / range) * canvas.height * 0.8 - (canvas.height * 0.1);
+                ctx.fillStyle = 'green';
+                ctx.beginPath();
+                ctx.arc(maxX, maxY, 4, 0, Math.PI * 2);
+                ctx.fill();
+
+                // Low point (Red)
+                const minIdx = history.indexOf(min);
+                const minX = (minIdx / (history.length - 1)) * canvas.width;
+                const minY = canvas.height - ((min - min) / range) * canvas.height * 0.8 - (canvas.height * 0.1);
+                ctx.fillStyle = 'red';
+                ctx.beginPath();
+                ctx.arc(minX, minY, 4, 0, Math.PI * 2);
+                ctx.fill();
+
+                tooltip.style.display = 'block';
+            });
+
+            cell.addEventListener('mousemove', (e) => {
+                tooltip.style.left = (e.pageX + 15) + 'px';
+                tooltip.style.top = (e.pageY + 15) + 'px';
+            });
+
+            cell.addEventListener('mouseleave', () => {
+                tooltip.style.display = 'none';
+            });
+        });
         </script>
     </body>
     </html>
