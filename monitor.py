@@ -264,7 +264,7 @@ def calculate_burry_analytics(data: Dict[str, Any]) -> Dict[str, Any]:
     real_yield = ((oe + excess_bb) / mcap) * 100 if mcap and oe is not None else 0
 
     sbc_pct_ni = (sbc / ni) * 100 if ni and ni > 0 and sbc is not None else (100.0 if sbc else 0.0)
-    bb_quality = (sbc / bb) * 100 if bb and bb > 0 and sbc is not None else (100.0 if sbc else 0.0)
+    bb_quality = (sbc / bb) * 100 if bb and bb > 0 and sbc is not None else 0.0
 
     # 2. Growth (3Y CAGR)
     rev_cagr_3y = 0.0
