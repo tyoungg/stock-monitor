@@ -44,6 +44,17 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
+      - name: Restore alert state and financials cache
+        uses: actions/cache/restore@v4
+        with:
+          path: |
+            alert_state.json
+            financials_cache.json
+            daily_recap.json
+          key: ${{ runner.os }}-state-${{ github.run_id }}
+          restore-keys: |
+            ${{ runner.os }}-state-
+
       - name: Run stock monitor
         id: run_monitor
         env:
@@ -54,20 +65,21 @@ jobs:
         run: |
           python monitor.py
 
-      - name: Commit alert state and dashboard changes
-        run: |
-          git config --global user.name 'github-actions[bot]'
-          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
-          git add alert_state.json financials_cache.json
-          if [ -d docs ]; then git add docs/; fi
-          # Only commit if there are changes
-          if ! git diff --cached --quiet; then
-            git commit -m "ci: Update alert state and dashboard"
-            git pull --rebase origin ${{ github.ref_name }}
-            git push origin ${{ github.ref_name }}
-          else
-            echo "No changes to alert_state.json, financials_cache.json or docs/"
-          fi
+      - name: Save alert state and financials cache
+        uses: actions/cache/save@v4
+        if: always()
+        with:
+          path: |
+            alert_state.json
+            financials_cache.json
+            daily_recap.json
+          key: ${{ runner.os }}-state-${{ github.run_id }}
+
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./docs
 
       - name: Prepare alerts output
         id: prepare
