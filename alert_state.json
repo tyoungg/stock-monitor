@@ -1,13 +1,11 @@
 {
-  "date": "2026-04-09",
+  "date": "2026-04-10",
   "state": {
     "ACN": [
+      "U&R:",
       "low:"
     ],
     "AG": [
-      "low:"
-    ],
-    "BITI": [
       "low:"
     ],
     "BITI": [
@@ -22,10 +20,10 @@
     "INTC": [
       "high:"
     ],
-    "SLV": [
-      "low:"
+    "MRVL": [
+      "high:"
     ],
-    "SYY": [
+    "SLV": [
       "low:"
     ],
     "UL": [
@@ -33,9 +31,6 @@
     ],
     "VTRS": [
       "low:"
-    ],
-    "UVXY": [
-      "down"
     ]
   }
 }
