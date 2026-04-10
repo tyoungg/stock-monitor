@@ -560,7 +560,10 @@ def generate_dashboard(recap_data: Dict[str, Dict[str, Any]]) -> None:
         <tr>
             <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="{rank}"><span style="padding:2px 8px; background:#f0f0f0; border-radius:12px; font-size:0.85em;">{rank}</span></td>
             <td style="padding:12px; border-bottom:1px solid #eee;" title="{bt_tooltip}"><strong style="cursor:help; border-bottom:1px dotted #ccc;">{symbol}</strong></td>
-            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="{price}">${price:.2f} <div style="color:{change_color}; font-size:0.8em;">{change:+.2f}%</div></td>
+            <td class="price-cell" style="padding:12px; border-bottom:1px solid #eee; cursor:help;" data-sort="{price}" data-history='{history_json}'>
+                <span style="border-bottom: 1px dotted #ccc;">${price:.2f}</span>
+                <div style="color:{change_color}; font-size:0.8em;">{change:+.2f}%</div>
+            </td>
             <td style="padding:12px; border-bottom:1px solid #eee; font-weight:bold; color:{yield_color(owner_yield)}; font-size:1.1em; background:#f9fcfb;" data-sort="{owner_yield}">{owner_yield}%</td>
             <td style="padding:12px; border-bottom:1px solid #eee; font-weight:bold; color:{yield_color(real_yield)};" data-sort="{real_yield}">{real_yield}%</td>
             <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="{sbc_pct_ni}">{sbc_bar}</td>
@@ -714,7 +717,8 @@ def generate_dashboard(recap_data: Dict[str, Dict[str, Any]]) -> None:
 
                 const min = Math.min(...history);
                 const max = Math.max(...history);
-                const range = max - min;
+                let range = max - min;
+                if (range === 0) range = 1;
 
                 ctx.clearRect(0, 0, canvas.width, canvas.height);
                 ctx.beginPath();
