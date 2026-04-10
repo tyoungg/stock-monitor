@@ -259,55 +259,42 @@ def calculate_burry_analytics(data: Dict[str, Any]) -> Dict[str, Any]:
     h = data["history"]
 
     # 1. Yields
-    owner_yield = (oe / mcap) * 100 if mcap and oe is not None else 0
-    excess_bb = max(0, bb - sbc) if bb is not None and sbc is not None else 0
-    real_yield = ((oe + excess_bb) / mcap) * 100 if mcap and oe is not None else 0
+    gaap_yield = (ni / mcap) * 100 if mcap and ni is not None else 0
+    burry_yield = (oe / mcap) * 100 if mcap and oe is not None else 0
 
-    sbc_pct_ni = (sbc / ni) * 100 if ni and ni > 0 and sbc is not None else (100.0 if sbc else 0.0)
-    bb_quality = (sbc / bb) * 100 if bb and bb > 0 and sbc is not None else (100.0 if sbc else 0.0)
+    # 2. Growth (1Y)
+    rev_growth = 0.0
+    if len(h.get("rev", [])) > 1 and h["rev"][1] and h["rev"][1] > 0:
+        rev_growth = (h["rev"][0] / h["rev"][1]) - 1
 
-    # 2. Growth (3Y CAGR)
-    rev_cagr_3y = 0.0
-    years_rev = 0
-    for i in range(len(h.get("rev", [])) - 1, 0, -1):
-        if i <= 3 and h["rev"][i] and h["rev"][i] > 0:
-            rev_cagr_3y = (h["rev"][0] / h["rev"][i]) ** (1 / i) - 1
-            years_rev = i
-            break
+    share_growth = 0.0
+    if len(h.get("shares", [])) > 1 and h["shares"][1] and h["shares"][1] > 0:
+        share_growth = (h["shares"][0] / h["shares"][1]) - 1
 
-    share_cagr_3y = 0.0
-    years_shares = 0
-    for i in range(len(h.get("shares", [])) - 1, 0, -1):
-        if i <= 3 and h["shares"][i] and h["shares"][i] > 0:
-            share_cagr_3y = (h["shares"][0] / h["shares"][i]) ** (1 / i) - 1
-            years_shares = i
-            break
+    net_growth = (rev_growth - share_growth) * 100
 
-    net_growth_3y = (rev_cagr_3y - share_cagr_3y) * 100
+    # 3. Real Shareholder Yield
+    real_yield = (max(0, bb - sbc) / mcap) * 100 if mcap and bb is not None else 0
 
+    # 4. Buyback Burden
+    fcf = h.get("fcf", [0])[0]
+    burden = (min(sbc, bb) / fcf) * 100 if fcf and fcf > 0 else 0
 
-    # 5. Signal logic
-    # 🟢 Strong: Low SBC (<10%), Real Buybacks (<30%)
-    # 🔴 Distorted: High SBC (>30%) OR Defensive Buybacks (>70%)
-    # 🟡 Mixed: Everything else
-    if sbc_pct_ni < 10 and bb_quality < 30:
-        score = "🟢 Strong"
-    elif sbc_pct_ni > 30 or bb_quality > 70:
-        score = "🔴 Distorted"
-    else:
-        score = "🟡 Mixed"
-
-    # Fallback for indices/no-data
-    if not mcap or oe is None:
-        score = "⚪ No Data"
-
+    # 5. Quality & Flags
     flags = []
-    if bb_quality > 70:
-        flags.append("Mostly defensive buybacks (>70% offset)")
-    if share_cagr_3y > 0.02:
-        flags.append(f"High Dilution: 3Y CAGR {share_cagr_3y*100:.1f}%")
-    if sbc_pct_ni > 30:
-        flags.append("High SBC Burden (>30% of NI)")
+    if bb is not None and sbc is not None and bb < 1.1 * sbc and bb > 0:
+        flags.append("Defensive Buybacks: mostly offsetting dilution")
+    if share_growth > 0.02:
+        flags.append(f"High Dilution: shares up {share_growth*100:.1f}%")
+    if ni and ni > 0 and mcap and burry_yield < 0.5 * gaap_yield:
+        flags.append("Optical Illusion: GAAP earnings heavily inflated by SBC")
+
+    score = "🟡"
+    sbc_ratio = sbc / ni if ni and ni > 0 else 1.0
+    if sbc_ratio < 0.1 and bb > sbc:
+        score = "🟢"
+    elif sbc_ratio > 0.25 or (oe is not None and oe < 0):
+        score = "🔴"
 
     # 6. Trends (3Y)
     sbc_ratios = []
@@ -331,18 +318,17 @@ def calculate_burry_analytics(data: Dict[str, Any]) -> Dict[str, Any]:
     avg_bb_coverage = (sum(bb_coverages) / len(bb_coverages)) if bb_coverages else 0
 
     return {
-        "owner_yield": round(owner_yield, 2),
+        "gaap_yield": round(gaap_yield, 2),
+        "burry_yield": round(burry_yield, 2),
+        "net_growth": round(net_growth, 2),
         "real_yield": round(real_yield, 2),
-        "sbc_pct_ni": round(sbc_pct_ni, 1),
-        "bb_quality": round(bb_quality, 1),
-        "dilution": round(share_cagr_3y * 100, 2),
-        "net_growth": round(net_growth_3y, 2),
+        "burden": round(burden, 1),
         "quality_score": score,
         "flags": flags,
-        # Keep some trends for hover/details if needed
         "avg_sbc_ratio": round(avg_sbc_ratio, 1),
         "avg_share_growth": round(avg_share_growth, 2),
-        "avg_bb_coverage": round(avg_bb_coverage, 2)
+        "avg_bb_coverage": round(avg_bb_coverage, 2),
+        "share_growth_pct": round(share_growth * 100, 2)
     }
 
 def send_webhook(webhook: str, message: str) -> bool:
@@ -426,16 +412,6 @@ def generate_html_recap(recap_data: Dict[str, Dict[str, Any]]) -> str:
     for symbol, data in sorted_items:
         price = data.get("price", 0)
         change = data.get("change", 0)
-        bt = data.get("burry_take")
-        if bt:
-            ni_f = format_large_number(bt.get("net_income", 0))
-            sbc_f = format_large_number(bt.get("sbc", 0))
-            bb_f = format_large_number(bt.get("buybacks", 0))
-            tax_f = format_large_number(bt.get("rsu_tax", 0))
-            bt_tooltip = f"Net Income: {ni_f}\nSBC: {sbc_f}\nBuybacks: {bb_f}\nRSU Tax: {tax_f}"
-        else:
-            bt_tooltip = "No financial data available"
-
         rank = data.get("rank", 0)
         ur = "🚀 U&R" if data.get("ur") else ""
         color = "#1f9d55" if change >= 0 else "#e3342f"
@@ -488,90 +464,143 @@ def generate_dashboard(recap_data: Dict[str, Dict[str, Any]]) -> None:
     os.makedirs("docs", exist_ok=True)
 
     rows = []
-    # Primary: Real Yield (desc), Secondary: Owner Yield (desc), Tertiary: Dilution (asc)
-    sorted_items = sorted(recap_data.items(), key=lambda x: (
-        -x[1].get("burry_analytics", {}).get("real_yield", -1e15),
-        -x[1].get("burry_analytics", {}).get("owner_yield", -1e15),
-        x[1].get("burry_analytics", {}).get("dilution", 1e15)
-    ))
+    # Sort by rank (descending), then symbol
+    sorted_items = sorted(recap_data.items(), key=lambda x: (-x[1].get("rank", 0), x[0]))
 
     for symbol, data in sorted_items:
         price = data.get("price", 0)
         change = data.get("change", 0)
-        bt = data.get("burry_take")
-        if bt:
-            ni_f = format_large_number(bt.get("net_income", 0))
-            sbc_f = format_large_number(bt.get("sbc", 0))
-            bb_f = format_large_number(bt.get("buybacks", 0))
-            tax_f = format_large_number(bt.get("rsu_tax", 0))
-            bt_tooltip = f"Net Income: {ni_f}\nSBC: {sbc_f}\nBuybacks: {bb_f}\nRSU Tax: {tax_f}"
-        else:
-            bt_tooltip = "No financial data available"
-
         rank = data.get("rank", 0)
-        change_color = "#1f9d55" if change >= 0 else "#e3342f"
+        ur = "🚀 U&R" if data.get("ur") else ""
+        low = data.get("low")
+        high = data.get("high")
 
-        a = data.get("burry_analytics", {})
-        owner_yield = a.get("owner_yield", 0)
-        real_yield = a.get("real_yield", 0)
-        sbc_pct_ni = a.get("sbc_pct_ni", 0)
-        bb_quality = a.get("bb_quality", 0)
-        dilution = a.get("dilution", 0)
-        net_growth = a.get("net_growth", 0)
-        quality_score = a.get("quality_score", "⚪ No Data")
+        # Calculate visual position between low and high
+        progress_bar = ""
+        pos_sort = -1
+        if low is not None and high is not None and high > low:
+            pos = (price - low) / (high - low) * 100
+            pos = max(0, min(100, pos))
+            pos_sort = pos
+            color = "#3490dc" # blue
+            if pos < 10: color = "#e3342f" # red
+            elif pos > 90: color = "#38c172" # green
 
-        # Color for yields (green -> red)
-        def yield_color(val):
-            if val > 5: return "#1f9d55"
-            if val > 2: return "#f39c12"
-            return "#e3342f"
-
-        # Color for SBC (red -> green - inverse)
-        def sbc_color(val):
-            if val < 10: return "#1f9d55"
-            if val < 30: return "#f39c12"
-            return "#e3342f"
-
-        # Inline bar for SBC %
-        sbc_bar_pct = min(100, max(0, sbc_pct_ni))
-        sbc_bar = f"""
-        <div style="display: flex; align-items: center; gap: 8px;">
-            <div style="width: 60px; background: #eee; height: 8px; border-radius: 4px; overflow: hidden;">
-                <div style="width: {sbc_bar_pct}%; background: {sbc_color(sbc_pct_ni)}; height: 100%;"></div>
+            progress_bar = f"""
+            <div style="width:100px; background:#eee; height:12px; border-radius:6px; position:relative; overflow:hidden;">
+                <div style="width:{pos}%; background:{color}; height:100%;"></div>
             </div>
-            <span>{sbc_pct_ni}%</span>
-        </div>
+            <div style="font-size:10px; color:#777; margin-top:2px;">
+                ${low} - ${high}
+            </div>
+            """
+        elif low is not None:
+            progress_bar = f"<div style='font-size:10px; color:#777;'>Low Rule: ${low}</div>"
+        elif high is not None:
+            progress_bar = f"<div style='font-size:10px; color:#777;'>High Rule: ${high}</div>"
+
+        # Calculate 52-week range position
+        low52 = data.get("low52")
+        high52 = data.get("high52")
+        progress_bar_52w = ""
+        pos52_sort = -1
+        if low52 and high52 and high52 > low52:
+            pos52 = (price - low52) / (high52 - low52) * 100
+            pos52 = max(0, min(100, pos52))
+            pos52_sort = pos52
+            progress_bar_52w = f"""
+            <div style="width:100px; background:#eee; height:12px; border-radius:6px; position:relative; overflow:hidden;">
+                <div style="width:{pos52}%; background:#6c757d; height:100%;"></div>
+            </div>
+            <div style="font-size:10px; color:#777; margin-top:2px;">
+                ${low52} - ${high52}
+            </div>
+            """
+
+        change_color = "#1f9d55" if change >= 0 else "#e3342f"
+        ur_sort = 1 if data.get("ur") else 0
+        rsi_sort = data.get("rsi", 0)
+
+        burry_take_data = data.get("burry_take")
+        a = data.get("burry_analytics", {})
+
+        gaap_ni_str = "N/A"
+        gaap_ni_sort = -1e15
+        burry_take_str = "N/A"
+        burry_sort = -1e15
+        details = ""
+
+        if isinstance(burry_take_data, dict):
+            oe = burry_take_data.get("owner_earnings")
+            ni = burry_take_data.get("net_income")
+            sbc = burry_take_data.get("sbc")
+            bb = burry_take_data.get("buybacks")
+            rsu = burry_take_data.get("rsu_tax", 0.0)
+
+            burry_take_str = format_large_number(oe) if oe is not None else "N/A"
+            burry_sort = oe if oe is not None else -1e15
+
+            if ni is not None:
+                gaap_ni_str = format_large_number(ni)
+                gaap_ni_sort = ni
+
+            details = f"""
+            <div style="font-size:0.8em; color:#777; line-height:1.2;">
+                NI: {format_large_number(ni) if ni is not None else '-'}<br/>
+                SBC: +{format_large_number(sbc) if sbc is not None else '-'}<br/>
+                BB: -{format_large_number(bb) if bb is not None else '-'}<br/>
+                RSU Tax: -{format_large_number(rsu) if rsu is not None else '-'}
+            </div>
+            """
+
+        # Analytics columns
+        yields_html = f"""
+        <div style="font-weight:bold;">B: {a.get('burry_yield', 'N/A')}%</div>
+        <div style="font-size:0.85em; color:#777;">G: {a.get('gaap_yield', 'N/A')}%</div>
         """
 
-        # Signal pill color
-        pill_bg = "#f0f0f0"
-        pill_color = "#333"
-        if "Strong" in quality_score: pill_bg, pill_color = "#e6fffa", "#047481"
-        elif "Mixed" in quality_score: pill_bg, pill_color = "#fffaf0", "#a0522d"
-        elif "Distorted" in quality_score: pill_bg, pill_color = "#fff5f5", "#c53030"
+        net_growth = a.get("net_growth", 0)
+        growth_color = "#1f9d55" if net_growth > 0 else "#e3342f"
+        growth_html = f"""
+        <div style="font-weight:bold; color:{growth_color};">{net_growth:+.1f}%</div>
+        <div style="font-size:0.8em; color:#777;">(1Y Rev-Shares)</div>
+        """
 
         flags_html = ""
         for flag in a.get("flags", []):
-            flags_html += f"<span title='{flag}' style='cursor:help; margin-left:4px;'>⚠️</span>"
+            flags_html += f"<div title='{flag}' style='cursor:help; display:inline-block; margin-right:4px;'>⚠️</div>"
+
+        quality_score = a.get("quality_score", "⚪")
+        quality_html = f"""
+        <div style="font-size:1.2em; display:flex; align-items:center;">
+            {quality_score} <span style="font-size:0.6em; margin-left:4px;">{flags_html}</span>
+        </div>
+        """
 
         history_json = json.dumps(data.get("history_prices", []))
 
         rows.append(f"""
         <tr>
-            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="{rank}"><span style="padding:2px 8px; background:#f0f0f0; border-radius:12px; font-size:0.85em;">{rank}</span></td>
-            <td style="padding:12px; border-bottom:1px solid #eee;" title="{bt_tooltip}"><strong style="cursor:help; border-bottom:1px dotted #ccc;">{symbol}</strong></td>
-            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="{price}">${price:.2f} <div style="color:{change_color}; font-size:0.8em;">{change:+.2f}%</div></td>
-            <td style="padding:12px; border-bottom:1px solid #eee; font-weight:bold; color:{yield_color(owner_yield)}; font-size:1.1em; background:#f9fcfb;" data-sort="{owner_yield}">{owner_yield}%</td>
-            <td style="padding:12px; border-bottom:1px solid #eee; font-weight:bold; color:{yield_color(real_yield)};" data-sort="{real_yield}">{real_yield}%</td>
-            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="{sbc_pct_ni}">{sbc_bar}</td>
-            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="{bb_quality}">{bb_quality}%</td>
-            <td style="padding:12px; border-bottom:1px solid #eee; color:{'#e3342f' if dilution > 2 else '#333'};" data-sort="{dilution}">{dilution:+.1f}%</td>
-            <td style="padding:12px; border-bottom:1px solid #eee; font-weight:bold; color:{'#1f9d55' if net_growth > 0 else '#e3342f'};" data-sort="{net_growth}">{net_growth:+.1f}%</td>
-            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="{quality_score}">
-                <span style="padding:4px 12px; background:{pill_bg}; color:{pill_color}; border-radius:20px; font-weight:bold; font-size:0.85em; display:inline-block; border:1px solid {pill_color}22;">
-                    {quality_score}
-                </span>
-                {flags_html}
+            <td style="padding:12px; border-bottom:1px solid #eee;"><strong>{symbol}</strong></td>
+            <td class="price-cell" style="padding:12px; border-bottom:1px solid #eee; cursor: help;" data-sort="{price}" data-history='{history_json}'>
+                ${price:.2f} <span style="color:{change_color}; font-size:0.9em;">({change:+.2f}%)</span>
+            </td>
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="{pos_sort}">{progress_bar}</td>
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="{pos52_sort}">{progress_bar_52w}</td>
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="{rank}"><span style="display:inline-block; padding:2px 8px; background:#f0f0f0; border-radius:12px; font-size:0.9em;">{rank}/100</span></td>
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="{a.get('burry_yield', -100)}">{yields_html}</td>
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="{net_growth}">{growth_html}</td>
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="{a.get('real_yield', 0)}">{a.get('real_yield', 0)}%</td>
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="{a.get('burden', 0)}">{a.get('burden', 0)}%</td>
+            <td style="padding:12px; border-bottom:1px solid #eee;" data-sort="{quality_score}">{quality_html}</td>
+            <td style="padding:12px; border-bottom:1px solid #eee; color:#555;" data-sort="{burry_sort}">
+                <div style="font-weight:bold; margin-bottom:4px;">{burry_take_str}</div>
+                {details}
+            </td>
+            <td style="padding:12px; border-bottom:1px solid #eee; font-size:0.85em; color:#666;" data-sort="{rsi_sort}">
+                SBC/NI: {a.get('avg_sbc_ratio', 0)}% (3Y)<br/>
+                Shr: {a.get('avg_share_growth', 0):+.1f}% (3Y)<br/>
+                BB/SBC: {a.get('avg_bb_coverage', 0)}x
             </td>
         </tr>
         """)
@@ -596,6 +625,8 @@ def generate_dashboard(recap_data: Dict[str, Dict[str, Any]]) -> None:
             th.sort-asc::after {{ content: " ↑"; }}
             th.sort-desc::after {{ content: " ↓"; }}
             tr:hover {{ background-color: #f9f9f9; }}
+            .price-cell {{ border-bottom: 1px dotted #ccc; }}
+            .price-cell:hover {{ background-color: #f0f7ff; }}
         </style>
     </head>
     <body>
@@ -608,40 +639,31 @@ def generate_dashboard(recap_data: Dict[str, Dict[str, Any]]) -> None:
             <table id="stockTable">
                 <thead>
                     <tr>
-                        <th onclick="sortTable(0)" title="Technical score based on trend and momentum">Rank</th>
-                        <th onclick="sortTable(1)">Ticker</th>
-                        <th onclick="sortTable(2)">Price</th>
-                        <th onclick="sortTable(3)" title="Owner Earnings / Market Cap">Owner Yield</th>
-                        <th onclick="sortTable(4)" title="(Owner Earnings + max(0, Buybacks - SBC)) / Market Cap">Real Yield</th>
-                        <th onclick="sortTable(5)" title="Stock Based Compensation / Net Income">SBC % NI</th>
-                        <th onclick="sortTable(6)" title="SBC / Buybacks (>70% means buybacks are mostly defensive)">Buyback Quality</th>
-                        <th onclick="sortTable(7)" title="3Y Compound Annual Growth Rate of Share Count">Dilution</th>
-                        <th onclick="sortTable(8)" title="3Y CAGR Revenue Growth - Share Count Growth">3Y Per-Share Growth</th>
-                        <th onclick="sortTable(9)" title="Decision Engine: 🟢 GREEN (Quality), 🟡 YELLOW (Mixed), 🔴 RED (Risk)">Signal</th>
+                        <th onclick="sortTable(0)">Symbol</th>
+                        <th onclick="sortTable(1)">Price</th>
+                        <th onclick="sortTable(2)">Rules</th>
+                        <th onclick="sortTable(3)">52W Range</th>
+                        <th onclick="sortTable(4)">Rank</th>
+                        <th onclick="sortTable(5)">Yields (B/G)</th>
+                        <th onclick="sortTable(6)">Net Growth</th>
+                        <th onclick="sortTable(7)">Real Yield</th>
+                        <th onclick="sortTable(8)">SBC Burden</th>
+                        <th onclick="sortTable(9)">Quality</th>
+                        <th onclick="sortTable(10)">Owner Earnings</th>
+                        <th onclick="sortTable(11)">3Y Trends</th>
                     </tr>
                 </thead>
                 <tbody>
                     {''.join(rows)}
                 </tbody>
             </table>
-<div style="margin-top:25px; padding-top:15px; border-top:1px solid #eee; font-size:0.85em; color:#777;">
-    <strong>Owner Earnings:</strong> Net Income + Stock-Based Compensation (SBC) − Buybacks − RSU Tax.<br/>
-
-    <span style="font-size:0.9em; margin-top:5px; display:block;">
-        <strong>Owner Yield:</strong> Owner Earnings / Market Cap — baseline valuation.<br/>
-        <strong>Real Yield:</strong> (Owner Earnings + max(0, Buybacks − SBC)) / Market Cap — true shareholder return after offsetting dilution.<br/><br/>
-
-        <strong>SBC %:</strong> SBC / Net Income — portion of earnings paid in equity.<br/>
-        <strong>Buyback Quality:</strong> SBC / Buybacks — % of buybacks used to offset dilution (lower is better).<br/><br/>
-
-        <strong>Dilution (3Y):</strong> CAGR of share count — measures ownership erosion.<br/>
-        <strong>3Y Per-Share Growth:</strong> Revenue CAGR − Dilution — growth adjusted for dilution.<br/>
-🟢 <strong>Strong:</strong> High owner earnings, low SBC, and buybacks primarily return capital.<br/>
-🟡 <strong>Mixed:</strong> Moderate earnings quality or offsetting factors.<br/>
-🔴 <strong>Distorted:</strong> Low owner earnings, high SBC, or buybacks mostly offset dilution.
-
-    </span>
-</div>
+            <div style="margin-top:25px; padding-top:15px; border-top:1px solid #eee; font-size:0.85em; color:#777;">
+                <strong>Burry-Take Formula:</strong> Owner's Earnings ≈ Net Income + SBC - Buybacks - RSU Tax.<br/>
+                <span style="font-size:0.9em; margin-top:5px; display:block;">
+                    * <strong>Burry Yield:</strong> Owner's Earnings / Market Cap. <strong>Real Yield:</strong> (Buybacks - SBC) / Market Cap.<br/>
+                    * <strong>Net Growth:</strong> 1Y Revenue Growth - 1Y Share Growth. <strong>SBC Burden:</strong> min(SBC, Buybacks) / FCF.
+                </span>
+            </div>
         </div>
         <script>
         function sortTable(n) {{
@@ -714,7 +736,7 @@ def generate_dashboard(recap_data: Dict[str, Dict[str, Any]]) -> None:
 
                 const min = Math.min(...history);
                 const max = Math.max(...history);
-                const range = max - min;
+                const range = max === min ? 1 : max - min;
 
                 ctx.clearRect(0, 0, canvas.width, canvas.height);
                 ctx.beginPath();
