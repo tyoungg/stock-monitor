@@ -936,6 +936,11 @@ def main() -> int:
     # Add symbols from STOCK_LIST or stocks.txt if not already present
     existing_symbols = {row.get("symbol","").strip().upper() for row in rows if row.get("symbol")}
     stocks_from_env = [s.strip().upper() for s in STOCK_LIST_ENV.split(",") if s.strip()] if STOCK_LIST_ENV else []
+
+    # Ensure NVDA and MSFT are included for comparative analysis
+    for s in ["NVDA", "MSFT"]:
+        if s not in stocks_from_env:
+            stocks_from_env.append(s)
     stocks_from_file = []
     if os.path.exists("stocks.txt"):
         with open("stocks.txt","r",encoding="utf-8") as sf:

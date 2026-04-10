@@ -1,0 +1,524 @@
+{
+  "AAPL": {
+    "value": {
+      "net_income": 112010000000.0,
+      "sbc": 12863000000.0,
+      "buybacks": 90711000000.0,
+      "tax": 43369000000.0,
+      "owner_earnings": -9207000000.0
+    },
+    "date": "2026-04-07"
+  },
+  "AG": {
+    "value": {
+      "net_income": 164923000.0,
+      "sbc": 12648000.0,
+      "buybacks": 8695000.0,
+      "tax": 184051000.0,
+      "owner_earnings": -15175000.0
+    },
+    "date": "2026-04-07"
+  },
+  "ALNY": {
+    "value": {
+      "net_income": 313747000.0,
+      "sbc": 348235000.0,
+      "buybacks": 0.0,
+      "tax": 0.0,
+      "owner_earnings": 661982000.0
+    },
+    "date": "2026-04-07"
+  },
+  "AWK": {
+    "value": {
+      "net_income": 1111000000.0,
+      "sbc": 0.0,
+      "buybacks": 0.0,
+      "tax": 190000000.0,
+      "owner_earnings": 921000000.0
+    },
+    "date": "2026-04-07"
+  },
+  "BEN": {
+    "value": {
+      "net_income": 524900000.0,
+      "sbc": 214800000.0,
+      "buybacks": 240300000.0,
+      "tax": 465400000.0,
+      "owner_earnings": 34000000.0
+    },
+    "date": "2026-04-07"
+  },
+  "BITI": {
+    "value": null,
+    "date": "2026-04-07"
+  },
+  "BITO": {
+    "value": null,
+    "date": "2026-04-07"
+  },
+  "BP": {
+    "value": {
+      "net_income": 55000000.0,
+      "sbc": 1077000000.0,
+      "buybacks": 4486000000.0,
+      "tax": 6451000000.0,
+      "owner_earnings": -9805000000.0
+    },
+    "date": "2026-04-07"
+  },
+  "CAT": {
+    "value": {
+      "net_income": 8884000000.0,
+      "sbc": 0.0,
+      "buybacks": 5206000000.0,
+      "tax": 2768000000.0,
+      "owner_earnings": 910000000.0
+    },
+    "date": "2026-04-07"
+  },
+  "CBRL": {
+    "value": {
+      "net_income": 46379000.0,
+      "sbc": 11742000.0,
+      "buybacks": 0.0,
+      "tax": 10328000.0,
+      "owner_earnings": 47793000.0
+    },
+    "date": "2026-04-07"
+  },
+  "^DJI": {
+    "value": null,
+    "date": "2026-04-07"
+  },
+  "CSCO": {
+    "value": {
+      "net_income": 10180000000.0,
+      "sbc": 3641000000.0,
+      "buybacks": 7222000000.0,
+      "tax": 3892000000.0,
+      "owner_earnings": 2707000000.0
+    },
+    "date": "2026-04-07"
+  },
+  "CTVA": {
+    "value": {
+      "net_income": 1094000000.0,
+      "sbc": 0.0,
+      "buybacks": 1071000000.0,
+      "tax": 750000000.0,
+      "owner_earnings": -727000000.0
+    },
+    "date": "2026-04-07"
+  },
+  "DIS": {
+    "value": {
+      "net_income": 12404000000.0,
+      "sbc": 1363000000.0,
+      "buybacks": 3500000000.0,
+      "tax": 1221000000.0,
+      "owner_earnings": 9046000000.0
+    },
+    "date": "2026-04-07"
+  },
+  "ENOR": {
+    "value": null,
+    "date": "2026-04-07"
+  },
+  "EWJ": {
+    "value": null,
+    "date": "2026-04-07"
+  },
+  "FAX": {
+    "value": {
+      "net_income": 36395534.0,
+      "sbc": 0.0,
+      "buybacks": 0.0,
+      "tax": 0.0,
+      "owner_earnings": 36395534.0
+    },
+    "date": "2026-04-07"
+  },
+  "FBTC": {
+    "value": null,
+    "date": "2026-04-07"
+  },
+  "FCX": {
+    "value": {
+      "net_income": 2204000000.0,
+      "sbc": 121000000.0,
+      "buybacks": 107000000.0,
+      "tax": 2221000000.0,
+      "owner_earnings": -3000000.0
+    },
+    "date": "2026-04-07"
+  },
+  "FIS": {
+    "value": {
+      "net_income": 382000000.0,
+      "sbc": 181000000.0,
+      "buybacks": 1425000000.0,
+      "tax": 628000000.0,
+      "owner_earnings": -1490000000.0
+    },
+    "date": "2026-04-07"
+  },
+  "GE": {
+    "value": {
+      "net_income": 8704000000.0,
+      "sbc": 0.0,
+      "buybacks": 7551000000.0,
+      "tax": 1405000000.0,
+      "owner_earnings": -252000000.0
+    },
+    "date": "2026-04-07"
+  },
+  "GLD": {
+    "value": null,
+    "date": "2026-04-07"
+  },
+  "HE": {
+    "value": {
+      "net_income": 126281000.0,
+      "sbc": 3426000.0,
+      "buybacks": 35368000.0,
+      "tax": 40648000.0,
+      "owner_earnings": 53691000.0
+    },
+    "date": "2026-04-07"
+  },
+  "IAG": {
+    "value": {
+      "net_income": 664400000.0,
+      "sbc": 8300000.0,
+      "buybacks": 50000000.0,
+      "tax": 237500000.0,
+      "owner_earnings": 385200000.0
+    },
+    "date": "2026-04-07"
+  },
+  "IBM": {
+    "value": {
+      "net_income": 10593000000.0,
+      "sbc": 1715000000.0,
+      "buybacks": 1018000000.0,
+      "tax": 1948000000.0,
+      "owner_earnings": 9342000000.0
+    },
+    "date": "2026-04-07"
+  },
+  "ICVT": {
+    "value": null,
+    "date": "2026-04-07"
+  },
+  "IJR": {
+    "value": null,
+    "date": "2026-04-07"
+  },
+  "INTC": {
+    "value": {
+      "net_income": -267000000.0,
+      "sbc": 2434000000.0,
+      "buybacks": 0.0,
+      "tax": 2299000000.0,
+      "owner_earnings": -132000000.0
+    },
+    "date": "2026-04-07"
+  },
+  "IRM": {
+    "value": {
+      "net_income": 144591000.0,
+      "sbc": 140280000.0,
+      "buybacks": 0.0,
+      "tax": 121606000.0,
+      "owner_earnings": 163265000.0
+    },
+    "date": "2026-04-07"
+  },
+  "JNJ": {
+    "value": {
+      "net_income": 26804000000.0,
+      "sbc": 1354000000.0,
+      "buybacks": 5953000000.0,
+      "tax": 6539000000.0,
+      "owner_earnings": 15666000000.0
+    },
+    "date": "2026-04-07"
+  },
+  "JPM": {
+    "value": {
+      "net_income": 57048000000.0,
+      "sbc": 0.0,
+      "buybacks": 34591000000.0,
+      "tax": 5309000000.0,
+      "owner_earnings": 17148000000.0
+    },
+    "date": "2026-04-07"
+  },
+  "KR": {
+    "value": {
+      "net_income": 1016000000.0,
+      "sbc": 157000000.0,
+      "buybacks": 2699000000.0,
+      "tax": 635000000.0,
+      "owner_earnings": -2161000000.0
+    },
+    "date": "2026-04-07"
+  },
+  "MATX": {
+    "value": {
+      "net_income": 444800000.0,
+      "sbc": 22700000.0,
+      "buybacks": 303300000.0,
+      "tax": 86100000.0,
+      "owner_earnings": 78100000.0
+    },
+    "date": "2026-04-07"
+  },
+  "MRVL": {
+    "value": {
+      "net_income": 2670100000.0,
+      "sbc": 590800000.0,
+      "buybacks": 2040100000.0,
+      "tax": 92100000.0,
+      "owner_earnings": 1128700000.0
+    },
+    "date": "2026-04-07"
+  },
+  "OCSL": {
+    "value": {
+      "net_income": 33920000.0,
+      "sbc": 0.0,
+      "buybacks": 10666000.0,
+      "tax": 1255000.0,
+      "owner_earnings": 21999000.0
+    },
+    "date": "2026-04-07"
+  },
+  "PBI": {
+    "value": {
+      "net_income": 144697000.0,
+      "sbc": 14151000.0,
+      "buybacks": 378361000.0,
+      "tax": 0.0,
+      "owner_earnings": -219513000.0
+    },
+    "date": "2026-04-07"
+  },
+  "PFF": {
+    "value": null,
+    "date": "2026-04-07"
+  },
+  "PLUG": {
+    "value": {
+      "net_income": -1631594000.0,
+      "sbc": 50545000.0,
+      "buybacks": 0.0,
+      "tax": 356000.0,
+      "owner_earnings": -1581405000.0
+    },
+    "date": "2026-04-07"
+  },
+  "PSQ": {
+    "value": null,
+    "date": "2026-04-07"
+  },
+  "QID": {
+    "value": null,
+    "date": "2026-04-07"
+  },
+  "QQQ": {
+    "value": null,
+    "date": "2026-04-07"
+  },
+  "REMX": {
+    "value": null,
+    "date": "2026-04-07"
+  },
+  "RF": {
+    "value": {
+      "net_income": 2156000000.0,
+      "sbc": 0.0,
+      "buybacks": 1417000000.0,
+      "tax": 178000000.0,
+      "owner_earnings": 561000000.0
+    },
+    "date": "2026-04-07"
+  },
+  "RTX": {
+    "value": {
+      "net_income": 6732000000.0,
+      "sbc": 1092000000.0,
+      "buybacks": 50000000.0,
+      "tax": 1607000000.0,
+      "owner_earnings": 6167000000.0
+    },
+    "date": "2026-04-07"
+  },
+  "SBLK": {
+    "value": {
+      "net_income": 84174000.0,
+      "sbc": 17798000.0,
+      "buybacks": 98131000.0,
+      "tax": 0.0,
+      "owner_earnings": 3841000.0
+    },
+    "date": "2026-04-07"
+  },
+  "SBUX": {
+    "value": {
+      "net_income": 1856400000.0,
+      "sbc": 318300000.0,
+      "buybacks": 0.0,
+      "tax": 715600000.0,
+      "owner_earnings": 1459100000.0
+    },
+    "date": "2026-04-07"
+  },
+  "SDIV": {
+    "value": null,
+    "date": "2026-04-07"
+  },
+  "SLV": {
+    "value": null,
+    "date": "2026-04-07"
+  },
+  "^SPX": {
+    "value": null,
+    "date": "2026-04-07"
+  },
+  "SQQQ": {
+    "value": null,
+    "date": "2026-04-07"
+  },
+  "SYY": {
+    "value": {
+      "net_income": 1828000000.0,
+      "sbc": 93000000.0,
+      "buybacks": 1250000000.0,
+      "tax": 640000000.0,
+      "owner_earnings": 31000000.0
+    },
+    "date": "2026-04-07"
+  },
+  "TBT": {
+    "value": null,
+    "date": "2026-04-07"
+  },
+  "TLT": {
+    "value": null,
+    "date": "2026-04-07"
+  },
+  "TLTW": {
+    "value": null,
+    "date": "2026-04-07"
+  },
+  "UL": {
+    "value": {
+      "net_income": 9469000000.0,
+      "sbc": 255000000.0,
+      "buybacks": 1510000000.0,
+      "tax": 2481000000.0,
+      "owner_earnings": 5733000000.0
+    },
+    "date": "2026-04-07"
+  },
+  "UNH": {
+    "value": {
+      "net_income": 12056000000.0,
+      "sbc": 971000000.0,
+      "buybacks": 5545000000.0,
+      "tax": 3714000000.0,
+      "owner_earnings": 3768000000.0
+    },
+    "date": "2026-04-07"
+  },
+  "UVV": {
+    "value": {
+      "net_income": 95047000.0,
+      "sbc": 8531000.0,
+      "buybacks": 0.0,
+      "tax": 38358000.0,
+      "owner_earnings": 65220000.0
+    },
+    "date": "2026-04-07"
+  },
+  "UVXY": {
+    "value": null,
+    "date": "2026-04-07"
+  },
+  "^VIX": {
+    "value": null,
+    "date": "2026-04-07"
+  },
+  "VTRS": {
+    "value": {
+      "net_income": -3514900000.0,
+      "sbc": 177700000.0,
+      "buybacks": 500500000.0,
+      "tax": 0.0,
+      "owner_earnings": -3837700000.0
+    },
+    "date": "2026-04-07"
+  },
+  "WMT": {
+    "value": {
+      "net_income": 21893000000.0,
+      "sbc": 0.0,
+      "buybacks": 8088000000.0,
+      "tax": 5364000000.0,
+      "owner_earnings": 8441000000.0
+    },
+    "date": "2026-04-07"
+  },
+  "WU": {
+    "value": {
+      "net_income": 499600000.0,
+      "sbc": 0.0,
+      "buybacks": 234600000.0,
+      "tax": 295700000.0,
+      "owner_earnings": -30700000.0
+    },
+    "date": "2026-04-07"
+  },
+  "XYZ": {
+    "value": {
+      "net_income": 1305636000.0,
+      "sbc": 1215480000.0,
+      "buybacks": 2330661000.0,
+      "tax": 129390000.0,
+      "owner_earnings": 61065000.0
+    },
+    "date": "2026-04-07"
+  },
+  "NVDA": {
+    "value": {
+      "net_income": 120067000000.0,
+      "sbc": 6386000000.0,
+      "buybacks": 40086000000.0,
+      "tax": 20288000000.0,
+      "owner_earnings": 66079000000.0
+    },
+    "date": "2026-04-07"
+  },
+  "MSFT": {
+    "value": {
+      "net_income": 101832000000.0,
+      "sbc": 11974000000.0,
+      "buybacks": 18420000000.0,
+      "tax": 21795000000.0,
+      "owner_earnings": 73591000000.0
+    },
+    "date": "2026-04-07"
+  },
+  "ACN": {
+    "value": {
+      "net_income": 7678433000.0,
+      "sbc": 2093878000.0,
+      "buybacks": 4619497000.0,
+      "tax": 2471554000.0,
+      "owner_earnings": 2681260000.0
+    },
+    "date": "2026-04-07"
+  }
+}
