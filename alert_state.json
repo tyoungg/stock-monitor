@@ -1,34 +1,26 @@
 {
-  "date": "2026-04-08",
+  "date": "2026-04-10",
   "state": {
-    "AAPL": [
-      "high:"
+    "ACN": [
+      "U&R:",
+      "low:"
     ],
     "AG": [
       "low:"
     ],
-    "BEN": [
+    "BITI": [
       "low:"
     ],
-    "BP": [
-      "up"
-    ],
-    "GE": [
+    "FIS": [
       "low:"
     ],
     "GLD": [
       "low:"
     ],
-    "QQQ": [
-      "low:"
-    ],
-    "RF": [
-      "low:"
+    "INTC": [
+      "high:"
     ],
     "SLV": [
-      "low:"
-    ],
-    "^SPX": [
       "low:"
     ],
     "SYY": [
@@ -37,13 +29,7 @@
     "UL": [
       "low:"
     ],
-    "UVXY": [
-      "up"
-    ],
     "VTRS": [
-      "low:"
-    ],
-    "WMT": [
       "low:"
     ]
   }
