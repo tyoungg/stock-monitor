@@ -38,10 +38,17 @@
       "low:"
     ],
     "QID": [
-      "U&R:"
+      "U&R:",
+      "low:"
     ],
     "^SPX": [
       "high:"
+    ],
+    "ICVT": [
+      "high:"
+    ],
+    "SQQQ": [
+      "low:"
     ]
   }
 }
