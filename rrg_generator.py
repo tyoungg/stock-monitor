@@ -143,7 +143,7 @@ for i in range(TAIL_LENGTH, len(dates)):
                 name=name,
                 legendgroup=name,
 #                showlegend=(i == TAIL_LENGTH),  # only show once
-                showlegend=False  # legend handled by static traces
+                showlegend=False,  # legend handled by static traces
                 line=dict(color=color, width=2),
                 marker=dict(
                     size=[4]* (len(x)-1) + [size],  # bigger last point
