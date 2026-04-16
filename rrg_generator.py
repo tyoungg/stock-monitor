@@ -68,6 +68,7 @@ for ticker in prices.columns:
     rrg[ticker] = df
 
 # ---------------------------
+# ---------------------------
 # LABELS (names + tickers)
 # ---------------------------
 sector_names = {
@@ -103,12 +104,8 @@ quad_colors = {
 # ---------------------------
 # BUILD FRAMES
 # ---------------------------
-
-# 🔥 Map ticker to consistent identity (fix legend persistence)
-ticker_uid_map = {ticker: f"{sector_names.get(ticker, ticker)} ({ticker})" for ticker in TICKERS}
-
 frames = []
-dates = list(rrg.values())[0].index  # safer than relying on first ticker
+dates = rrg[TICKERS[0]].index
 
 for i in range(TAIL_LENGTH, len(dates)):
     frame_data = []
@@ -146,11 +143,7 @@ for i in range(TAIL_LENGTH, len(dates)):
                 name=name,
                 legendgroup=name,
 #                showlegend=(i == TAIL_LENGTH),  # only show once
-                showlegend=False,  # legend handled by static traces
-
-                # 🔥 CRITICAL FIX: binds traces across frames
-                uid=name,
-
+                showlegend=True,  # legend handled by static traces
                 line=dict(color=color, width=2),
                 marker=dict(
                     size=[4]* (len(x)-1) + [size],  # bigger last point
@@ -204,19 +197,40 @@ for i in range(TAIL_LENGTH, len(dates)):
 init_data = frames[-1].data
 init_layout = go.Layout(annotations=frames[-1].layout.annotations)
 
+# ---------------------------
+# STATIC LEGEND TRACES (fix legend persistence)
+# ---------------------------
+legend_traces = []
+
+for ticker in TICKERS:
+    disp_name = sector_names.get(ticker, ticker)
+    name = f"{disp_name} ({ticker})"
+
+    legend_traces.append(
+        go.Scatter(
+            x=[None],
+            y=[None],
+            mode="markers",
+            name=name,
+            legendgroup=name,
+            showlegend=True,
+            marker=dict(size=10)
+        )
+    )
 
 # ---------------------------
 # FIGURE
 # ---------------------------
 fig = go.Figure(
-#    data=legend_traces,
-    data=list(init_data),   # 👈 REAL traces, not fake legend traces 
+    data=legend_traces + list(init_data),
     frames=frames,
     layout=init_layout
 )
-
-# Add actual traces AFTER legend scaffolding
-# fig.add_traces(init_data)
+# fig = go.Figure(
+#    data=init_data,
+#    frames=frames,
+#    layout=init_layout
+# )
 
 # ---------------------------
 # QUADRANT LINES
@@ -235,9 +249,8 @@ fig.update_layout(
 
     # 🔥 THIS enables click-to-focus via legend
     legend=dict(
-        itemclick="toggleothers",
-        itemdoubleclick="toggle",
-        groupclick="toggleitem"
+        itemclick="toggleothers",   # click = isolate
+        itemdoubleclick="toggle"    # double-click = toggle back
     ),
 
     updatemenus=[{
@@ -254,8 +267,7 @@ fig.update_layout(
                 "label": "▶ Play",
                 "method": "animate",
                 "args": [None, {
-#                    "frame": {"duration": 300, "redraw": True},
-                    "frame": {"duration": 300, "redraw": False},
+                    "frame": {"duration": 300, "redraw": True},
                     "fromcurrent": True
                 }]
             },
@@ -306,11 +318,38 @@ html_content = f"""
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sector RRG</title>
+    <style>
+        body {{ font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background: #f4f7f6; color: #333; margin: 0; padding: 20px; text-align: center; }}
+        .container {{ max-width: 1200px; margin: 0 auto; background: #fff; padding: 30px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }}
+        h1 {{ margin-top: 0; color: #2c3e50; }}
+        .updated {{ font-size: 0.9em; color: #7f8c8d; margin-bottom: 20px; }}
+        .nav {{ margin-bottom: 20px; text-align: left; }}
+        .nav a {{ color: #3490dc; text-decoration: none; font-weight: bold; }}
+        .nav a:hover {{ text-decoration: underline; }}
+    </style>
 </head>
 <body>
-    <h1>Sector Relative Rotation Graph (RRG)</h1>
-    <div>Last updated: {timestamp}</div>
-    {plotly_html}
+    <div class="container">
+        <div class="nav">
+            <a href="index.html">← Back to Dashboard</a>
+        </div>
+        <h1>Sector Relative Rotation Graph (RRG)</h1>
+        <div class="updated">Last updated: {timestamp}</div>
+
+        <div style="width: 100%; height: 700px;">
+            {plotly_html}
+        </div>
+
+        <div style="margin-top:40px; text-align: left; font-size: 0.9em; color: #555; border-top: 1px solid #eee; padding-top: 20px;">
+            <p><strong>Relative Rotation Graphs (RRG)</strong> help visualize the relative strength and momentum of different sectors against a benchmark (S&P 500).</p>
+            <ul>
+                <li><strong>Leading (Top-Right):</strong> Strong relative strength and strong momentum.</li>
+                <li><strong>Weakening (Bottom-Right):</strong> Strong relative strength but losing momentum.</li>
+                <li><strong>Lagging (Bottom-Left):</strong> Weak relative strength and weak momentum.</li>
+                <li><strong>Improving (Top-Left):</strong> Weak relative strength but gaining momentum.</li>
+            </ul>
+        </div>
+    </div>
 </body>
 </html>
 """
