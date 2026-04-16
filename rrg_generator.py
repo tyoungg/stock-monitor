@@ -109,9 +109,10 @@ dates = rrg[TICKERS[0]].index
 
 for i in range(TAIL_LENGTH, len(dates)):
     frame_data = []
+    leaders = []
 
     for ticker in TICKERS:
-        df = rrg[ticker].iloc[:i]
+        df = rrg[ticker].iloc[:i+1] # Include the current point
         tail = df.tail(TAIL_LENGTH)
 
         x = tail["RS_Ratio"].values
@@ -124,11 +125,15 @@ for i in range(TAIL_LENGTH, len(dates)):
         quad = get_quadrant(x[-1], y[-1])
         color = quad_colors[quad]
 
+        disp_name = sector_names.get(ticker, ticker)
+        if quad == "Leading":
+            leaders.append(disp_name)
+
         # Highlight leaders
         size = 12 if quad == "Leading" else 7
         marker_opacity = 1 if quad == "Leading" else 0.6
 
-        name = f"{sector_names[ticker]} ({ticker})"
+        name = f"{disp_name} ({ticker})"
 
         frame_data.append(
             go.Scatter(
@@ -153,34 +158,57 @@ for i in range(TAIL_LENGTH, len(dates)):
             )
         )
 
+    # Current Leaders box text
+    leaders_text = "<b>Current Leaders:</b><br>" + "<br>".join([f"• {l}" for l in leaders]) if leaders else "<b>Current Leaders:</b><br><i>None</i>"
+
+    # Quadrant annotations (must be included in every frame to persist)
+    quadrant_annos = [
+        dict(x=104, y=104, text="Leading", showarrow=False, font=dict(color="gray")),
+        dict(x=104, y=96, text="Weakening", showarrow=False, font=dict(color="gray")),
+        dict(x=96, y=96, text="Lagging", showarrow=False, font=dict(color="gray")),
+        dict(x=96, y=104, text="Improving", showarrow=False, font=dict(color="gray")),
+        # The Leaders Box
+        dict(
+            x=0.99, y=0.99,
+            xref="paper", yref="paper",
+            xanchor="right", yanchor="top",
+            text=leaders_text,
+            showarrow=False,
+            align="left",
+            bgcolor="rgba(255, 255, 255, 0.95)",
+            bordercolor="#1b4332",
+            borderwidth=2,
+            borderpad=10,
+            font=dict(size=14, color="#1b4332")
+        )
+    ]
+
     frames.append(go.Frame(
         data=frame_data,
-        name=str(dates[i].date())
+        name=str(dates[i].date()),
+        layout=go.Layout(annotations=quadrant_annos)
     ))
 
 # ---------------------------
-# INITIAL FRAME
+# INITIAL FRAME (Start at the latest date)
 # ---------------------------
-init_data = frames[0].data
+init_data = frames[-1].data
+init_layout = go.Layout(annotations=frames[-1].layout.annotations)
 
 # ---------------------------
 # FIGURE
 # ---------------------------
 fig = go.Figure(
     data=init_data,
-    frames=frames
+    frames=frames,
+    layout=init_layout
 )
 
 # ---------------------------
-# QUADRANT LINES + LABELS
+# QUADRANT LINES
 # ---------------------------
 fig.add_vline(x=100, line_dash="dash", line_color="gray")
 fig.add_hline(y=100, line_dash="dash", line_color="gray")
-
-fig.add_annotation(x=104, y=104, text="Leading", showarrow=False)
-fig.add_annotation(x=104, y=96, text="Weakening", showarrow=False)
-fig.add_annotation(x=96, y=96, text="Lagging", showarrow=False)
-fig.add_annotation(x=96, y=104, text="Improving", showarrow=False)
 
 # ---------------------------
 # LAYOUT (INTERACTION)
@@ -199,6 +227,13 @@ fig.update_layout(
 
     updatemenus=[{
         "type": "buttons",
+        "showactive": False,
+        "x": 0.05,
+        "y": 0,
+        "xanchor": "right",
+        "yanchor": "top",
+        "direction": "left",
+        "pad": {"r": 10, "t": 65},
         "buttons": [
             {
                 "label": "▶ Play",
@@ -217,6 +252,27 @@ fig.update_layout(
                 }]
             }
         ]
+    }],
+    sliders=[{
+        "active": len(frames) - 1,
+        "yanchor": "top",
+        "xanchor": "left",
+        "currentvalue": {
+            "font": {"size": 16},
+            "prefix": "Date: ",
+            "visible": True,
+            "xanchor": "right"
+        },
+        "transition": {"duration": 0},
+        "pad": {"b": 10, "t": 50},
+        "len": 0.9,
+        "x": 0.1,
+        "y": 0,
+        "steps": [{
+            "args": [[f.name], {"frame": {"duration": 0, "redraw": True}, "mode": "immediate"}],
+            "label": f.name,
+            "method": "animate"
+        } for f in frames]
     }]
 )
 
