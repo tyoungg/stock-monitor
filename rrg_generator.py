@@ -204,42 +204,19 @@ for i in range(TAIL_LENGTH, len(dates)):
 init_data = frames[-1].data
 init_layout = go.Layout(annotations=frames[-1].layout.annotations)
 
-# ---------------------------
-# STATIC LEGEND TRACES (fix legend persistence)
-# ---------------------------
-legend_traces = []
-
-for ticker in TICKERS:
-    disp_name = sector_names.get(ticker, ticker)
-    name = f"{disp_name} ({ticker})"
-
-    legend_traces.append(
-        go.Scatter(
-            x=[None],
-            y=[None],
-            mode="markers",
-            name=name,
-            legendgroup=name,
-            showlegend=True,
-
-            # 🔥 MUST MATCH frame traces
-            uid=name,
-
-            marker=dict(size=10)
-        )
-    )
 
 # ---------------------------
 # FIGURE
 # ---------------------------
 fig = go.Figure(
-    data=legend_traces,
+#    data=legend_traces,
+    data=list(init_data),   # 👈 REAL traces, not fake legend traces 
     frames=frames,
     layout=init_layout
 )
 
 # Add actual traces AFTER legend scaffolding
-fig.add_traces(init_data)
+# fig.add_traces(init_data)
 
 # ---------------------------
 # QUADRANT LINES
@@ -277,7 +254,8 @@ fig.update_layout(
                 "label": "▶ Play",
                 "method": "animate",
                 "args": [None, {
-                    "frame": {"duration": 300, "redraw": True},
+#                    "frame": {"duration": 300, "redraw": True},
+                    "frame": {"duration": 300, "redraw": False},
                     "fromcurrent": True
                 }]
             },
