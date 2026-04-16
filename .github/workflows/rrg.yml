@@ -1,5 +1,8 @@
 name: RRG Generator
 
+permissions:
+  contents: write
+
 on:
   schedule:
     # Run at 6 AM ET (11:00 UTC) every day
@@ -31,7 +34,7 @@ jobs:
         run: |
           git config --global user.name 'github-actions[bot]'
           git config --global user.email 'github-actions[bot]@users.noreply.github.com'
-          git add docs/rrg.png docs/RRG.html
+          git add docs/RRG.html
           # Only commit if there are changes
           if ! git diff --cached --quiet; then
             git commit -m "ci: Update Sector RRG"
