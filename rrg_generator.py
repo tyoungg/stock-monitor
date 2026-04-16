@@ -68,28 +68,88 @@ for ticker in prices.columns:
     rrg[ticker] = df
 
 # ---------------------------
-# BUILD ANIMATION FRAMES
 # ---------------------------
-dates = rrg[TICKERS[0]].index
+# LABELS (names + tickers)
+# ---------------------------
+sector_names = {
+    "XLK": "Technology",
+    "XLF": "Financials",
+    "XLV": "Healthcare",
+    "XLE": "Energy",
+    "XLI": "Industrials",
+    "XLP": "Staples",
+    "XLY": "Discretionary",
+    "XLRE": "Real Estate",
+    "PSP": "Private Equity"
+}
+
+def get_quadrant(x, y):
+    if x >= 100 and y >= 100:
+        return "Leading"
+    elif x >= 100 and y < 100:
+        return "Weakening"
+    elif x < 100 and y < 100:
+        return "Lagging"
+    else:
+        return "Improving"
+
+# Quadrant colors
+quad_colors = {
+    "Leading": "#00FF7F",      # green
+    "Weakening": "#FFD700",    # yellow
+    "Lagging": "#FF4C4C",      # red
+    "Improving": "#00BFFF"     # blue
+}
+
+# ---------------------------
+# BUILD FRAMES
+# ---------------------------
 frames = []
+dates = rrg[TICKERS[0]].index
 
 for i in range(TAIL_LENGTH, len(dates)):
     frame_data = []
 
     for ticker in TICKERS:
-        df = rrg[ticker].iloc[:i+1] # Include the i-th point
+        df = rrg[ticker].iloc[:i]
         tail = df.tail(TAIL_LENGTH)
-        display_name = TICKER_NAMES.get(ticker, ticker)
+
+        x = tail["RS_Ratio"].values
+        y = tail["RS_Momentum"].values
+
+        # Fade effect
+        opacity = np.linspace(0.2, 1, len(tail))
+
+        # Determine quadrant for last point
+        quad = get_quadrant(x[-1], y[-1])
+        color = quad_colors[quad]
+
+        # Highlight leaders
+        size = 12 if quad == "Leading" else 7
+        marker_opacity = 1 if quad == "Leading" else 0.6
+
+        name = f"{sector_names[ticker]} ({ticker})"
 
         frame_data.append(
             go.Scatter(
-                x=tail["RS_Ratio"],
-                y=tail["RS_Momentum"],
+                x=x,
+                y=y,
                 mode="lines+markers",
-                name=display_name,
-                text=[f"{display_name}<br>{d.date()}" for d in tail.index],
-                hoverinfo="text+x+y",
-                marker=dict(size=[4]*(len(tail)-1) + [10]) # Highlight last point
+                name=name,
+                legendgroup=name,
+                showlegend=(i == TAIL_LENGTH),  # only show once
+                line=dict(color=color, width=2),
+                marker=dict(
+                    size=[4]* (len(x)-1) + [size],  # bigger last point
+                    opacity=list(opacity[:-1]) + [marker_opacity],
+                    color=color
+                ),
+                text=[
+                    f"{name}<br>{tail.index[j].date()}<br>"
+                    f"RS-Ratio: {x[j]:.2f}<br>RS-Mom: {y[j]:.2f}<br>{get_quadrant(x[j], y[j])}"
+                    for j in range(len(tail))
+                ],
+                hoverinfo="text"
             )
         )
 
@@ -101,21 +161,7 @@ for i in range(TAIL_LENGTH, len(dates)):
 # ---------------------------
 # INITIAL FRAME
 # ---------------------------
-init_data = []
-for ticker in TICKERS:
-    df = rrg[ticker].iloc[:TAIL_LENGTH]
-    display_name = TICKER_NAMES.get(ticker, ticker)
-    init_data.append(
-        go.Scatter(
-            x=df["RS_Ratio"],
-            y=df["RS_Momentum"],
-            mode="lines+markers",
-            name=display_name,
-            text=[f"{display_name}<br>{d.date()}" for d in df.index],
-            hoverinfo="text+x+y",
-            marker=dict(size=[4]*(len(df)-1) + [10])
-        )
-    )
+init_data = frames[0].data
 
 # ---------------------------
 # FIGURE
@@ -125,68 +171,52 @@ fig = go.Figure(
     frames=frames
 )
 
-# Quadrant lines
-fig.add_vline(x=100, line_dash="dash", line_color="gray", line_width=1)
-fig.add_hline(y=100, line_dash="dash", line_color="gray", line_width=1)
+# ---------------------------
+# QUADRANT LINES + LABELS
+# ---------------------------
+fig.add_vline(x=100, line_dash="dash", line_color="gray")
+fig.add_hline(y=100, line_dash="dash", line_color="gray")
 
-# Labels
-fig.add_annotation(x=105, y=105, text="<b>LEADING</b>", showarrow=False, font=dict(color="green"))
-fig.add_annotation(x=105, y=95, text="<b>WEAKENING</b>", showarrow=False, font=dict(color="orange"))
-fig.add_annotation(x=95, y=95, text="<b>LAGGING</b>", showarrow=False, font=dict(color="red"))
-fig.add_annotation(x=95, y=105, text="<b>IMPROVING</b>", showarrow=False, font=dict(color="blue"))
+fig.add_annotation(x=104, y=104, text="Leading", showarrow=False)
+fig.add_annotation(x=104, y=96, text="Weakening", showarrow=False)
+fig.add_annotation(x=96, y=96, text="Lagging", showarrow=False)
+fig.add_annotation(x=96, y=104, text="Improving", showarrow=False)
 
-# Layout
+# ---------------------------
+# LAYOUT (INTERACTION)
+# ---------------------------
 fig.update_layout(
-    title="Sector Relative Rotation Graph (RRG) - Animation",
-    xaxis=dict(title="RS-Ratio", range=[90, 110], gridcolor='lightgray'),
-    yaxis=dict(title="RS-Momentum", range=[90, 110], gridcolor='lightgray'),
+    title="Relative Rotation Graph (RRG) – Sector Rotation",
+    xaxis=dict(title="RS-Ratio", range=[90, 110]),
+    yaxis=dict(title="RS-Momentum", range=[90, 110]),
     hovermode="closest",
-    plot_bgcolor='white',
-    paper_bgcolor='white',
-    font=dict(color='black'),
+
+    # 🔥 THIS enables click-to-focus via legend
+    legend=dict(
+        itemclick="toggleothers",   # click = isolate
+        itemdoubleclick="toggle"    # double-click = toggle back
+    ),
+
     updatemenus=[{
         "type": "buttons",
-        "showactive": False,
-        "x": 0.1,
-        "y": 0,
-        "xanchor": "right",
-        "yanchor": "top",
-        "direction": "left",
-        "pad": {"r": 10, "t": 87},
         "buttons": [
             {
                 "label": "▶ Play",
                 "method": "animate",
-                "args": [None, {"frame": {"duration": 200, "redraw": True},
-                                "fromcurrent": True, "transition": {"duration": 0}}]
+                "args": [None, {
+                    "frame": {"duration": 300, "redraw": True},
+                    "fromcurrent": True
+                }]
             },
             {
                 "label": "⏸ Pause",
                 "method": "animate",
-                "args": [[None], {"frame": {"duration": 0}, "mode": "immediate"}]
+                "args": [[None], {
+                    "frame": {"duration": 0},
+                    "mode": "immediate"
+                }]
             }
         ]
-    }],
-    sliders=[{
-        "active": 0,
-        "yanchor": "top",
-        "xanchor": "left",
-        "currentvalue": {
-            "font": {"size": 20},
-            "prefix": "Date: ",
-            "visible": True,
-            "xanchor": "right"
-        },
-        "transition": {"duration": 0},
-        "pad": {"b": 10, "t": 50},
-        "len": 0.9,
-        "x": 0.1,
-        "y": 0,
-        "steps": [{
-            "args": [[f.name], {"frame": {"duration": 0, "redraw": True}, "mode": "immediate"}],
-            "label": f.name,
-            "method": "animate"
-        } for f in frames]
     }]
 )
 
