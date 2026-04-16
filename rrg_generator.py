@@ -142,7 +142,8 @@ for i in range(TAIL_LENGTH, len(dates)):
                 mode="lines+markers",
                 name=name,
                 legendgroup=name,
-                showlegend=(i == TAIL_LENGTH),  # only show once
+#                showlegend=(i == TAIL_LENGTH),  # only show once
+                showlegend=False  # legend handled by static traces
                 line=dict(color=color, width=2),
                 marker=dict(
                     size=[4]* (len(x)-1) + [size],  # bigger last point
@@ -154,7 +155,8 @@ for i in range(TAIL_LENGTH, len(dates)):
                     f"RS-Ratio: {x[j]:.2f}<br>RS-Mom: {y[j]:.2f}<br>{get_quadrant(x[j], y[j])}"
                     for j in range(len(tail))
                 ],
-                hoverinfo="text"
+#                hoverinfo="text"
+                hovertemplate="%{text}<extra></extra>"    
             )
         )
 
@@ -196,13 +198,39 @@ init_data = frames[-1].data
 init_layout = go.Layout(annotations=frames[-1].layout.annotations)
 
 # ---------------------------
+# STATIC LEGEND TRACES (fix legend persistence)
+# ---------------------------
+legend_traces = []
+
+for ticker in TICKERS:
+    disp_name = sector_names.get(ticker, ticker)
+    name = f"{disp_name} ({ticker})"
+
+    legend_traces.append(
+        go.Scatter(
+            x=[None],
+            y=[None],
+            mode="markers",
+            name=name,
+            legendgroup=name,
+            showlegend=True,
+            marker=dict(size=10)
+        )
+    )
+
+# ---------------------------
 # FIGURE
 # ---------------------------
 fig = go.Figure(
-    data=init_data,
+    data=legend_traces + list(init_data),
     frames=frames,
     layout=init_layout
 )
+# fig = go.Figure(
+#    data=init_data,
+#    frames=frames,
+#    layout=init_layout
+# )
 
 # ---------------------------
 # QUADRANT LINES
