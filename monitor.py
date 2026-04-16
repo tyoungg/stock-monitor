@@ -606,8 +606,15 @@ def generate_dashboard(recap_data: Dict[str, Dict[str, Any]]) -> None:
             <canvas id="sparklineCanvas" width="200" height="60"></canvas>
         </div>
         <div class="container">
-            <h1>📈 Stock Monitor Dashboard</h1>
-            <div class="updated">Last updated: {timestamp}</div>
+            <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                <div>
+                    <h1>📈 Stock Monitor Dashboard</h1>
+                    <div class="updated">Last updated: {timestamp}</div>
+                </div>
+                <div style="margin-top: 5px;">
+                    <a href="RRG.html" style="text-decoration: none; background: #3490dc; color: white; padding: 8px 16px; border-radius: 4px; font-weight: bold; font-size: 0.9em;">Sector RRG</a>
+                </div>
+            </div>
             <table id="stockTable">
                 <thead>
                     <tr>
