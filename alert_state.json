@@ -1,5 +1,5 @@
 {
-  "date": "2026-04-15",
+  "date": "2026-04-16",
   "state": {
     "AG": [
       "low:"
@@ -10,13 +10,31 @@
     "GLD": [
       "low:"
     ],
+    "ICVT": [
+      "high:"
+    ],
     "INTC": [
       "high:"
     ],
     "MRVL": [
       "high:"
     ],
+    "NKE": [
+      "low:"
+    ],
+    "QID": [
+      "low:"
+    ],
+    "QQQ": [
+      "high:"
+    ],
     "SLV": [
+      "low:"
+    ],
+    "^SPX": [
+      "high:"
+    ],
+    "SQQQ": [
       "low:"
     ],
     "SYY": [
@@ -29,25 +47,6 @@
       "low:"
     ],
     "WMT": [
-      "low:"
-    ],
-    "QQQ": [
-      "high:"
-    ],
-    "NKE": [
-      "low:"
-    ],
-    "QID": [
-      "U&R:",
-      "low:"
-    ],
-    "^SPX": [
-      "high:"
-    ],
-    "ICVT": [
-      "high:"
-    ],
-    "SQQQ": [
       "low:"
     ]
   }
