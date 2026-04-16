@@ -9,3 +9,8 @@ node_modules/
 playwright-report/
 *.log
 verification/
+alert_state.json
+financials_cache.json
+docs/RRG.html
+docs/rrg.png
+docs/index.html
