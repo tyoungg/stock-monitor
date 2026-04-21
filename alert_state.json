@@ -1,10 +1,19 @@
 {
-  "date": "2026-04-20",
+  "date": "2026-04-21",
   "state": {
     "AG": [
       "low:"
     ],
     "BITI": [
+      "low:"
+    ],
+    "CAT": [
+      "high:"
+    ],
+    "CSCO": [
+      "high:"
+    ],
+    "GE": [
       "low:"
     ],
     "GLD": [
@@ -14,9 +23,6 @@
       "high:"
     ],
     "INTC": [
-      "high:"
-    ],
-    "MATX": [
       "high:"
     ],
     "MRVL": [
@@ -34,6 +40,9 @@
     "QQQ": [
       "high:"
     ],
+    "RTX": [
+      "low:"
+    ],
     "SLV": [
       "low:"
     ],
@@ -46,7 +55,7 @@
     "UL": [
       "low:"
     ],
-    "CSCO": [
+    "UNH": [
       "high:"
     ]
   }
