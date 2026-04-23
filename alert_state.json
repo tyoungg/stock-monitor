@@ -38,10 +38,12 @@
       "high:"
     ],
     "PSQ": [
-      "low:"
+      "low:",
+      "U&R:"
     ],
     "QID": [
-      "low:"
+      "low:",
+      "U&R:"
     ],
     "QQQ": [
       "high:"
@@ -56,13 +58,17 @@
       "high:"
     ],
     "SQQQ": [
-      "low:"
+      "low:",
+      "U&R:"
     ],
     "UL": [
       "low:"
     ],
     "UNH": [
       "high:"
+    ],
+    "FIS": [
+      "low:"
     ]
   }
 }
