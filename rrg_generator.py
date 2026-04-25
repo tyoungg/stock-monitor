@@ -22,7 +22,7 @@ TAIL_LENGTH = 8  # how many trailing points
 # ---------------------------
 # DOWNLOAD DATA
 # ---------------------------
-data = yf.download(TICKERS + [BENCHMARK], period=PERIOD)
+data = yf.download(TICKERS + [BENCHMARK], period=PERIOD, auto_adjust=False)
 
 # Handle different yfinance versions and their return formats
 if isinstance(data.columns, pd.MultiIndex):
@@ -105,15 +105,26 @@ quad_colors = {
 # BUILD FRAMES
 # ---------------------------
 frames = []
-dates = rrg[TICKERS[0]].index
+# Use benchmark index as the master timeline
+dates = benchmark[benchmark.index >= min(df.index.min() for df in rrg.values() if not df.empty)].index
 
 for i in range(TAIL_LENGTH, len(dates)):
     frame_data = []
     leaders = []
+    current_date = dates[i]
 
     for ticker in TICKERS:
-        df = rrg[ticker].iloc[:i+1] # Include the current point
+        if ticker not in rrg:
+            continue
+
+        # Get data up to current_date
+        df = rrg[ticker][rrg[ticker].index <= current_date]
+        if len(df) == 0:
+            continue
+
         tail = df.tail(TAIL_LENGTH)
+        if len(tail) == 0:
+            continue
 
         x = tail["RS_Ratio"].values
         y = tail["RS_Momentum"].values
