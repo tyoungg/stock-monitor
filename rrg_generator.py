@@ -108,6 +108,8 @@ frames = []
 # Use benchmark index as the master timeline
 dates = benchmark[benchmark.index >= min(df.index.min() for df in rrg.values() if not df.empty)].index
 
+latest_leaders = []
+
 for i in range(TAIL_LENGTH, len(dates)):
     frame_data = []
     leaders = []
@@ -150,7 +152,7 @@ for i in range(TAIL_LENGTH, len(dates)):
             go.Scatter(
                 x=x,
                 y=y,
-                mode="lines+markers",
+                mode="lines+markers+text",
                 name=name,
                 legendgroup=name,
                 showlegend=(i == TAIL_LENGTH),  # only show once
@@ -160,7 +162,9 @@ for i in range(TAIL_LENGTH, len(dates)):
                     opacity=list(opacity[:-1]) + [marker_opacity],
                     color=color
                 ),
-                text=[
+                text=[""] * (len(x)-1) + [ticker],
+                textposition="top center",
+                hovertext=[
                     f"{name}<br>{tail.index[j].date()}<br>"
                     f"RS-Ratio: {x[j]:.2f}<br>RS-Mom: {y[j]:.2f}<br>{get_quadrant(x[j], y[j])}"
                     for j in range(len(tail))
@@ -169,42 +173,41 @@ for i in range(TAIL_LENGTH, len(dates)):
             )
         )
 
-    # Current Leaders box text
-    leaders_text = "<b>Current Leaders:</b><br>" + "<br>".join([f"• {l}" for l in leaders]) if leaders else "<b>Current Leaders:</b><br><i>None</i>"
-
-    # Quadrant annotations (must be included in every frame to persist)
+    # Quadrant annotations
     quadrant_annos = [
-        dict(x=104, y=104, text="Leading", showarrow=False, font=dict(color="gray")),
-        dict(x=104, y=96, text="Weakening", showarrow=False, font=dict(color="gray")),
-        dict(x=96, y=96, text="Lagging", showarrow=False, font=dict(color="gray")),
-        dict(x=96, y=104, text="Improving", showarrow=False, font=dict(color="gray")),
-        # The Leaders Box
-        dict(
-            x=0.99, y=0.99,
-            xref="paper", yref="paper",
-            xanchor="right", yanchor="top",
-            text=leaders_text,
-            showarrow=False,
-            align="left",
-            bgcolor="rgba(255, 255, 255, 0.95)",
-            bordercolor="#1b4332",
-            borderwidth=2,
-            borderpad=10,
-            font=dict(size=14, color="#1b4332")
-        )
+        dict(x=0.98, y=0.98, xref="paper", yref="paper", xanchor="right", yanchor="top", text="<b>Leading</b>", showarrow=False, font=dict(color="rgba(0, 150, 0, 0.3)", size=16)),
+        dict(x=0.98, y=0.02, xref="paper", yref="paper", xanchor="right", yanchor="bottom", text="<b>Weakening</b>", showarrow=False, font=dict(color="rgba(150, 150, 0, 0.3)", size=16)),
+        dict(x=0.02, y=0.02, xref="paper", yref="paper", xanchor="left", yanchor="bottom", text="<b>Lagging</b>", showarrow=False, font=dict(color="rgba(150, 0, 0, 0.3)", size=16)),
+        dict(x=0.02, y=0.98, xref="paper", yref="paper", xanchor="left", yanchor="top", text="<b>Improving</b>", showarrow=False, font=dict(color="rgba(0, 0, 150, 0.3)", size=16)),
+    ]
+
+    # Persistent shapes for each frame
+    frame_shapes = [
+        dict(type="rect", xref="paper", yref="paper", x0=0.5, y0=0.5, x1=1, y1=1, fillcolor="rgba(0, 255, 127, 0.03)", line_width=0, layer="below"),
+        dict(type="rect", xref="paper", yref="paper", x0=0.5, y0=0, x1=1, y1=0.5, fillcolor="rgba(255, 215, 0, 0.03)", line_width=0, layer="below"),
+        dict(type="rect", xref="paper", yref="paper", x0=0, y0=0, x1=0.5, y1=0.5, fillcolor="rgba(255, 76, 76, 0.03)", line_width=0, layer="below"),
+        dict(type="rect", xref="paper", yref="paper", x0=0, y0=0.5, x1=0.5, y1=1, fillcolor="rgba(0, 191, 255, 0.03)", line_width=0, layer="below"),
     ]
 
     frames.append(go.Frame(
         data=frame_data,
         name=str(dates[i].date()),
-        layout=go.Layout(annotations=quadrant_annos)
+        layout=go.Layout(annotations=quadrant_annos, shapes=frame_shapes)
     ))
+    # Track the leaders of the very last frame
+    if i == len(dates) - 1:
+        latest_leaders = leaders
 
 # ---------------------------
 # INITIAL FRAME (Start at the latest date)
 # ---------------------------
-init_data = frames[-1].data
-init_layout = go.Layout(annotations=frames[-1].layout.annotations)
+# Ensure all traces in the initial frame show in the legend
+init_data = []
+for trace in frames[-1].data:
+    trace.showlegend = True
+    init_data.append(trace)
+
+init_layout = frames[-1].layout
 
 # ---------------------------
 # FIGURE
@@ -226,14 +229,21 @@ fig.add_hline(y=100, line_dash="dash", line_color="gray")
 # ---------------------------
 fig.update_layout(
     title="Relative Rotation Graph (RRG) – Sector Rotation",
-    xaxis=dict(title="RS-Ratio", range=[90, 110]),
-    yaxis=dict(title="RS-Momentum", range=[90, 110]),
+    xaxis=dict(title="RS-Ratio", range=[90, 110], gridcolor="#eee", zerolinecolor="#ccc"),
+    yaxis=dict(title="RS-Momentum", range=[90, 110], gridcolor="#eee", zerolinecolor="#ccc"),
+    plot_bgcolor="white",
     hovermode="closest",
+    margin=dict(l=50, r=50, t=80, b=150),
 
     # 🔥 THIS enables click-to-focus via legend
     legend=dict(
         itemclick="toggleothers",   # click = isolate
-        itemdoubleclick="toggle"    # double-click = toggle back
+        itemdoubleclick="toggle",    # double-click = toggle back
+        orientation="h",
+        y=-0.3,
+        x=0.5,
+        xanchor="center",
+        font=dict(size=10)
     ),
 
     updatemenus=[{
@@ -294,6 +304,17 @@ os.makedirs("docs", exist_ok=True)
 timestamp = datetime.now(ZoneInfo("America/New_York")).strftime("%Y-%m-%d %I:%M %p ET")
 plotly_html = fig.to_html(full_html=False, include_plotlyjs='cdn')
 
+leaders_html = ""
+if latest_leaders:
+    leaders_html = f"""
+    <div style="margin: 20px auto; max-width: 800px; background: #e6fffa; border: 2px solid #38b2ac; border-radius: 8px; padding: 20px;">
+        <h3 style="margin-top: 0; color: #2c7a7b;">Current Market Leaders 🚀</h3>
+        <div style="display: flex; flex-wrap: wrap; justify-content: center; gap: 10px;">
+            {' '.join([f'<span style="background: #38b2ac; color: white; padding: 5px 15px; border-radius: 20px; font-weight: bold;">{l}</span>' for l in latest_leaders])}
+        </div>
+    </div>
+    """
+
 html_content = f"""
 <!DOCTYPE html>
 <html lang="en">
@@ -319,9 +340,11 @@ html_content = f"""
         <h1>Sector Relative Rotation Graph (RRG)</h1>
         <div class="updated">Last updated: {timestamp}</div>
 
-        <div style="width: 100%; height: 700px;">
+        <div style="width: 100%; height: 750px;">
             {plotly_html}
         </div>
+
+        {leaders_html}
 
         <div style="margin-top:40px; text-align: left; font-size: 0.9em; color: #555; border-top: 1px solid #eee; padding-top: 20px;">
             <p><strong>Relative Rotation Graphs (RRG)</strong> help visualize the relative strength and momentum of different sectors against a benchmark (S&P 500).</p>
