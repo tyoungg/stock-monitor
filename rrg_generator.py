@@ -5,6 +5,7 @@ import plotly.graph_objects as go
 import os
 from datetime import datetime
 from zoneinfo import ZoneInfo
+import json
 
 # ---------------------------
 # CONFIG
@@ -317,26 +318,17 @@ for ticker in TICKERS:
         "color": color
     })
 
-import json
 leaders_json = json.dumps(leaders_history)
 ticker_to_name = json.dumps({t: sector_names.get(t, t) for t in TICKERS})
 
 legend_html = f"""
 <div id="custom-legend" style="margin: 20px auto; max-width: 1000px; display: flex; flex-wrap: wrap; justify-content: center; gap: 10px;">
     {' '.join([f'''
-<<<<<<< Updated upstream
     <div class="legend-item"
          onclick="toggleTrace('{item["name"]}', this)"
          onmouseover="highlightTrace('{item["name"]}', true)"
          onmouseout="highlightTrace('{item["name"]}', false)"
          style="cursor: pointer; padding: 5px 12px; border-radius: 15px; border: 2px solid {item["color"]}; background: {item["color"]}22; display: flex; align-items: center; gap: 6px; font-weight: bold; transition: all 0.2s;"
-=======
-    <div class="legend-item"
-         onclick="toggleTrace('{item["name"]}', this)"
-         onmouseover="highlightTrace('{item["name"]}', true)"
-         onmouseout="highlightTrace('{item["name"]}', false)"
-         style="cursor: pointer; padding: 5px 12px; border-radius: 15px; border: 2px solid {item["color"]}; background: {item["color"]}22; display: flex; align-items: center; gap: 6px; font-weight: bold; transition: all 0.2s;"
->>>>>>> Stashed changes
          data-name="{item["name"]}">
         <span style="width: 10px; height: 10px; border-radius: 50%; background: {item["color"]};"></span>
         {item["ticker"]}
@@ -396,21 +388,12 @@ html_content = f"""
         <h1>Sector Relative Rotation Graph (RRG)</h1>
         <div class="updated">Last updated: {timestamp}</div>
 
-<<<<<<< Updated upstream
-        <div style="width: 100%; height: 750px;">
-            {plotly_html}
-        </div>
-
-        {legend_html}
-
-=======
         {legend_html}
 
         <div style="width: 100%; height: 750px; margin-top: 20px;">
             {plotly_html}
         </div>
 
->>>>>>> Stashed changes
         {leaders_html}
 
         <script>
@@ -426,11 +409,7 @@ html_content = f"""
             const nextVisible = (currentVisible === true || currentVisible === undefined) ? 'legendonly' : true;
 
             Plotly.restyle('rrg-chart', {{visible: nextVisible}}, [index]);
-<<<<<<< Updated upstream
 
-=======
-
->>>>>>> Stashed changes
             if (nextVisible === true) {{
                 el.classList.remove('hidden');
             }} else {{
@@ -442,15 +421,9 @@ html_content = f"""
             const gd = document.getElementById('rrg-chart');
             const state = visible ? true : 'legendonly';
             const indices = gd.data.map((_, i) => i);
-<<<<<<< Updated upstream
 
             Plotly.restyle('rrg-chart', {{visible: state}}, indices);
 
-=======
-
-            Plotly.restyle('rrg-chart', {{visible: state}}, indices);
-
->>>>>>> Stashed changes
             document.querySelectorAll('.legend-item').forEach(el => {{
                 if (visible) el.classList.remove('hidden');
                 else el.classList.add('hidden');
@@ -468,11 +441,7 @@ html_content = f"""
             if (gd.data[index].visible !== 'legendonly') {{
                 Plotly.restyle('rrg-chart', {{'line.width': width}}, [index]);
             }}
-<<<<<<< Updated upstream
 
-=======
-
->>>>>>> Stashed changes
             // Subtle highlight on the legend item itself
             const el = document.querySelector(`.legend-item[data-name="${{name}}"]`);
             if (el && !el.classList.contains('hidden')) {{
@@ -497,7 +466,6 @@ html_content = f"""
             const leaders = LEADERS_HISTORY[date] || [];
             const container = document.getElementById('leaders-list');
             const dateDisplay = document.getElementById('current-date-display');
-<<<<<<< Updated upstream
 
             dateDisplay.innerText = date;
 
@@ -505,15 +473,6 @@ html_content = f"""
                 container.innerHTML = '<span style="color: #666;">No clear leaders</span>';
             }} else {{
                 container.innerHTML = leaders.map(t =>
-=======
-
-            dateDisplay.innerText = date;
-
-            if (leaders.length === 0) {{
-                container.innerHTML = '<span style="color: #666;">No clear leaders</span>';
-            }} else {{
-                container.innerHTML = leaders.map(t =>
->>>>>>> Stashed changes
                     `<span style="background: #38b2ac; color: white; padding: 5px 15px; border-radius: 20px; font-weight: bold;">${{TICKER_TO_NAME[t] || t}}</span>`
                 ).join(' ');
             }}
