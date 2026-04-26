@@ -388,11 +388,11 @@ html_content = f"""
         <h1>Sector Relative Rotation Graph (RRG)</h1>
         <div class="updated">Last updated: {timestamp}</div>
 
-        <div style="width: 100%; height: 750px;">
+        {legend_html}
+
+        <div style="width: 100%; height: 750px; margin-top: 20px;">
             {plotly_html}
         </div>
-
-        {legend_html}
 
         {leaders_html}
 
