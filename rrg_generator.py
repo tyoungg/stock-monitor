@@ -5,7 +5,6 @@ import plotly.graph_objects as go
 import os
 from datetime import datetime
 from zoneinfo import ZoneInfo
-import json
 
 # ---------------------------
 # CONFIG
@@ -318,6 +317,7 @@ for ticker in TICKERS:
         "color": color
     })
 
+import json
 leaders_json = json.dumps(leaders_history)
 ticker_to_name = json.dumps({t: sector_names.get(t, t) for t in TICKERS})
 
