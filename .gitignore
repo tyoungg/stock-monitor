@@ -5,6 +5,8 @@ recap.html
 recap.json
 daily_recap.json
 alerts.json
+financials_cache.json
+alert_state.json
 node_modules/
 playwright-report/
 *.log
