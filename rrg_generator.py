@@ -109,9 +109,16 @@ frames = []
 dates = benchmark[benchmark.index >= min(df.index.min() for df in rrg.values() if not df.empty)].index
 
 latest_leaders = []
+leaders_history = {} # date -> list of tickers
 
 for i in range(TAIL_LENGTH, len(dates)):
     frame_data = []
+    frame_annos = [
+        dict(x=0.98, y=0.98, xref="paper", yref="paper", xanchor="right", yanchor="top", text="<b>Leading</b>", showarrow=False, font=dict(color="rgba(0, 150, 0, 0.3)", size=16)),
+        dict(x=0.98, y=0.02, xref="paper", yref="paper", xanchor="right", yanchor="bottom", text="<b>Weakening</b>", showarrow=False, font=dict(color="rgba(150, 150, 0, 0.3)", size=16)),
+        dict(x=0.02, y=0.02, xref="paper", yref="paper", xanchor="left", yanchor="bottom", text="<b>Lagging</b>", showarrow=False, font=dict(color="rgba(150, 0, 0, 0.3)", size=16)),
+        dict(x=0.02, y=0.98, xref="paper", yref="paper", xanchor="left", yanchor="top", text="<b>Improving</b>", showarrow=False, font=dict(color="rgba(0, 0, 150, 0.3)", size=16)),
+    ]
     leaders = []
     current_date = dates[i]
 
@@ -140,7 +147,7 @@ for i in range(TAIL_LENGTH, len(dates)):
 
         disp_name = sector_names.get(ticker, ticker)
         if quad == "Leading":
-            leaders.append(disp_name)
+            leaders.append(ticker)
 
         # Highlight leaders
         size = 12 if quad == "Leading" else 7
@@ -162,8 +169,9 @@ for i in range(TAIL_LENGTH, len(dates)):
                     opacity=list(opacity[:-1]) + [marker_opacity],
                     color=color
                 ),
-                text=[""] * (len(x)-1) + [ticker],
+                text=[""] * (len(x)-1) + [f"<b>{ticker}</b>"],
                 textposition="top center",
+                textfont=dict(color=color, size=11),
                 hovertext=[
                     f"{name}<br>{tail.index[j].date()}<br>"
                     f"RS-Ratio: {x[j]:.2f}<br>RS-Mom: {y[j]:.2f}<br>{get_quadrant(x[j], y[j])}"
@@ -173,14 +181,6 @@ for i in range(TAIL_LENGTH, len(dates)):
             )
         )
 
-    # Quadrant annotations
-    quadrant_annos = [
-        dict(x=0.98, y=0.98, xref="paper", yref="paper", xanchor="right", yanchor="top", text="<b>Leading</b>", showarrow=False, font=dict(color="rgba(0, 150, 0, 0.3)", size=16)),
-        dict(x=0.98, y=0.02, xref="paper", yref="paper", xanchor="right", yanchor="bottom", text="<b>Weakening</b>", showarrow=False, font=dict(color="rgba(150, 150, 0, 0.3)", size=16)),
-        dict(x=0.02, y=0.02, xref="paper", yref="paper", xanchor="left", yanchor="bottom", text="<b>Lagging</b>", showarrow=False, font=dict(color="rgba(150, 0, 0, 0.3)", size=16)),
-        dict(x=0.02, y=0.98, xref="paper", yref="paper", xanchor="left", yanchor="top", text="<b>Improving</b>", showarrow=False, font=dict(color="rgba(0, 0, 150, 0.3)", size=16)),
-    ]
-
     # Persistent shapes for each frame
     frame_shapes = [
         dict(type="rect", xref="paper", yref="paper", x0=0.5, y0=0.5, x1=1, y1=1, fillcolor="rgba(0, 255, 127, 0.03)", line_width=0, layer="below"),
@@ -189,25 +189,30 @@ for i in range(TAIL_LENGTH, len(dates)):
         dict(type="rect", xref="paper", yref="paper", x0=0, y0=0.5, x1=0.5, y1=1, fillcolor="rgba(0, 191, 255, 0.03)", line_width=0, layer="below"),
     ]
 
+    date_str = str(dates[i].date())
     frames.append(go.Frame(
         data=frame_data,
-        name=str(dates[i].date()),
-        layout=go.Layout(annotations=quadrant_annos, shapes=frame_shapes)
+        name=date_str,
+        layout=go.Layout(annotations=frame_annos, shapes=frame_shapes)
     ))
+    leaders_history[date_str] = leaders
     # Track the leaders of the very last frame
     if i == len(dates) - 1:
-        latest_leaders = leaders
+        latest_leaders = [sector_names.get(t, t) for t in leaders]
 
 # ---------------------------
 # INITIAL FRAME (Start at the latest date)
 # ---------------------------
-# Ensure all traces in the initial frame show in the legend
-init_data = []
-for trace in frames[-1].data:
-    trace.showlegend = True
-    init_data.append(trace)
+# Copy the last frame's data and layout to initialize the figure correctly
+init_data = [go.Scatter(**t.to_plotly_json()) for t in frames[-1].data]
+# Ensure they are visible in our custom legend state
+for t in init_data:
+    t.showlegend = True
 
-init_layout = frames[-1].layout
+init_layout = go.Layout(
+    annotations=frames[-1].layout.annotations,
+    shapes=frames[-1].layout.shapes
+)
 
 # ---------------------------
 # FIGURE
@@ -233,18 +238,8 @@ fig.update_layout(
     yaxis=dict(title="RS-Momentum", range=[90, 110], gridcolor="#eee", zerolinecolor="#ccc"),
     plot_bgcolor="white",
     hovermode="closest",
-    margin=dict(l=50, r=50, t=80, b=150),
-
-    # 🔥 THIS enables click-to-focus via legend
-    legend=dict(
-        itemclick="toggleothers",   # click = isolate
-        itemdoubleclick="toggle",    # double-click = toggle back
-        orientation="h",
-        y=-0.3,
-        x=0.5,
-        xanchor="center",
-        font=dict(size=10)
-    ),
+    margin=dict(l=50, r=50, t=80, b=50),
+    showlegend=False,
 
     updatemenus=[{
         "type": "buttons",
@@ -302,18 +297,58 @@ os.makedirs("docs", exist_ok=True)
 
 # Wrap Plotly in our dashboard template
 timestamp = datetime.now(ZoneInfo("America/New_York")).strftime("%Y-%m-%d %I:%M %p ET")
-plotly_html = fig.to_html(full_html=False, include_plotlyjs='cdn')
+# Use a specific div_id for our toggle script
+plotly_html = fig.to_html(full_html=False, include_plotlyjs='cdn', div_id="rrg-chart")
 
-leaders_html = ""
-if latest_leaders:
-    leaders_html = f"""
-    <div style="margin: 20px auto; max-width: 800px; background: #e6fffa; border: 2px solid #38b2ac; border-radius: 8px; padding: 20px;">
-        <h3 style="margin-top: 0; color: #2c7a7b;">Current Market Leaders 🚀</h3>
-        <div style="display: flex; flex-wrap: wrap; justify-content: center; gap: 10px;">
-            {' '.join([f'<span style="background: #38b2ac; color: white; padding: 5px 15px; border-radius: 20px; font-weight: bold;">{l}</span>' for l in latest_leaders])}
-        </div>
+# Generate custom legend items
+legend_items = []
+for ticker in TICKERS:
+    if ticker not in rrg: continue
+    df = rrg[ticker]
+    if df.empty: continue
+    last_point = df.iloc[-1]
+    quad = get_quadrant(last_point["RS_Ratio"], last_point["RS_Momentum"])
+    color = quad_colors[quad]
+    disp_name = sector_names.get(ticker, ticker)
+    name = f"{disp_name} ({ticker})"
+    legend_items.append({
+        "ticker": ticker,
+        "name": name,
+        "color": color
+    })
+
+import json
+leaders_json = json.dumps(leaders_history)
+ticker_to_name = json.dumps({t: sector_names.get(t, t) for t in TICKERS})
+
+legend_html = f"""
+<div id="custom-legend" style="margin: 20px auto; max-width: 1000px; display: flex; flex-wrap: wrap; justify-content: center; gap: 10px;">
+    {' '.join([f'''
+    <div class="legend-item"
+         onclick="toggleTrace('{item["name"]}', this)"
+         onmouseover="highlightTrace('{item["name"]}', true)"
+         onmouseout="highlightTrace('{item["name"]}', false)"
+         style="cursor: pointer; padding: 5px 12px; border-radius: 15px; border: 2px solid {item["color"]}; background: {item["color"]}22; display: flex; align-items: center; gap: 6px; font-weight: bold; transition: all 0.2s;"
+         data-name="{item["name"]}">
+        <span style="width: 10px; height: 10px; border-radius: 50%; background: {item["color"]};"></span>
+        {item["ticker"]}
     </div>
-    """
+    ''' for item in legend_items])}
+</div>
+<div style="margin-bottom: 20px;">
+    <button onclick="setAllTraces(true)" style="padding: 5px 15px; border-radius: 4px; border: 1px solid #ccc; background: white; cursor: pointer; font-size: 0.8em; margin-right: 5px;">Show All</button>
+    <button onclick="setAllTraces(false)" style="padding: 5px 15px; border-radius: 4px; border: 1px solid #ccc; background: white; cursor: pointer; font-size: 0.8em;">Hide All</button>
+</div>
+"""
+
+leaders_html = f"""
+<div id="leaders-container" style="margin: 20px auto; max-width: 800px; background: #e6fffa; border: 2px solid #38b2ac; border-radius: 8px; padding: 20px;">
+    <h3 style="margin-top: 0; color: #2c7a7b;">Market Leaders for <span id="current-date-display">{dates[-1].date()}</span> 🚀</h3>
+    <div id="leaders-list" style="display: flex; flex-wrap: wrap; justify-content: center; gap: 10px;">
+        {' '.join([f'<span style="background: #38b2ac; color: white; padding: 5px 15px; border-radius: 20px; font-weight: bold;">{l}</span>' for l in latest_leaders]) or '<span style="color: #666;">No clear leaders</span>'}
+    </div>
+</div>
+"""
 
 html_content = f"""
 <!DOCTYPE html>
@@ -330,6 +365,19 @@ html_content = f"""
         .nav {{ margin-bottom: 20px; text-align: left; }}
         .nav a {{ color: #3490dc; text-decoration: none; font-weight: bold; }}
         .nav a:hover {{ text-decoration: underline; }}
+        .legend-item.hidden {{
+            background: #eee !important;
+            border-color: #ccc !important;
+            color: #999 !important;
+            opacity: 0.6;
+        }}
+        .legend-item.hidden span {{
+            background: #ccc !important;
+        }}
+        .legend-item:hover {{
+            transform: translateY(-2px);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }}
     </style>
 </head>
 <body>
@@ -344,7 +392,92 @@ html_content = f"""
             {plotly_html}
         </div>
 
+        {legend_html}
+
         {leaders_html}
+
+        <script>
+        const LEADERS_HISTORY = {leaders_json};
+        const TICKER_TO_NAME = {ticker_to_name};
+
+        function toggleTrace(name, el) {{
+            const gd = document.getElementById('rrg-chart');
+            const index = gd.data.findIndex(t => t.name === name);
+            if (index === -1) return;
+
+            const currentVisible = gd.data[index].visible;
+            const nextVisible = (currentVisible === true || currentVisible === undefined) ? 'legendonly' : true;
+
+            Plotly.restyle('rrg-chart', {{visible: nextVisible}}, [index]);
+
+            if (nextVisible === true) {{
+                el.classList.remove('hidden');
+            }} else {{
+                el.classList.add('hidden');
+            }}
+        }}
+
+        function setAllTraces(visible) {{
+            const gd = document.getElementById('rrg-chart');
+            const state = visible ? true : 'legendonly';
+            const indices = gd.data.map((_, i) => i);
+
+            Plotly.restyle('rrg-chart', {{visible: state}}, indices);
+
+            document.querySelectorAll('.legend-item').forEach(el => {{
+                if (visible) el.classList.remove('hidden');
+                else el.classList.add('hidden');
+            }});
+        }}
+
+        function highlightTrace(name, highlight) {{
+            const gd = document.getElementById('rrg-chart');
+            const index = gd.data.findIndex(t => t.name === name);
+            if (index === -1) return;
+
+            const width = highlight ? 5 : 2;
+            const opacity = highlight ? 1.0 : 0.6;
+            // Only update if not hidden
+            if (gd.data[index].visible !== 'legendonly') {{
+                Plotly.restyle('rrg-chart', {{'line.width': width}}, [index]);
+            }}
+
+            // Subtle highlight on the legend item itself
+            const el = document.querySelector(`.legend-item[data-name="${{name}}"]`);
+            if (el && !el.classList.contains('hidden')) {{
+                el.style.transform = highlight ? 'translateY(-3px)' : '';
+                el.style.boxShadow = highlight ? '0 4px 8px rgba(0,0,0,0.15)' : '';
+            }}
+        }}
+
+        // Listen for frame changes to update the Leaders list
+        document.getElementById('rrg-chart').on('plotly_animatingframe', function(event) {{
+            const date = event.name;
+            updateLeaders(date);
+        }});
+
+        // Also listen for slider changes
+        document.getElementById('rrg-chart').on('plotly_sliderchange', function(event) {{
+            const date = event.step.label;
+            updateLeaders(date);
+        }});
+
+        function updateLeaders(date) {{
+            const leaders = LEADERS_HISTORY[date] || [];
+            const container = document.getElementById('leaders-list');
+            const dateDisplay = document.getElementById('current-date-display');
+
+            dateDisplay.innerText = date;
+
+            if (leaders.length === 0) {{
+                container.innerHTML = '<span style="color: #666;">No clear leaders</span>';
+            }} else {{
+                container.innerHTML = leaders.map(t =>
+                    `<span style="background: #38b2ac; color: white; padding: 5px 15px; border-radius: 20px; font-weight: bold;">${{TICKER_TO_NAME[t] || t}}</span>`
+                ).join(' ');
+            }}
+        }}
+        </script>
 
         <div style="margin-top:40px; text-align: left; font-size: 0.9em; color: #555; border-top: 1px solid #eee; padding-top: 20px;">
             <p><strong>Relative Rotation Graphs (RRG)</strong> help visualize the relative strength and momentum of different sectors against a benchmark (S&P 500).</p>
