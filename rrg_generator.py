@@ -335,7 +335,7 @@ legend_html = f"""
     </div>
     ''' for item in legend_items])}
 </div>
-<div style="margin-bottom: 20px;">
+<="margin-bottom: 20px;">
     <button onclick="setAllTraces(true)" style="padding: 5px 15px; border-radius: 4px; border: 1px solid #ccc; background: white; cursor: pointer; font-size: 0.8em; margin-right: 5px;">Show All</button>
     <button onclick="setAllTraces(false)" style="padding: 5px 15px; border-radius: 4px; border: 1px solid #ccc; background: white; cursor: pointer; font-size: 0.8em;">Hide All</button>
 </div>
@@ -390,7 +390,7 @@ html_content = f"""
 
         {legend_html}
 
-        <div style="width: 100%; height: 750px; margin-top: 20px;">
+        <div style="width: 100%; height: 500px; margin-top: 20px;">
             {plotly_html}
         </div>
 
