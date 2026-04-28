@@ -1,5 +1,5 @@
 {
-  "date": "2026-04-27",
+  "date": "2026-04-28",
   "state": {
     "ACN": [
       "low:"
@@ -7,13 +7,13 @@
     "AG": [
       "low:"
     ],
+    "BEN": [
+      "high:"
+    ],
     "BITI": [
       "low:"
     ],
     "CAT": [
-      "high:"
-    ],
-    "CSCO": [
       "high:"
     ],
     "GE": [
@@ -22,10 +22,10 @@
     "GLD": [
       "low:"
     ],
-    "ICVT": [
+    "INTC": [
       "high:"
     ],
-    "INTC": [
+    "MATX": [
       "high:"
     ],
     "MRVL": [
@@ -58,13 +58,13 @@
     "SQQQ": [
       "low:"
     ],
+    "SYY": [
+      "low:"
+    ],
     "UL": [
       "low:"
     ],
     "UNH": [
-      "high:"
-    ],
-    "MATX": [
       "high:"
     ]
   }
