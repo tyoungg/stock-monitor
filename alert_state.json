@@ -1,20 +1,17 @@
 {
-  "date": "2026-04-30",
+  "date": "2026-05-01",
   "state": {
     "ACN": [
-      "U&R:",
       "low:"
     ],
     "AG": [
       "low:"
     ],
-    "ALNY": [
-      "U&R:"
-    ],
     "BEN": [
       "high:"
     ],
     "BITI": [
+      "U&R:",
       "low:"
     ],
     "CAT": [
@@ -23,9 +20,6 @@
     "CSCO": [
       "high:"
     ],
-    "GE": [
-      "low:"
-    ],
     "GLD": [
       "low:"
     ],
@@ -33,6 +27,9 @@
       "high:"
     ],
     "INTC": [
+      "high:"
+    ],
+    "IRM": [
       "high:"
     ],
     "MRVL": [
@@ -45,11 +42,9 @@
       "high:"
     ],
     "PSQ": [
-      "U&R:",
       "low:"
     ],
     "QID": [
-      "U&R:",
       "low:"
     ],
     "QQQ": [
@@ -68,22 +63,12 @@
       "high:"
     ],
     "SQQQ": [
-      "U&R:",
-      "low:"
-    ],
-    "SYY": [
       "low:"
     ],
     "UL": [
       "low:"
     ],
     "UNH": [
-      "high:"
-    ],
-    "MATX": [
-      "high:"
-    ],
-    "IRM": [
       "high:"
     ]
   }
