@@ -1,18 +1,19 @@
 {
-  "date": "2026-05-06",
+  "date": "2026-05-07",
   "state": {
     "ACN": [
-      "U&R:",
       "low:"
     ],
     "AG": [
+      "low:"
+    ],
+    "ALNY": [
       "low:"
     ],
     "BEN": [
       "high:"
     ],
     "BITI": [
-      "U&R:",
       "low:"
     ],
     "CAT": [
@@ -33,7 +34,7 @@
     "IRM": [
       "high:"
     ],
-    "JNJ": [
+    "KR": [
       "U&R:"
     ],
     "MATX": [
@@ -44,6 +45,9 @@
     ],
     "NKE": [
       "low:"
+    ],
+    "PBI": [
+      "high:"
     ],
     "PSQ": [
       "low:"
@@ -78,14 +82,7 @@
     "UNH": [
       "high:"
     ],
-    "^VIX": [
-      "U&R:"
-    ],
-    "KR": [
-      "low:",
-      "U&R:"
-    ],
-    "PBI": [
+    "VTRS": [
       "high:"
     ]
   }
