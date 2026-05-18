@@ -91,9 +91,13 @@
       "high:"
     ],
     "UVXY": [
-      "U&R:"
+      "U&R:",
+      "low:"
     ],
     "AAPL": [
+      "high:"
+    ],
+    "VTRS": [
       "high:"
     ]
   }
