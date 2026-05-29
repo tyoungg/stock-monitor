@@ -1,5 +1,5 @@
 {
-  "date": "2026-05-28",
+  "date": "2026-05-29",
   "state": {
     "AAPL": [
       "high:"
@@ -19,6 +19,9 @@
     "CAT": [
       "high:"
     ],
+    "^DJI": [
+      "high:"
+    ],
     "CSCO": [
       "high:"
     ],
@@ -31,6 +34,9 @@
     "HE": [
       "low:"
     ],
+    "IBM": [
+      "high:"
+    ],
     "ICVT": [
       "high:"
     ],
@@ -41,8 +47,7 @@
       "high:"
     ],
     "KR": [
-      "low:",
-      "U&R:"
+      "low:"
     ],
     "MATX": [
       "high:"
@@ -68,9 +73,6 @@
     "RTX": [
       "low:"
     ],
-    "SBUX": [
-      "high:"
-    ],
     "SLV": [
       "low:"
     ],
@@ -93,8 +95,10 @@
       "low:"
     ],
     "WMT": [
-      "U&R:",
       "low:"
+    ],
+    "XYZ": [
+      "high:"
     ]
   }
 }
