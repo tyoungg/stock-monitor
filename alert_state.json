@@ -1,17 +1,23 @@
 {
-  "date": "2026-06-01",
+  "date": "2026-06-02",
   "state": {
     "AAPL": [
       "high:"
     ],
+    "ACN": [
+      "low:"
+    ],
     "AG": [
       "low:"
     ],
+    "ALNY": [
+      "low:"
+    ],
+    "AWK": [
+      "U&R:"
+    ],
     "BEN": [
       "high:"
-    ],
-    "BITI": [
-      "low:"
     ],
     "CAT": [
       "high:"
@@ -29,7 +35,6 @@
       "low:"
     ],
     "HE": [
-      "U&R:",
       "low:"
     ],
     "IBM": [
@@ -45,6 +50,7 @@
       "high:"
     ],
     "KR": [
+      "U&R:",
       "low:"
     ],
     "MATX": [
@@ -60,9 +66,11 @@
       "high:"
     ],
     "PSQ": [
+      "U&R:",
       "low:"
     ],
     "QID": [
+      "U&R:",
       "low:"
     ],
     "QQQ": [
@@ -78,6 +86,7 @@
       "high:"
     ],
     "SQQQ": [
+      "U&R:",
       "low:"
     ],
     "SYY": [
@@ -94,15 +103,6 @@
     ],
     "WMT": [
       "low:"
-    ],
-    "XYZ": [
-      "high:"
-    ],
-    "ALNY": [
-      "low:"
-    ],
-    "CBRL": [
-      "high:"
     ]
   }
 }
