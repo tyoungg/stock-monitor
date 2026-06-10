@@ -26,13 +26,15 @@
       "low:"
     ],
     "FIS": [
-      "low:"
+      "low:",
+      "U&R:"
     ],
     "GLD": [
       "low:"
     ],
     "HE": [
-      "low:"
+      "low:",
+      "U&R:"
     ],
     "IAG": [
       "U&R:"
@@ -90,7 +92,8 @@
       "high:"
     ],
     "UVXY": [
-      "low:"
+      "low:",
+      "up"
     ],
     "WMT": [
       "low:"
