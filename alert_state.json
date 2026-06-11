@@ -1,10 +1,11 @@
 {
-  "date": "2026-06-10",
+  "date": "2026-06-11",
   "state": {
     "ACN": [
       "low:"
     ],
     "AG": [
+      "U&R:",
       "low:"
     ],
     "ALNY": [
@@ -26,21 +27,13 @@
       "low:"
     ],
     "FIS": [
-      "low:",
-      "U&R:"
+      "low:"
     ],
     "GLD": [
       "low:"
     ],
     "HE": [
-      "low:",
-      "U&R:"
-    ],
-    "IAG": [
-      "U&R:"
-    ],
-    "IBM": [
-      "high:"
+      "low:"
     ],
     "ICVT": [
       "high:"
@@ -75,6 +68,9 @@
     "RTX": [
       "low:"
     ],
+    "SBUX": [
+      "high:"
+    ],
     "SLV": [
       "U&R:",
       "low:"
@@ -92,22 +88,16 @@
       "high:"
     ],
     "UVXY": [
-      "low:",
-      "up"
+      "low:"
     ],
     "WMT": [
       "low:"
     ],
     "WU": [
+      "U&R:",
       "low:"
     ],
     "CG": [
-      "low:"
-    ],
-    "SDIV": [
-      "low:"
-    ],
-    "TLTW": [
       "low:"
     ]
   }
