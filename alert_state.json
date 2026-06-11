@@ -27,10 +27,12 @@
       "low:"
     ],
     "FIS": [
-      "low:"
+      "low:",
+      "U&R:"
     ],
     "GLD": [
-      "low:"
+      "low:",
+      "U&R:"
     ],
     "HE": [
       "low:"
@@ -88,7 +90,8 @@
       "high:"
     ],
     "UVXY": [
-      "low:"
+      "low:",
+      "down"
     ],
     "WMT": [
       "low:"
@@ -99,6 +102,15 @@
     ],
     "CG": [
       "low:"
+    ],
+    "AAPL": [
+      "high:"
+    ],
+    "IBM": [
+      "high:"
+    ],
+    "IRM": [
+      "high:"
     ]
   }
 }
