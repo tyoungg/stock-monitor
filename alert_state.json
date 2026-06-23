@@ -98,19 +98,24 @@
       "high:"
     ],
     "UVXY": [
-      "low:"
+      "low:",
+      "up"
     ],
     "WMT": [
       "low:"
     ],
     "WU": [
-      "low:"
+      "low:",
+      "U&R:"
     ],
     "CG": [
       "low:"
     ],
     "ENOR": [
       "U&R:"
+    ],
+    "SBUX": [
+      "high:"
     ]
   }
 }
