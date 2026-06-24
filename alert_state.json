@@ -108,10 +108,20 @@
       "low:"
     ],
     "CG": [
-      "low:"
+      "low:",
+      "U&R:"
     ],
     "WEN": [
       "U&R:"
+    ],
+    "AAPL": [
+      "high:"
+    ],
+    "BITO": [
+      "low:"
+    ],
+    "XYZ": [
+      "high:"
     ]
   }
 }
