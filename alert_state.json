@@ -1,9 +1,6 @@
 {
-  "date": "2026-06-23",
+  "date": "2026-06-24",
   "state": {
-    "AAPL": [
-      "high:"
-    ],
     "ACN": [
       "low:"
     ],
@@ -79,6 +76,9 @@
     "RTX": [
       "low:"
     ],
+    "SBUX": [
+      "high:"
+    ],
     "SDIV": [
       "low:"
     ],
@@ -98,24 +98,20 @@
       "high:"
     ],
     "UVXY": [
-      "low:",
-      "up"
+      "low:"
     ],
     "WMT": [
       "low:"
     ],
     "WU": [
-      "low:",
-      "U&R:"
+      "U&R:",
+      "low:"
     ],
     "CG": [
       "low:"
     ],
-    "ENOR": [
+    "WEN": [
       "U&R:"
-    ],
-    "SBUX": [
-      "high:"
     ]
   }
 }
