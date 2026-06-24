@@ -118,10 +118,15 @@
       "high:"
     ],
     "BITO": [
-      "low:"
+      "low:",
+      "U&R:"
     ],
     "XYZ": [
       "high:"
+    ],
+    "FBTC": [
+      "U&R:",
+      "low:"
     ]
   }
 }
