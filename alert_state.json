@@ -1,6 +1,9 @@
 {
-  "date": "2026-07-01",
+  "date": "2026-07-02",
   "state": {
+    "AAPL": [
+      "high:"
+    ],
     "ACN": [
       "low:"
     ],
@@ -9,12 +12,6 @@
     ],
     "BEN": [
       "high:"
-    ],
-    "BITI": [
-      "down"
-    ],
-    "BITO": [
-      "low:"
     ],
     "BP": [
       "low:"
@@ -30,9 +27,6 @@
     ],
     "CSCO": [
       "high:"
-    ],
-    "FBTC": [
-      "low:"
     ],
     "FIS": [
       "low:"
@@ -56,8 +50,7 @@
       "high:"
     ],
     "KR": [
-      "low:",
-      "U&R:"
+      "low:"
     ],
     "MATX": [
       "high:"
@@ -83,9 +76,6 @@
     "SBUX": [
       "high:"
     ],
-    "SDIV": [
-      "low:"
-    ],
     "SLV": [
       "low:"
     ],
@@ -102,7 +92,11 @@
       "high:"
     ],
     "UVXY": [
+      "U&R:",
       "low:"
+    ],
+    "VTRS": [
+      "high:"
     ],
     "WMT": [
       "low:"
