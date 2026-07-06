@@ -1,5 +1,5 @@
 {
-  "date": "2026-07-02",
+  "date": "2026-07-06",
   "state": {
     "AAPL": [
       "high:"
@@ -73,8 +73,11 @@
     "QQQ": [
       "high:"
     ],
-    "SBUX": [
-      "high:"
+    "REMX": [
+      "U&R:"
+    ],
+    "SDIV": [
+      "low:"
     ],
     "SLV": [
       "low:"
@@ -92,7 +95,6 @@
       "high:"
     ],
     "UVXY": [
-      "U&R:",
       "low:"
     ],
     "VTRS": [
@@ -105,12 +107,6 @@
       "high:"
     ],
     "CG": [
-      "low:"
-    ],
-    "SDIV": [
-      "low:"
-    ],
-    "FAX": [
       "low:"
     ]
   }
