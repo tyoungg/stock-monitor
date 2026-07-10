@@ -1,5 +1,5 @@
 {
-  "date": "2026-07-09",
+  "date": "2026-07-10",
   "state": {
     "AAPL": [
       "high:"
@@ -13,6 +13,9 @@
     "BEN": [
       "high:"
     ],
+    "BITI": [
+      "low:"
+    ],
     "CAT": [
       "high:"
     ],
@@ -24,9 +27,6 @@
     ],
     "CSCO": [
       "high:"
-    ],
-    "DIS": [
-      "U&R:"
     ],
     "FIS": [
       "low:"
@@ -79,9 +79,6 @@
     "SBUX": [
       "high:"
     ],
-    "SDIV": [
-      "low:"
-    ],
     "SLV": [
       "low:"
     ],
@@ -103,13 +100,7 @@
     "UVXY": [
       "low:"
     ],
-    "VTRS": [
-      "high:"
-    ],
     "WMT": [
-      "low:"
-    ],
-    "WU": [
       "low:"
     ],
     "XYZ": [
