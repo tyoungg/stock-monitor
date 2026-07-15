@@ -1,5 +1,5 @@
 {
-  "date": "2026-07-14",
+  "date": "2026-07-15",
   "state": {
     "AAPL": [
       "high:"
@@ -30,6 +30,9 @@
     ],
     "CSCO": [
       "high:"
+    ],
+    "FAX": [
+      "low:"
     ],
     "FIS": [
       "low:"
@@ -100,17 +103,14 @@
     "UVXY": [
       "low:"
     ],
+    "VTRS": [
+      "high:"
+    ],
     "WMT": [
       "low:"
     ],
     "XYZ": [
       "high:"
-    ],
-    "CG": [
-      "low:"
-    ],
-    "FAX": [
-      "low:"
     ]
   }
 }
