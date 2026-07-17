@@ -1,5 +1,5 @@
 {
-  "date": "2026-07-16",
+  "date": "2026-07-17",
   "state": {
     "AAPL": [
       "high:"
@@ -15,9 +15,6 @@
     ],
     "BEN": [
       "high:"
-    ],
-    "BITI": [
-      "low:"
     ],
     "CAT": [
       "high:"
@@ -37,13 +34,16 @@
     "FIS": [
       "low:"
     ],
+    "GE": [
+      "high:"
+    ],
     "GLD": [
       "low:"
     ],
     "HE": [
       "low:"
     ],
-    "IBM": [
+    "IAG": [
       "U&R:"
     ],
     "ICVT": [
@@ -66,9 +66,6 @@
     ],
     "PBI": [
       "high:"
-    ],
-    "PLUG": [
-      "U&R:"
     ],
     "PSQ": [
       "low:"
