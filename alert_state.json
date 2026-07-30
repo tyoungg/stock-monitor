@@ -105,7 +105,8 @@
       "high:"
     ],
     "UVXY": [
-      "low:"
+      "low:",
+      "down"
     ],
     "VTRS": [
       "high:"
@@ -121,6 +122,9 @@
     ],
     "JPM": [
       "high:"
+    ],
+    "WU": [
+      "low:"
     ]
   }
 }
