@@ -1,5 +1,5 @@
 {
-  "date": "2026-08-03",
+  "date": "2026-08-04",
   "state": {
     "AAPL": [
       "high:"
@@ -44,12 +44,16 @@
       "low:"
     ],
     "HE": [
+      "U&R:",
       "low:"
     ],
     "ICVT": [
       "high:"
     ],
     "INTC": [
+      "high:"
+    ],
+    "IRM": [
       "high:"
     ],
     "JPM": [
@@ -94,9 +98,6 @@
     "SQQQ": [
       "low:"
     ],
-    "TLT": [
-      "low:"
-    ],
     "TLTW": [
       "low:"
     ],
@@ -120,9 +121,6 @@
       "low:"
     ],
     "XYZ": [
-      "high:"
-    ],
-    "IRM": [
       "high:"
     ]
   }
