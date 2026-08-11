@@ -1,5 +1,5 @@
 {
-  "date": "2026-08-10",
+  "date": "2026-08-11",
   "state": {
     "AAPL": [
       "high:"
@@ -30,9 +30,6 @@
     ],
     "CSCO": [
       "high:"
-    ],
-    "FAX": [
-      "low:"
     ],
     "FIS": [
       "low:"
@@ -82,9 +79,6 @@
     "REMX": [
       "low:"
     ],
-    "RTX": [
-      "high:"
-    ],
     "SBUX": [
       "high:"
     ],
@@ -110,8 +104,7 @@
       "high:"
     ],
     "UVXY": [
-      "low:",
-      "U&R:"
+      "low:"
     ],
     "WMT": [
       "low:"
