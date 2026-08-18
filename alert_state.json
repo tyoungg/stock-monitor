@@ -107,7 +107,8 @@
       "high:"
     ],
     "UVV": [
-      "low:"
+      "low:",
+      "U&R:"
     ],
     "UVXY": [
       "low:"
@@ -119,6 +120,9 @@
       "low:"
     ],
     "XYZ": [
+      "high:"
+    ],
+    "VTRS": [
       "high:"
     ]
   }
