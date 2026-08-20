@@ -1,5 +1,5 @@
 {
-  "date": "2026-08-19",
+  "date": "2026-08-20",
   "state": {
     "AAPL": [
       "high:"
@@ -79,9 +79,6 @@
     "REMX": [
       "low:"
     ],
-    "SBLK": [
-      "high:"
-    ],
     "SBUX": [
       "high:"
     ],
@@ -94,6 +91,9 @@
     "SQQQ": [
       "low:"
     ],
+    "TLT": [
+      "low:"
+    ],
     "TLTW": [
       "low:"
     ],
@@ -104,7 +104,6 @@
       "high:"
     ],
     "UVXY": [
-      "U&R:",
       "low:"
     ],
     "WMT": [
@@ -114,12 +113,6 @@
       "low:"
     ],
     "XYZ": [
-      "high:"
-    ],
-    "UVV": [
-      "low:"
-    ],
-    "VTRS": [
       "high:"
     ]
   }
