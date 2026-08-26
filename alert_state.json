@@ -1,5 +1,5 @@
 {
-  "date": "2026-08-25",
+  "date": "2026-08-26",
   "state": {
     "AAPL": [
       "high:"
@@ -31,19 +31,20 @@
     "CSCO": [
       "high:"
     ],
-    "FAX": [
-      "low:"
-    ],
     "FCX": [
       "high:"
     ],
     "FIS": [
       "low:"
     ],
+    "GE": [
+      "high:"
+    ],
     "GLD": [
       "low:"
     ],
     "HE": [
+      "U&R:",
       "low:"
     ],
     "ICVT": [
@@ -107,8 +108,10 @@
       "high:"
     ],
     "UVXY": [
-      "U&R:",
       "low:"
+    ],
+    "VTRS": [
+      "high:"
     ],
     "WMT": [
       "low:"
@@ -117,9 +120,6 @@
       "low:"
     ],
     "XYZ": [
-      "high:"
-    ],
-    "VTRS": [
       "high:"
     ]
   }
