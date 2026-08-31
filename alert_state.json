@@ -1,11 +1,8 @@
 {
-  "date": "2026-08-28",
+  "date": "2026-08-31",
   "state": {
     "AAPL": [
       "high:"
-    ],
-    "ACN": [
-      "low:"
     ],
     "AG": [
       "low:"
@@ -18,9 +15,6 @@
     ],
     "BITI": [
       "low:"
-    ],
-    "CAT": [
-      "high:"
     ],
     "CBRL": [
       "high:"
@@ -48,6 +42,9 @@
     ],
     "INTC": [
       "high:"
+    ],
+    "IRM": [
+      "U&R:"
     ],
     "JPM": [
       "high:"
@@ -94,6 +91,9 @@
     "SQQQ": [
       "low:"
     ],
+    "TLT": [
+      "low:"
+    ],
     "TLTW": [
       "low:"
     ],
@@ -104,10 +104,11 @@
       "high:"
     ],
     "UVXY": [
+      "U&R:",
       "low:"
     ],
-    "^VIX": [
-      "U&R:"
+    "VTRS": [
+      "high:"
     ],
     "WMT": [
       "low:"
