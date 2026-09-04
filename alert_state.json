@@ -110,7 +110,8 @@
       "low:"
     ],
     "^VIX": [
-      "low:"
+      "low:",
+      "U&R:"
     ],
     "VTRS": [
       "high:"
