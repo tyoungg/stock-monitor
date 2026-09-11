@@ -1,5 +1,5 @@
 {
-  "date": "2026-09-10",
+  "date": "2026-09-11",
   "state": {
     "AAPL": [
       "high:"
@@ -62,7 +62,6 @@
       "high:"
     ],
     "NKE": [
-      "U&R:",
       "low:"
     ],
     "PBI": [
@@ -96,17 +95,20 @@
       "low:"
     ],
     "TLTW": [
-      "low:",
-      "U&R:"
+      "low:"
     ],
     "UL": [
       "low:"
     ],
     "UNH": [
+      "U&R:",
       "high:"
     ],
     "UVXY": [
       "low:"
+    ],
+    "VTRS": [
+      "high:"
     ],
     "WMT": [
       "low:"
