@@ -1,11 +1,8 @@
 {
-  "date": "2026-09-11",
+  "date": "2026-09-14",
   "state": {
     "AAPL": [
       "high:"
-    ],
-    "ACN": [
-      "low:"
     ],
     "AG": [
       "low:"
@@ -18,9 +15,6 @@
     ],
     "BITI": [
       "low:"
-    ],
-    "CAT": [
-      "high:"
     ],
     "CBRL": [
       "high:"
@@ -49,8 +43,8 @@
     "INTC": [
       "high:"
     ],
-    "JPM": [
-      "high:"
+    "IRM": [
+      "U&R:"
     ],
     "KR": [
       "low:"
@@ -92,21 +86,21 @@
       "low:"
     ],
     "TLT": [
+      "U&R:",
       "low:"
     ],
     "TLTW": [
+      "U&R:",
       "low:"
     ],
     "UL": [
       "low:"
     ],
     "UNH": [
-      "U&R:",
       "high:"
     ],
     "UVXY": [
-      "low:",
-      "down"
+      "low:"
     ],
     "VTRS": [
       "high:"
