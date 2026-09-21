@@ -17,7 +17,8 @@
       "high:"
     ],
     "BITI": [
-      "low:"
+      "low:",
+      "down"
     ],
     "BITO": [
       "high:"
@@ -133,6 +134,9 @@
     ],
     "CG": [
       "low:"
+    ],
+    "FBTC": [
+      "high:"
     ]
   }
 }
