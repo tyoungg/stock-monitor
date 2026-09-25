@@ -32,7 +32,8 @@
       "high:"
     ],
     "FAX": [
-      "low:"
+      "low:",
+      "U&R:"
     ],
     "FIS": [
       "low:"
@@ -81,7 +82,8 @@
       "low:"
     ],
     "SDIV": [
-      "low:"
+      "low:",
+      "U&R:"
     ],
     "SLV": [
       "low:"
