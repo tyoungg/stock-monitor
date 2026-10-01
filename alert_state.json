@@ -1,17 +1,17 @@
 {
-  "date": "2026-09-30",
+  "date": "2026-10-01",
   "state": {
     "AAPL": [
       "high:"
-    ],
-    "ACN": [
-      "low:"
     ],
     "AG": [
       "low:"
     ],
     "ALNY": [
       "low:"
+    ],
+    "AWK": [
+      "U&R:"
     ],
     "BEN": [
       "high:"
@@ -25,11 +25,11 @@
     "CBRL": [
       "high:"
     ],
-    "^DJI": [
-      "high:"
-    ],
     "CSCO": [
       "high:"
+    ],
+    "CTVA": [
+      "low:"
     ],
     "FAX": [
       "low:"
@@ -41,13 +41,20 @@
       "low:"
     ],
     "HE": [
+      "U&R:",
       "low:"
     ],
     "ICVT": [
       "high:"
     ],
+    "IJR": [
+      "U&R:"
+    ],
     "INTC": [
       "high:"
+    ],
+    "IRM": [
+      "U&R:"
     ],
     "KR": [
       "low:"
@@ -59,11 +66,14 @@
       "high:"
     ],
     "NKE": [
-      "low:",
-      "U&R:"
+      "low:"
     ],
     "PBI": [
+      "U&R:",
       "high:"
+    ],
+    "PFF": [
+      "U&R:"
     ],
     "PSQ": [
       "low:"
@@ -77,8 +87,14 @@
     "REMX": [
       "low:"
     ],
+    "RF": [
+      "low:"
+    ],
     "RTX": [
       "low:"
+    ],
+    "SBLK": [
+      "high:"
     ],
     "SDIV": [
       "low:"
@@ -96,19 +112,22 @@
       "high:"
     ],
     "TLT": [
+      "U&R:",
       "low:"
     ],
     "TLTW": [
+      "U&R:",
       "low:"
     ],
     "UL": [
+      "U&R:",
       "low:"
     ],
     "UNH": [
-      "U&R:",
       "high:"
     ],
     "UVV": [
+      "U&R:",
       "low:"
     ],
     "UVXY": [
@@ -123,7 +142,10 @@
     "WU": [
       "low:"
     ],
-    "KKR": [
+    "XYZ": [
+      "U&R:"
+    ],
+    "BX": [
       "U&R:"
     ],
     "CG": [
