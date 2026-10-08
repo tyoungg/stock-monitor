@@ -1,5 +1,5 @@
 {
-  "date": "2026-10-07",
+  "date": "2026-10-08",
   "state": {
     "AAPL": [
       "high:"
@@ -10,14 +10,17 @@
     "ALNY": [
       "low:"
     ],
+    "AWK": [
+      "U&R:"
+    ],
     "BEN": [
       "high:"
     ],
     "BITI": [
       "low:"
     ],
-    "CAT": [
-      "high:"
+    "BP": [
+      "up"
     ],
     "CBRL": [
       "high:"
@@ -37,10 +40,14 @@
     "FIS": [
       "low:"
     ],
+    "GE": [
+      "U&R:"
+    ],
     "GLD": [
       "low:"
     ],
     "HE": [
+      "U&R:",
       "low:"
     ],
     "ICVT": [
@@ -76,11 +83,12 @@
     "REMX": [
       "low:"
     ],
-    "RF": [
+    "RTX": [
+      "U&R:",
       "low:"
     ],
-    "RTX": [
-      "low:"
+    "SBLK": [
+      "high:"
     ],
     "SDIV": [
       "low:"
@@ -98,11 +106,9 @@
       "high:"
     ],
     "TLT": [
-      "U&R:",
       "low:"
     ],
     "TLTW": [
-      "U&R:",
       "low:"
     ],
     "UL": [
@@ -126,13 +132,11 @@
     "WU": [
       "low:"
     ],
-    "XYZ": [
-      "high:"
-    ],
     "KKR": [
       "U&R:"
     ],
     "CG": [
+      "U&R:",
       "low:"
     ]
   }
