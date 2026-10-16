@@ -1,5 +1,5 @@
 {
-  "date": "2026-10-15",
+  "date": "2026-10-16",
   "state": {
     "AAPL": [
       "high:"
@@ -11,11 +11,13 @@
       "low:"
     ],
     "BEN": [
-      "U&R:",
       "high:"
     ],
     "BITI": [
       "low:"
+    ],
+    "BP": [
+      "high:"
     ],
     "CBRL": [
       "high:"
@@ -41,14 +43,8 @@
     "HE": [
       "low:"
     ],
-    "ICVT": [
-      "U&R:"
-    ],
     "INTC": [
       "high:"
-    ],
-    "IRM": [
-      "U&R:"
     ],
     "KR": [
       "low:"
@@ -65,9 +61,6 @@
     "PBI": [
       "high:"
     ],
-    "PLUG": [
-      "U&R:"
-    ],
     "PSQ": [
       "low:"
     ],
@@ -78,10 +71,6 @@
       "high:"
     ],
     "REMX": [
-      "U&R:",
-      "low:"
-    ],
-    "RTX": [
       "low:"
     ],
     "SDIV": [
@@ -112,11 +101,11 @@
       "high:"
     ],
     "UVV": [
-      "low:",
-      "U&R:"
+      "low:"
     ],
     "UVXY": [
-      "low:"
+      "low:",
+      "up"
     ],
     "VTRS": [
       "high:"
@@ -132,9 +121,6 @@
     ],
     "BX": [
       "low:"
-    ],
-    "APO": [
-      "U&R:"
     ],
     "CG": [
       "low:"
