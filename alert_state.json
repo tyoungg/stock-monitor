@@ -1,5 +1,5 @@
 {
-  "date": "2026-10-30",
+  "date": "2026-11-02",
   "state": {
     "AAPL": [
       "high:"
@@ -16,9 +16,6 @@
     "BITI": [
       "low:"
     ],
-    "BP": [
-      "high:"
-    ],
     "CAT": [
       "low:"
     ],
@@ -29,8 +26,7 @@
       "high:"
     ],
     "CSCO": [
-      "high:",
-      "U&R:"
+      "high:"
     ],
     "CTVA": [
       "low:"
@@ -95,9 +91,6 @@
     "TLTW": [
       "low:"
     ],
-    "UL": [
-      "low:"
-    ],
     "UNH": [
       "high:"
     ],
@@ -105,14 +98,10 @@
       "low:"
     ],
     "UVXY": [
-      "low:",
-      "up"
+      "low:"
     ],
     "VTRS": [
       "high:"
-    ],
-    "WMT": [
-      "low:"
     ],
     "WU": [
       "low:"
