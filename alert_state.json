@@ -1,5 +1,5 @@
 {
-  "date": "2026-11-04",
+  "date": "2026-11-05",
   "state": {
     "AAPL": [
       "high:"
@@ -9,6 +9,9 @@
     ],
     "ALNY": [
       "low:"
+    ],
+    "AWK": [
+      "high:"
     ],
     "BEN": [
       "high:"
@@ -34,10 +37,8 @@
     "FAX": [
       "low:"
     ],
-    "FCX": [
-      "U&R:"
-    ],
     "FIS": [
+      "U&R:",
       "low:"
     ],
     "GLD": [
@@ -46,14 +47,7 @@
     "HE": [
       "low:"
     ],
-    "INTC": [
-      "high:"
-    ],
-    "JPM": [
-      "high:"
-    ],
     "MATX": [
-      "U&R:",
       "high:"
     ],
     "MRVL": [
@@ -63,6 +57,7 @@
       "low:"
     ],
     "PBI": [
+      "U&R:",
       "high:"
     ],
     "PSQ": [
@@ -81,6 +76,7 @@
       "high:"
     ],
     "SDIV": [
+      "U&R:",
       "low:"
     ],
     "SLV": [
@@ -106,7 +102,10 @@
     ],
     "UVXY": [
       "low:",
-      "down"
+      "up"
+    ],
+    "^VIX": [
+      "high:"
     ],
     "VTRS": [
       "high:"
