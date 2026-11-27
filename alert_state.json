@@ -1,11 +1,10 @@
 {
-  "date": "2026-11-25",
+  "date": "2026-11-27",
   "state": {
     "AAPL": [
       "high:"
     ],
     "AG": [
-      "U&R:",
       "low:"
     ],
     "ALNY": [
@@ -21,7 +20,6 @@
       "high:"
     ],
     "BITO": [
-      "U&R:",
       "high:"
     ],
     "CAT": [
@@ -39,42 +37,29 @@
     "DIS": [
       "high:"
     ],
-    "ENOR": [
-      "U&R:"
-    ],
     "FAX": [
       "low:"
     ],
     "FBTC": [
-      "U&R:",
-      "low:"
-    ],
-    "FCX": [
-      "U&R:",
       "low:"
     ],
     "FIS": [
       "low:"
     ],
     "GLD": [
-      "U&R:",
       "low:"
     ],
     "HE": [
       "low:"
     ],
     "INTC": [
-      "U&R:"
-    ],
-    "IRM": [
-      "U&R:"
+      "high:"
     ],
     "MATX": [
       "U&R:",
       "high:"
     ],
     "MRVL": [
-      "U&R:",
       "high:"
     ],
     "NKE": [
@@ -83,11 +68,7 @@
     "PBI": [
       "high:"
     ],
-    "PFF": [
-      "low:"
-    ],
     "PLUG": [
-      "U&R:",
       "low:"
     ],
     "PSQ": [
@@ -100,7 +81,6 @@
       "high:"
     ],
     "REMX": [
-      "U&R:",
       "low:"
     ],
     "SBUX": [
@@ -110,7 +90,6 @@
       "low:"
     ],
     "SLV": [
-      "U&R:",
       "low:"
     ],
     "^SPX": [
@@ -118,9 +97,6 @@
     ],
     "SQQQ": [
       "low:"
-    ],
-    "TBT": [
-      "U&R:"
     ],
     "TLT": [
       "low:"
@@ -135,10 +111,8 @@
       "low:"
     ],
     "UVXY": [
-      "low:"
-    ],
-    "^VIX": [
-      "high:"
+      "low:",
+      "down"
     ],
     "VTRS": [
       "high:"
@@ -151,9 +125,6 @@
     ],
     "CG": [
       "low:"
-    ],
-    "MSFT": [
-      "U&R:"
     ]
   }
 }
